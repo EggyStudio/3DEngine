@@ -2,11 +2,16 @@ using Diagnostics;
 
 namespace Engine;
 
-/// <summary>The console command that writes the frame being drawn to a PNG file.</summary>
+/// <summary>The console commands that write the frame being drawn to a PNG file.</summary>
 internal static class ShotCommands
 {
     [Command("shot", "Writes the frame being drawn to a PNG file and answers once it is written, with the frame's number: shot <path>")]
-    internal static string Shot(string path)
+    internal static string Shot(string path) => Take(path, shown: false);
+
+    [Command("shot.shown", "Writes the frame being drawn as the window shows it to a PNG file, scaled onto the screen where borderless fullscreen draws at a size of its own, and answers once it is written: shot.shown <path>")]
+    internal static string ShotShown(string path) => Take(path, shown: true);
+
+    private static string Take(string path, bool shown)
     {
         var full = Path.GetFullPath(path);
         // The frame drawn after this command is the one the time counted at the top of it, so
@@ -14,7 +19,7 @@ internal static class ShotCommands
         var frame = ConsoleHost.Time.FrameCount;
         string? outcome = null;
         var written = false;
-        if (Screenshots.Request(ConsoleHost.World!, full, result => { outcome = result; written = true; }) is { } refusal)
+        if (Screenshots.Request(ConsoleHost.World!, full, result => { outcome = result; written = true; }, shown) is { } refusal)
         {
             ConsoleHost.Fail("NO_RENDERER", refusal);
             return refusal;

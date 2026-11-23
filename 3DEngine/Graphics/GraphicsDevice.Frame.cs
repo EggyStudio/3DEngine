@@ -60,6 +60,8 @@ internal sealed unsafe partial class GraphicsDevice
         var capture = RecordCapture(ctx.CommandBufferHandle, ctx.FrameIndex);
         var windowCaptures = RecordWindowCaptures(ctx.CommandBufferHandle);
         RecordKeptScreen(ctx.CommandBufferHandle, ctx.FrameIndex);
+        RecordShown(ctx.CommandBufferHandle, ctx.FrameIndex);
+        var shownCapture = RecordShownCapture(ctx.CommandBufferHandle, ctx.FrameIndex);
         _deviceApi.vkEndCommandBuffer(ctx.CommandBufferHandle).CheckResult();
 
         // The main window's image and each other window's acquired this frame, waited on before
@@ -68,7 +70,8 @@ internal sealed unsafe partial class GraphicsDevice
         var waitStages = stackalloc VkPipelineStageFlags[1 + windows];
         VkSemaphore* waitSemaphores = stackalloc VkSemaphore[1 + windows];
         VkSemaphore* signalSemaphores = stackalloc VkSemaphore[1 + windows];
-        waitStages[0] = VkPipelineStageFlags.ColorAttachmentOutput;
+        // Frames of a size of their own are copied onto the window's image, which waits as well.
+        waitStages[0] = VkPipelineStageFlags.ColorAttachmentOutput | (_scaled ? VkPipelineStageFlags.Transfer : 0);
         waitSemaphores[0] = _imageAvailableSemaphores[_currentFrame];
         signalSemaphores[0] = _renderFinishedSemaphores[ctx.FrameIndex];
         for (int i = 0; i < windows; i++)
@@ -101,6 +104,8 @@ internal sealed unsafe partial class GraphicsDevice
 
         if (capture is { } taken)
             FinishCapture(taken, _inFlightFences[_currentFrame]);
+        if (shownCapture is { } shownTaken)
+            FinishCapture(shownTaken, _inFlightFences[_currentFrame]);
         FinishWindowCaptures(windowCaptures, _inFlightFences[_currentFrame]);
 
         if (_offscreen)

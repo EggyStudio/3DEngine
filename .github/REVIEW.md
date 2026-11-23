@@ -909,3 +909,54 @@ between a pair's two reads parts that pair alone, and an observer that made the 
 part all five. Opening the file log partway through this layout leaves 4 pairs of 5 equal in 3 runs
 of 3. The scenes' tests failed in 0 of 20 local runs before the mend and 0 of 20 after, since a
 local run starts no app beside them. The whole suite passes, 2,560 tests.
+
+Item 312, the four window modes and borderless fullscreen's scaling.
+
+`window.mode` takes `Windowed`, `Borderless`, `BorderlessFullscreen` and `Fullscreen`, the names
+BevyCSharp takes. Borderless is a window with no frame of `window.width` by `window.height` in the
+middle of the screen `window.monitor` names, and covers that screen at its size or larger. Setting
+the width or the height while it is borderless resizes it at once and keeps it in the middle.
+Windowed takes back the frame, the size and the place a borderless window gave up, which SDL keeps
+of a window only across its own fullscreen. `ToggleBorderlessWindowed` is borderless at its
+monitor's size, so it covers and draws at the monitor's resolution, and gives the window back its
+size as it toggles off.
+
+Borderless fullscreen always covers. Where the size set is not the screen's, the device draws the
+frames into images of its own at that size, one to each of the swapchain's, and at the end of the
+frame one blit copies the frame onto the swapchain's image, cleared to black round it, before the
+present. At the screen's own size the frames are drawn into the swapchain's images with no copy.
+The interface is drawn with the picture, into the frame image, since the 2D batch and ImGui draw in
+the window's pass after the composite, and a split would need every pass to take a scene size
+apart from the window's. The program is given the size drawn at, in `GetScreenWidth`,
+`GetRenderWidth`, the cameras' aspect and ImGui's display size, and the pointer's place, its
+motion, a finger's place and `SetMousePosition`'s warp go through where the frame stands on the
+screen. Linear and Nearest keep the frame's shape, as large as fits with black round it, rather
+than stretch it onto a screen of another shape. On a screen with more pixels than points the frame
+is the size set times the window's pixels to a point, the pixels a window of that size has. A
+surface that cannot be copied into draws at the screen's size and says so in the log. `shot` and
+the captures read the frame as drawn, and `shot.shown` reads it as the screen shows it, which the
+sheet is made from.
+
+`window.scaling` is `Linear` by default, filtered and soft, `Nearest`, sharp, even at a whole ratio
+and uneven otherwise, which its help says, and `Integer`, the largest whole multiple that fits,
+centered with black round it, and as Linear where the frame is larger than the screen. It is kept
+in the settings file and given before the window is shown.
+
+`A_Borderless_Window_Takes_The_Size_Set_In_The_Middle_Of_Its_Screen_And_Covers_It_At_The_Screens_Size`
+holds the size, the place and the missing frame at 320 by 240 and at 400 by 240, the cover at the
+screen's size, and borderless fullscreen covering at any size. SDL's offscreen driver places no
+window and draws no frame, so the suite holds the size and the cover there, and the test holds the
+place and the frame on SDL's X11 driver in a headless mutter through Xwayland, as
+`E3D_TEST_VIDEO_DRIVER=x11` runs it, where all six window tests pass.
+`Borderless_Fullscreen_Draws_At_The_Size_Set_And_Scales_It_Onto_Its_Screen_As_Window_Scaling_Says`
+holds the frame drawn at 300 by 200, the offscreen screen's 1024 by 768 shown with the frame at
+each scaling's place, black round it, and the pointer at the frame's corner and middle landing on
+its first pixel and its middle. On Wayland the system places each window itself, so a borderless
+window stands where it puts it, which the guide says.
+
+The sheet `.github/assets/readings/2026-11-23-item-312-window-modes.webp` shows the four modes on a
+screen of 1920 by 1080, and the three scalings on one crop of the camera's help at 960 by 540, a
+ratio of 2, and at 1280 by 720, a ratio of 1.5. At 2 Nearest and Integer are the same pixels and
+Linear is soft, and at 1.5 Nearest's columns are uneven and Integer draws at 1. The run that made
+it reported no validation errors. The whole suite passes, 2,562 tests, the settings' test counting
+the window page's eighth setting and the file keeping it.

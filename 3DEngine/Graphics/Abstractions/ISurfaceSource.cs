@@ -16,9 +16,20 @@ internal interface ISurfaceSource
     /// <returns>The created <c>VkSurfaceKHR</c> handle as a native integer.</returns>
     nint CreateSurfaceHandle(nint instanceHandle);
 
-    /// <summary>Returns the current drawable size of the surface in pixels.</summary>
+    /// <summary>Returns the size in pixels the frames are drawn at.</summary>
     /// <returns>A tuple of (Width, Height) in pixels.</returns>
     (uint Width, uint Height) GetDrawableSize();
+
+    /// <summary>
+    /// The size in pixels of the window's own images, which the frames are scaled onto as
+    /// <see cref="Scaling"/> says where it is not <see cref="GetDrawableSize"/>.
+    /// </summary>
+    (uint Width, uint Height) GetShownSize() => GetDrawableSize();
+
+    /// <summary>
+    /// How the frames are scaled onto the window's images where the two sizes differ.
+    /// </summary>
+    WindowScaling Scaling => WindowScaling.Linear;
 
     /// <summary>
     /// Whether there is no window at all, so the device draws into images of its own and

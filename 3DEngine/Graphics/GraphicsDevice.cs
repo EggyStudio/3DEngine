@@ -239,6 +239,12 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
     private bool _offscreen;
     private VkImageLayout _finalLayout = VkImageLayout.PresentSrcKHR;
     private VkDeviceMemory[] _offscreenMemory = [];
+
+    // With frames drawn at a size of their own, the window's images they are copied onto as they
+    // are presented, and those images' size, the frame images then the device's own as offscreen.
+    private bool _scaled;
+    private VkImage[] _shownImages = [];
+    private VkExtent2D _shownExtent;
     private uint _offscreenNext;
     private VkInstanceApi _instanceApi = null!;
     private VkDeviceApi _deviceApi = null!;

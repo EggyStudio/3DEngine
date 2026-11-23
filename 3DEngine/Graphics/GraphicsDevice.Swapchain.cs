@@ -26,7 +26,17 @@ internal sealed unsafe partial class GraphicsDevice
         var surfaceFormat = ChooseSwapchainFormat(support.Formats);
         _swapchainCopyable = (support.Capabilities.supportedUsageFlags & VkImageUsageFlags.TransferSrc) != 0;
         var presentMode = ChoosePresentMode(support.PresentModes);
-        var extent = ChooseSwapExtent(support.Capabilities, (uint)drawable.Width, (uint)drawable.Height);
+        var shown = _surfaceSource.GetShownSize();
+        var extent = ChooseSwapExtent(support.Capabilities, Math.Max(1, shown.Width), Math.Max(1, shown.Height));
+        // Frames of a size of their own are drawn into images the device owns and copied onto the
+        // window's, which a surface that cannot be copied into leaves at the window's size.
+        _scaled = (drawable.Width, drawable.Height) != (extent.width, extent.height);
+        if (_scaled && (support.Capabilities.supportedUsageFlags & VkImageUsageFlags.TransferDst) == 0)
+        {
+            Logger.Warn($"The window's surface cannot be copied into, so frames are drawn at its {extent.width}x{extent.height} rather than {drawable.Width}x{drawable.Height}.");
+            _scaled = false;
+        }
+        _finalLayout = _scaled ? VkImageLayout.TransferSrcOptimal : VkImageLayout.PresentSrcKHR;
         Logger.Debug($"Chosen surface format: {surfaceFormat.format}, color space: {surfaceFormat.colorSpace}");
         // Said at Info, since how a window presents decides whether presenting waits.
         Logger.Info($"Present mode {presentMode}, of {string.Join(", ", support.PresentModes)}, with vsync {(Vsync ? "on" : "off")}.");
@@ -47,9 +57,11 @@ internal sealed unsafe partial class GraphicsDevice
             imageColorSpace = surfaceFormat.colorSpace,
             imageExtent = extent,
             imageArrayLayers = 1,
-            // Copyable where the surface allows it, so a frame can be captured (RequestCapture).
+            // Copyable where the surface allows it, so a frame can be captured (RequestCapture),
+            // and copied into where the frames are drawn at a size of their own.
             imageUsage = VkImageUsageFlags.ColorAttachment
-                         | (_swapchainCopyable ? VkImageUsageFlags.TransferSrc : 0),
+                         | (_swapchainCopyable ? VkImageUsageFlags.TransferSrc : 0)
+                         | (_scaled ? VkImageUsageFlags.TransferDst : 0),
             preTransform = support.Capabilities.currentTransform,
             compositeAlpha = ChooseCompositeAlpha(support.Capabilities.supportedCompositeAlpha),
             presentMode = presentMode,
@@ -80,6 +92,18 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkGetSwapchainImagesKHR(_swapchain, images).CheckResult();
         _swapchainImages = images.ToArray();
         Logger.Debug($"Retrieved {_swapchainImages.Length} swapchain images.");
+        if (_scaled)
+        {
+            // One frame image to each of the window's, drawn into as the window's would be and
+            // copied onto it as it is presented.
+            _shownImages = _swapchainImages;
+            _shownExtent = extent;
+            _shownCopyable = _swapchainCopyable;
+            _swapchainExtent = new VkExtent2D(drawable.Width, drawable.Height);
+            _swapchainCopyable = true;
+            CreateOwnImages(drawable.Width, drawable.Height, _shownImages.Length);
+            Logger.Info($"Frames drawn at {drawable.Width}x{drawable.Height} and scaled onto the window's {extent.width}x{extent.height}.");
+        }
 
         CreateFrameResources();
     }
@@ -144,7 +168,8 @@ internal sealed unsafe partial class GraphicsDevice
         }
         if (_swapchain.Handle != 0)
             _deviceApi.vkDestroySwapchainKHR(_swapchain);
-        if (_offscreen)
+        _shownImages = [];
+        if (_offscreen || _scaled)
         {
             foreach (var image in _swapchainImages)
                 if (image.Handle != 0)
@@ -198,9 +223,16 @@ internal sealed unsafe partial class GraphicsDevice
         _swapchainFormat = VkFormat.B8G8R8A8Unorm;
         _swapchainExtent = new VkExtent2D(width, height);
         _swapchainCopyable = true;
-        _swapchainImages = new VkImage[MaxFramesInFlight];
-        _offscreenMemory = new VkDeviceMemory[MaxFramesInFlight];
-        for (int i = 0; i < MaxFramesInFlight; i++)
+        CreateOwnImages(width, height, MaxFramesInFlight);
+        Logger.Info($"Offscreen frames: {MaxFramesInFlight} images of {width}x{height}, no window.");
+    }
+
+    // Frame images the device owns, in the swapchain's format, drawable and copyable.
+    private void CreateOwnImages(uint width, uint height, int count)
+    {
+        _swapchainImages = new VkImage[count];
+        _offscreenMemory = new VkDeviceMemory[count];
+        for (int i = 0; i < count; i++)
         {
             VkImageCreateInfo info = new()
             {
@@ -227,7 +259,6 @@ internal sealed unsafe partial class GraphicsDevice
             DeviceObjects.Made(DeviceObjects.Kind.Memory);
             _deviceApi.vkBindImageMemory(_swapchainImages[i], _offscreenMemory[i], 0).CheckResult();
         }
-        Logger.Info($"Offscreen frames: {MaxFramesInFlight} images of {width}x{height}, no window.");
     }
 
     /// <summary>Queries surface capabilities, supported formats, and present modes for swapchain creation.</summary>

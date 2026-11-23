@@ -60,7 +60,7 @@ internal static class WindowCommands
         if ((flags & SDL.WindowFlags.InputFocus) != 0) words.Add("focused");
         if ((flags & SDL.WindowFlags.Minimized) != 0) words.Add("minimized");
         if ((flags & SDL.WindowFlags.Maximized) != 0) words.Add("maximized");
-        if (WindowModes.Of(window.Sdl.Window) is not WindowMode.Windowed and var mode) words.Add(WindowModes.Word(mode));
+        if (WindowModes.Of(window) is not WindowMode.Windowed and var mode) words.Add(WindowModes.Word(mode));
         words.Add($"{window.Sdl.Width}x{window.Sdl.Height}");
         return string.Join(" ", words);
     }

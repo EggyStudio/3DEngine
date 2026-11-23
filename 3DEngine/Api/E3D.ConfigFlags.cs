@@ -69,7 +69,7 @@ public static partial class E3D
         bool Has(ConfigFlags flag) => flag switch
         {
             ConfigFlags.FullscreenMode => IsWindowFullscreen(),
-            ConfigFlags.BorderlessWindowedMode => WindowModes.Of(w) == WindowMode.Borderless,
+            ConfigFlags.BorderlessWindowedMode => Window is { } window && WindowModes.Of(window) == WindowMode.Borderless,
             ConfigFlags.WindowResizable => (sdl & SDL.WindowFlags.Resizable) != 0,
             ConfigFlags.WindowUndecorated => (sdl & SDL.WindowFlags.Borderless) != 0,
             ConfigFlags.WindowHidden => (sdl & SDL.WindowFlags.Hidden) != 0,

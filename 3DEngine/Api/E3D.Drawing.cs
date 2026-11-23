@@ -234,8 +234,7 @@ public static partial class E3D
     private static ScissorRect PixelsOf(int x, int y, int width, int height)
     {
         var (scaleX, scaleY) = (1f, 1f);
-        if (!_target.IsValid && TryRes<AppWindow>(out var window)
-            && SDL3.SDL.GetWindowSizeInPixels(window.Sdl.Window, out var pixelsWide, out var pixelsHigh)
+        if (!_target.IsValid && TryRes<AppWindow>(out var window) && window.Sdl.FramePixels is var (pixelsWide, pixelsHigh)
             && GetScreenWidth() > 0 && GetScreenHeight() > 0)
             (scaleX, scaleY) = ((float)pixelsWide / GetScreenWidth(), (float)pixelsHigh / GetScreenHeight());
         return new ScissorRect((int)(x * scaleX), (int)(y * scaleY), (int)(width * scaleX), (int)(height * scaleY));

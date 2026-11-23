@@ -9,8 +9,8 @@ internal static class Screenshots
     /// with the reason it was not.
     /// </summary>
     /// <returns>Why a capture cannot be taken at all, or <c>null</c> when it was asked for.</returns>
-    public static string? Request(World world, string path, Action<string?>? done = null) =>
-        Capture(world, (rgba, width, height) =>
+    public static string? Request(World world, string path, Action<string?>? done = null, bool shown = false) =>
+        Capture(world, shown, (rgba, width, height) =>
         {
             try
             {
@@ -29,7 +29,11 @@ internal static class Screenshots
     /// screenshot and <c>frame.read</c> take.
     /// </summary>
     /// <returns>Why a capture cannot be taken at all, or <c>null</c> when it was asked for.</returns>
-    public static string? Capture(World world, Action<byte[], int, int> captured)
+    public static string? Capture(World world, Action<byte[], int, int> captured) => Capture(world, false, captured);
+
+    // The frame as drawn, or with shown as the window shows it, scaled onto a window covering its
+    // screen where the frames are drawn at a size of their own.
+    private static string? Capture(World world, bool shown, Action<byte[], int, int> captured)
     {
         if (!world.TryGetResource<Renderer>(out var renderer) || !renderer.Context.IsInitialized)
             return "There is no renderer to capture from (a headless run draws nothing, and --offscreen draws with no window).";
@@ -38,7 +42,8 @@ internal static class Screenshots
 
         try
         {
-            device.RequestCapture(captured);
+            if (shown) device.RequestShownCapture(captured);
+            else device.RequestCapture(captured);
             return null;
         }
         catch (NotSupportedException error)

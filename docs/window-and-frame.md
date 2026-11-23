@@ -123,10 +123,11 @@ an offscreen run the images it draws into, which is how a settings screen's reso
 A window dragged larger is drawn again at its new size once it has kept that size for 0.15 s of
 frames, and one sized before the first frame draws that frame at the new size, so a game applying
 its saved resolution right after `InitWindow` shows its loading screen at it. `SetWindowIcon` gives the window an icon from an image, `SetWindowOpacity` makes it see-through,
-and `ToggleBorderlessWindowed` covers the monitor with no border and no change of display mode,
-which most games offer as their fullscreen. `ToggleFullscreen` takes the monitor's own mode, or the
-one `SetWindowFullscreenMode` chose, and both go as the `window.mode` setting goes, so
-`IsWindowFullscreen` and the setting read the same mode.
+and `ToggleBorderlessWindowed` makes the window one with no frame as large as the monitor, which
+covers it at the monitor's resolution with no change of display mode, as most games offer their
+fullscreen, and gives the window back its size as it toggles off. `ToggleFullscreen` takes the
+monitor's own mode, or the one `SetWindowFullscreenMode` chose, and both go as the `window.mode`
+setting goes, so `IsWindowFullscreen` and the setting read the same mode.
 
 `GetScreenWidth` and `GetScreenHeight` give the window's size, which a program reads each frame
 rather than keeping, since a resizable window changes it. On a monitor that doubles its pixels, with
@@ -356,7 +357,7 @@ it, a page of them for each first word of their names.
 | `ao` | `method` (`Horizons` or `Circular`), `samples`, `filter`, `slope`, `backface`, `boost`, `screen`, `size` (`Half` or `Full`) |
 | `gi` | `rays`, `passes`, the parts a reading leaves out, `history`, `filter`, `screen`, `merge`, `again`, `follow`, `glow`, `through`, `albedo`, `specular`, `normals`, `spread`, `points`, with `meshes`, `cascade`, and the view `show` with `show_cascade` |
 | `field` | `show`, the cascade of the scene's distance field drawn over the window |
-| `window` | `mode` (`Windowed`, `Borderless` or `Fullscreen`), `resizable`, `width` and `height` as a window, `monitor`, `vsync`, and `samples`, which only reads |
+| `window` | `mode` (`Windowed`, `Borderless`, `BorderlessFullscreen` or `Fullscreen`), `scaling` (`Linear`, `Nearest` or `Integer`), `resizable`, `width` and `height` as a window, `monitor`, `vsync`, and `samples`, which only reads |
 | `imgui` | `viewports` |
 | `time` | `frame`, the seconds a frame moves time by, `E3D_FRAME_TIME` |
 | `live` | `reload`, `E3D_LIVE` |
@@ -378,17 +379,30 @@ flag or its variable. `run.seed` reads the seed the window gave the random gener
 with no window or `imgui.viewports` where SDL's driver places no window on the desktop, is refused
 with the reason, and the value stays as it was.
 
-The `window` page acts on the window at once. `window.mode borderless` covers the screen the window
-is on with no border and no change of the screen's own mode, `window.mode fullscreen` takes the
-screen's mode, and `window.mode windowed` gives the window back its size as a window. A mode the
-system refuses answers with its reason in the console and keeps the mode before. `window.width` and
-`window.height` are that size, kept while the window covers its screen and taken as it leaves it,
-so a player sets the size of the window while it is fullscreen. `window.resizable` says whether its
-edges can be dragged, and `window.monitor` moves it, centered, to another screen by its number from
-0, a fullscreen window staying fullscreen there, and only reads where there is one screen. While
-the window is hidden, as `--hidden` asks, the whole page only reads and the settings file keeps
-the page's lines as they stand, and in a run with no window the window's own settings are refused
-with the reason.
+The `window` page acts on the window at once. `window.mode borderless` makes a window with no frame
+of `window.width` by `window.height` in the middle of the screen it is on, with the desktop round
+it, and a size as large as the screen or larger covers the screen, so a player on a large screen
+sets a smaller size and has a window of exactly that size, one pixel to one pixel. Setting the width
+or the height while it is borderless resizes it at once and keeps it in the middle. `window.mode
+borderlessfullscreen` always covers the screen with no frame and no change of the screen's own mode,
+and draws at `window.width` by `window.height`, copied onto the screen at the end of each frame, so
+a player on a large screen draws fewer pixels and still fills it. `window.scaling` says how,
+`linear` filtered and soft at any size, `nearest` sharp, even at a whole ratio and uneven otherwise,
+and `integer` at the largest whole multiple that fits, each pixel a square of the same size. Each
+keeps the frame's shape, as large as fits in the middle with black round it. The program is given
+the size drawn at, so `GetScreenWidth`, the cameras and the pointer are in the frame's pixels, and
+the interface is drawn into the frame with the rest and scaled with it. At the screen's own size the
+frames are drawn at it with no copy. `window.mode fullscreen` takes the screen's mode, and
+`window.mode windowed` gives the window back its frame, its size and its place as a window. A mode
+the system refuses answers with its reason in the console and keeps the mode before. `window.width`
+and `window.height` are that size, kept while the window covers its screen and taken as it leaves
+it, so a player sets the size of the window while it is fullscreen. On Wayland the system places
+each window itself, so a borderless window stands where it puts it. `window.resizable` says whether
+its edges can be dragged, and `window.monitor` moves it, centered, to another screen by its number
+from 0, a fullscreen window staying fullscreen there, and only reads where there is one screen.
+While the window is hidden, as `--hidden` asks, the whole page only reads and the settings file
+keeps the page's lines as they stand, and in a run with no window the window's own settings are
+refused with the reason.
 
 A program whose window is shown keeps the settings a player chooses for the machine, the five keys,
 the `window` page but `samples`, and `imgui.viewports`, in one file, `settings.txt` in a folder of

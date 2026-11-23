@@ -6,6 +6,31 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-23
+
+![](.github/assets/readings/2026-11-23-item-311-turn-flicker.webp)
+scenes_sponza offscreen at 1280 by 720 at High, at 12:00 in the atrium, turning 0.1 degrees a frame
+through 33 frames recorded in a row, on white under its title, the rows named at their left as
+before the mend, after it and with the screen probes off. On the left the 17th frame at half size,
+in the middle its change from the 16th carried along the turn, white for none and black for 24
+levels or more, each 2 by 2 block's largest, and on the right the change in the orange box at full
+size, the far arches and the columns on the left. Under each row the share of the pixels that move 3
+levels or more, 9.08%, 8.03% and 6.80% through the turn, and in the box 10.61%, 8.76% and 5.91% in
+the pair shown.
+
+![](.github/assets/readings/2026-11-23-item-312-window-modes.webp)
+The example core_3d_camera_first_person shown on SDL's X11 driver through the Xwayland of a headless
+mutter with one screen of 1920 by 1080, on white under its title with its rows and columns named.
+The first row is window.mode's four modes with the window set to 960 by 540, each frame as the
+engine captured it set on the gray outline of the screen at the place SDL gave, all at one scale,
+windowed at 560, 334 with a dark band standing for the frame mutter draws, borderless at 480, 270 in
+the middle with no frame, borderless fullscreen drawn at 960 by 540 and scaled onto the whole screen
+as shot.shown captured it, and fullscreen at the screen's own mode. The two rows under it are
+window.scaling's Linear, Nearest and Integer in borderless fullscreen drawn at 960 by 540, a ratio
+of 2, and at 1280 by 720, a ratio of 1.5, each a crop of the screen over the top of the camera's
+help with each screen pixel drawn as two by two, Linear soft at both, Nearest even at 2 and uneven
+at 1.5, and Integer even at 2 and at 1, the largest whole multiple that fits at 1.5.
+
 ## 2026-11-22
 
 ![](.github/assets/readings/2026-11-22-item-302-console-overlay.webp)

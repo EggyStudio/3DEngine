@@ -177,6 +177,7 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   void RecordSkin(ICommandBuffer commands, GpuSkin skin, ReadOnlySpan<Matrix4x4> joints, ReadOnlySpan<float> morphWeights = default)
   void ReleaseReadback(ShaderReadbackTicket ticket)
   void RequestCapture(Action<byte[], int, int> onCaptured)
+  void RequestShownCapture(Action<byte[], int, int> onCaptured)
   void SetScissor(ICommandBuffer commandBuffer, int x, int y, uint width, uint height)
   void SetViewport(ICommandBuffer commandBuffer, float x, float y, float width, float height, float minDepth, float maxDepth)
   void SubmitAndWait(ICommandBuffer commandBuffer)

@@ -22,7 +22,7 @@ public static partial class E3D
     /// the flag for it, rather than as <see cref="ToggleBorderlessWindowed"/> covers it, as raylib's
     /// tells the two apart, and as the <c>window.mode</c> setting reads <c>fullscreen</c>.
     /// </summary>
-    public static bool IsWindowFullscreen() => Window is { } window && WindowModes.Of(window.Sdl.Window) == WindowMode.Fullscreen;
+    public static bool IsWindowFullscreen() => Window is { } window && WindowModes.Of(window) == WindowMode.Fullscreen;
 
     // The open window, or none.
     private static AppWindow? Window => _app?.World.TryGetResource<AppWindow>(out var window) == true ? window : null;
@@ -230,7 +230,7 @@ public static partial class E3D
 
     private static (int Width, int Height) RenderSize()
     {
-        if (WindowHandle is not 0 and var w && SDL.GetWindowSizeInPixels(w, out var width, out var height)) return (width, height);
+        if (WindowHandle is not 0 && TryRes<AppWindow>(out var window)) return window.Sdl.FramePixels;
         return (GetScreenWidth(), GetScreenHeight());
     }
 
@@ -242,15 +242,34 @@ public static partial class E3D
         return new System.Numerics.Vector2(bounds.X, bounds.Y);
     }
 
+    // The size the window had before ToggleBorderlessWindowed made it as large as its monitor.
+    private static (int Width, int Height)? _sizeBeforeBorderless;
+
     /// <summary>
-    /// Switches between a window and a borderless one covering the monitor at its desktop mode,
-    /// which changes no display mode and so switches at once.
+    /// Switches between a window and a borderless one as large as the monitor, which covers it at
+    /// its desktop mode, changing no display mode and so switching at once, and gives the window
+    /// back the size it had.
     /// </summary>
+    /// <remarks>
+    /// The borderless window is the <c>window.mode</c> setting's <c>borderless</c> at the
+    /// monitor's size, which draws at the monitor's resolution as raylib's does.
+    /// </remarks>
     public static void ToggleBorderlessWindowed()
     {
+        if (Window is not { } window) return;
+        if (WindowModes.Of(window) == WindowMode.Borderless)
+        {
+            if (WindowModes.Set(window, WindowMode.Windowed, _sizeBeforeBorderless) is { } refused)
+                ApiLogger.Warn($"{nameof(ToggleBorderlessWindowed)}: {refused}");
+            _sizeBeforeBorderless = null;
+            return;
+        }
         // From fullscreen it goes to borderless, as raylib's leaves fullscreen first.
-        if (Window is { } window)
-            Cover(window, WindowModes.Of(window.Sdl.Window) == WindowMode.Borderless ? WindowMode.Windowed : WindowMode.Borderless, nameof(ToggleBorderlessWindowed));
+        if (!SDL.GetDisplayBounds(SDL.GetDisplayForWindow(window.Sdl.Window), out var monitor)) return;
+        var before = WindowModes.WindowedSize(window);
+        if (WindowModes.Set(window, WindowMode.Borderless, (monitor.W, monitor.H)) is { } covered)
+            ApiLogger.Warn($"{nameof(ToggleBorderlessWindowed)}: {covered}");
+        else _sizeBeforeBorderless = before;
     }
 
     /// <summary>How many pixels the window's content has for each unit of its size, 1 on most monitors and 2 on a doubled one.</summary>

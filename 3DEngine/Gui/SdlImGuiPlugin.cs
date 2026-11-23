@@ -116,6 +116,7 @@ internal sealed class SdlImGuiPlugin : IPlugin
 
         var appWindow = app.World.Resource<AppWindow>();
         appWindow.SDLEvent += SdlImGuiInput.ProcessEvent;
+        SdlImGuiInput.Window = appWindow.Sdl;
         SdlImGuiIme.Install(sdlWindow.Window);
         if (isVulkan) SdlImGuiViewports.Install(sdlWindow.Window, cfg.Hidden);
 
@@ -133,7 +134,7 @@ internal sealed class SdlImGuiPlugin : IPlugin
                 // Set framebuffer scale for Vulkan mode (SDL renderer sets it in NewFrame).
                 if (isVulkan)
                 {
-                    SDL.GetWindowSizeInPixels(appWindow.Sdl.Window, out int pxW, out int pxH);
+                    var (pxW, pxH) = appWindow.Sdl.FramePixels;
                     if (w > 0 && h > 0)
                     {
                         io.DisplayFramebufferScale = new Vector2(pxW / (float)w, pxH / (float)h);
@@ -195,6 +196,7 @@ internal sealed class SdlImGuiPlugin : IPlugin
         app.AddSystem(Stage.Cleanup, new SystemDescriptor(world =>
             {
                 world.Resource<AppWindow>().SDLEvent -= SdlImGuiInput.ProcessEvent;
+                SdlImGuiInput.Window = null;
             
                 if (world.TryGetResource<SdlImGuiRenderer>(out var imguiRenderer))
                 {

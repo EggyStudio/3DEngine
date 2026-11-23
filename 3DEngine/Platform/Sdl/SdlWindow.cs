@@ -45,6 +45,109 @@ internal sealed class SdlWindow
     public (int W, int H) Size => (Width, Height);
 
     /// <summary>
+    /// The size in the window's own units the frames are drawn at while it is not the window's, as
+    /// in borderless fullscreen at window.width by window.height, scaled onto the window as
+    /// <see cref="Scaling"/> says, or null while the frames are drawn at the window's size.
+    /// </summary>
+    public (int Width, int Height)? Picture { get; internal set; }
+
+    /// <summary>How frames drawn at <see cref="Picture"/> are scaled onto the window.</summary>
+    public WindowScaling Scaling { get; internal set; }
+
+    /// <summary>The window's size in its pixels, which the images it shows are made at.</summary>
+    public (int Width, int Height) Pixels
+    {
+        get
+        {
+            if (SDL.GetWindowSizeInPixels(Window, out var width, out var height) && width > 0 && height > 0) return (width, height);
+            SDL.GetWindowSize(Window, out width, out height);
+            return (Math.Max(1, width), Math.Max(1, height));
+        }
+    }
+
+    /// <summary>
+    /// The size in pixels the frames are drawn at, <see cref="Picture"/> at the window's pixels to
+    /// a unit, or the window's own.
+    /// </summary>
+    public (int Width, int Height) FramePixels
+    {
+        get
+        {
+            if (Picture is not { } picture) return Pixels;
+            var density = SDL.GetWindowPixelDensity(Window);
+            if (density <= 0f) density = 1f;
+            return (Math.Max(1, (int)MathF.Round(picture.Width * density)), Math.Max(1, (int)MathF.Round(picture.Height * density)));
+        }
+    }
+
+    /// <summary>
+    /// A point of the window in its own units, as SDL's events give it, as the point of the frames
+    /// under it in <see cref="Picture"/>'s units, the same point while the frames are drawn at the
+    /// window's size.
+    /// </summary>
+    public (float X, float Y) ToFrame(float x, float y)
+    {
+        if (Picture is not { } picture) return (x, y);
+        var (density, placed) = (Density, Placed);
+        return ((x * density - placed.X) * picture.Width / placed.Width, (y * density - placed.Y) * picture.Height / placed.Height);
+    }
+
+    /// <summary>
+    /// A distance the pointer moved over the window, in its own units, as one over the frames.
+    /// </summary>
+    public (float X, float Y) ToFrameDistance(float x, float y)
+    {
+        if (Picture is not { } picture) return (x, y);
+        var (density, placed) = (Density, Placed);
+        return (x * density * picture.Width / placed.Width, y * density * picture.Height / placed.Height);
+    }
+
+    /// <summary>
+    /// A point of the frames in <see cref="Picture"/>'s units as the point of the window over it.
+    /// </summary>
+    public (float X, float Y) ToWindow(float x, float y)
+    {
+        if (Picture is not { } picture) return (x, y);
+        var (density, placed) = (Density, Placed);
+        return ((x * placed.Width / picture.Width + placed.X) / density, (y * placed.Height / picture.Height + placed.Y) / density);
+    }
+
+    /// <summary>
+    /// A finger's place, which SDL gives as a fraction of the window, in the frames' units.
+    /// </summary>
+    public (float X, float Y) TouchToFrame(float x, float y)
+    {
+        if (Picture is null) return (x * Width, y * Height);
+        SDL.GetWindowSize(Window, out var width, out var height);
+        return ToFrame(x * width, y * height);
+    }
+
+    // The window's pixels to one of its units.
+    private float Density
+    {
+        get
+        {
+            SDL.GetWindowSize(Window, out var width, out _);
+            return width > 0 ? Pixels.Width / (float)width : 1f;
+        }
+    }
+
+    /// <summary>
+    /// Where the frames stand on the window in its pixels, the whole window while they are drawn
+    /// at its size.
+    /// </summary>
+    public (int X, int Y, int Width, int Height, bool Filtered) Placed
+    {
+        get
+        {
+            var shown = Pixels;
+            if (Picture is null) return (0, 0, shown.Width, shown.Height, false);
+            var frame = FramePixels;
+            return Placement.Of(frame.Width, frame.Height, shown.Width, shown.Height, Scaling);
+        }
+    }
+
+    /// <summary>
     /// Starts SDL's video through <paramref name="start"/>, on Linux asking for X11 first through
     /// <paramref name="hint"/>, and where that start fails, asking again with the hint cleared
     /// through <paramref name="clear"/>, which <paramref name="fellBack"/> then says. A driver

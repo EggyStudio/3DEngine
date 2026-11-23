@@ -29,6 +29,12 @@ internal static class SdlImGuiInput
         ImGui.GetIO().AddMousePosEvent(x + origin.X, y + origin.Y);
     }
 
+    /// <summary>
+    /// The program's window, whose pointer positions are turned into the frames' where it draws
+    /// them at a size of their own, or null before ImGui is given its events.
+    /// </summary>
+    internal static SdlWindow? Window { get; set; }
+
     /// <summary>Processes an SDL event and updates the ImGui input state accordingly.</summary>
     /// <param name="e">The SDL event to process.</param>
     public static void ProcessEvent(SDL.Event e)
@@ -41,6 +47,8 @@ internal static class SdlImGuiInput
                 // With viewports on, ImGui measures from the desktop, so a position in the window
                 // the event came from, the main one or a viewport's, is moved by where that window is.
                 var at = new Vector2(e.Motion.X, e.Motion.Y);
+                if (Window is { } main && e.Motion.WindowID == SDL.GetWindowID(main.Window))
+                    (at.X, at.Y) = main.ToFrame(at.X, at.Y);
                 if (SdlImGuiViewports.Enabled) at += SdlImGuiViewports.PositionOf(e.Motion.WindowID);
                 io.AddMousePosEvent(at.X, at.Y);
                 break;

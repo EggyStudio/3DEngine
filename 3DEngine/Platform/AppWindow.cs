@@ -154,7 +154,7 @@ internal sealed class AppWindow
                 && Minimized)
             {
                 Minimized = false;
-                SDL.GetWindowSize(Sdl.Window, out coalescedW, out coalescedH);
+                (coalescedW, coalescedH) = Sdl.Picture ?? WindowSize();
                 resizedThisBatch = true;
             }
             if (evtType == SDL.EventType.WindowResized
@@ -168,7 +168,7 @@ internal sealed class AppWindow
                 // GetWindowSize returns logical coordinates on native Wayland,
                 // macOS and iOS, and physical pixels on Windows, X11 (XWayland),
                 // and Android.
-                SDL.GetWindowSize(Sdl.Window, out int rawW, out int rawH);
+                var (rawW, rawH) = Sdl.Picture ?? WindowSize();
                 if (Sdl.NeedsManualHiDpiScaling && resizeScale > 1.001f)
                 {
                     coalescedW = (int)(rawW / resizeScale);
@@ -194,6 +194,28 @@ internal sealed class AppWindow
         }
 
         return running;
+    }
+
+    private (int Width, int Height) WindowSize()
+    {
+        SDL.GetWindowSize(Sdl.Window, out var width, out var height);
+        return (width, height);
+    }
+
+    /// <summary>
+    /// Gives the program the size the frames are drawn at, and has them drawn at it, as the
+    /// frames' own size is set or let go or the way they are scaled changes, which no event of
+    /// the window's says.
+    /// </summary>
+    internal void Repicture()
+    {
+        var (width, height) = Sdl.Picture ?? WindowSize();
+        if (Sdl.NeedsManualHiDpiScaling && Sdl.DisplayScale > 1.001f)
+            (width, height) = ((int)(width / Sdl.DisplayScale), (int)(height / Sdl.DisplayScale));
+        if (width <= 0 || height <= 0) return;
+        Sdl.Width = width;
+        Sdl.Height = height;
+        ResizeEvent?.Invoke(width, height);
     }
 
     /// <summary>Disposes the underlying SDL resources, optionally invoking a callback before return.</summary>

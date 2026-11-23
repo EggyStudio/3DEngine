@@ -81,7 +81,7 @@ void SetWindowFocused();                                 // Raises the window an
 int GetRenderWidth();                                    // The width in pixels the window's content is drawn at, which on a doubled monitor is twice GetScreenWidth
 int GetRenderHeight();                                   // The height in pixels the window's content is drawn at
 Vector2 GetMonitorPosition(int monitor);                 // A monitor's top left corner on the desktop, or zero when there is no such monitor
-void ToggleBorderlessWindowed();                         // Switches between a window and a borderless one covering the monitor at its desktop mode, which changes no display mode and so switches at once
+void ToggleBorderlessWindowed();                         // Switches between a window and a borderless one as large as the monitor, which covers it at its desktop mode, changing no display mode and so switching at once, and gives the window back the size it had
 Vector2 GetWindowScaleDPI();                             // How many pixels the window's content has for each unit of its size, 1 on most monitors and 2 on a doubled one
 void SetWindowIcon(Image image);                         // Sets the window's icon from an image, which the desktop scales to what it shows
 void SetWindowIcons(Image[] images);                     // Sets the window's icon from several sizes of one picture, the first the size it is drawn at most and the rest alternates the desktop picks from where it draws the icon larger or smaller

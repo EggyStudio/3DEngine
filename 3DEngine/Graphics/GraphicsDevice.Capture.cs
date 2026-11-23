@@ -50,7 +50,8 @@ internal sealed unsafe partial class GraphicsDevice
     private void CopyOut(VkCommandBuffer cmd, VkImage image, VkExtent2D extent, VkImageLayout layout, VulkanBuffer buffer)
     {
         PipelineBarrier(cmd, ImageBarrier(image, ColorLevels(0, 1), layout, VkImageLayout.TransferSrcOptimal,
-            VkPipelineStageFlags2.ColorAttachmentOutput | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ColorAttachmentWrite | VkAccessFlags2.TransferRead,
+            VkPipelineStageFlags2.ColorAttachmentOutput | VkPipelineStageFlags2.Transfer,
+            VkAccessFlags2.ColorAttachmentWrite | VkAccessFlags2.TransferRead | VkAccessFlags2.TransferWrite,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
 
         VkBufferImageCopy region = new()

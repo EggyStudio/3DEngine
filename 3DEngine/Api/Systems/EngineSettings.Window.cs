@@ -18,7 +18,7 @@ internal static partial class EngineSettings
     /// shown, its size first, so a mode that covers the screen keeps the size to leave it at, and
     /// its mode last, on the screen it was given (<see cref="DiagnosticsBinding.OpenWindow"/>).
     /// </summary>
-    internal static IReadOnlyList<string> WindowStart { get; } = ["window.width", "window.height", "window.resizable", "window.monitor", "window.mode"];
+    internal static IReadOnlyList<string> WindowStart { get; } = ["window.width", "window.height", "window.resizable", "window.monitor", "window.scaling", "window.mode"];
 
     // The window's page, its mode, whether it is resizable, its size as a window, its screen and
     // its vsync, each acting at once and kept by the settings file, and ImGui's viewports. The page
@@ -43,9 +43,13 @@ internal static partial class EngineSettings
         static string? Windowless() => Hidden() ?? (At() is not { } world || Shown() is not null ? null
             : world.TryGetResource<OffscreenSurface>(out _) ? Offscreen : Undrawn);
 
-        yield return new Setting<WindowMode>("window.mode", "How the window covers its screen, as a window, with no border over the screen at the screen's own mode, or fullscreen taking the screen's mode.",
-            WindowMode.Windowed, () => Shown() is { } window ? WindowModes.Of(window.Sdl.Window) : WindowMode.Windowed,
+        yield return new Setting<WindowMode>("window.mode", "How the window stands on its screen, as a window with its frame, borderless with no frame at window.width by window.height in the middle of the screen and covering it at the screen's size or larger, borderless fullscreen covering the screen with no frame, drawing at window.width by window.height scaled to it as window.scaling says, or fullscreen taking the screen's mode.",
+            WindowMode.Windowed, () => Shown() is { } window ? WindowModes.Of(window) : WindowMode.Windowed,
             apply: mode => Shown() is { } window ? WindowModes.Set(window, mode) : Undrawn)
+        { Saved = true, Lock = Windowless };
+        yield return new Setting<WindowScaling>("window.scaling", "How borderless fullscreen scales the frames it draws at window.width by window.height onto the screen, as large as fits with black round them, linear filtered and soft, nearest sharp, even at a whole ratio and uneven otherwise, or integer at the largest whole multiple that fits.",
+            WindowScaling.Linear, () => Shown() is { } window ? window.Sdl.Scaling : WindowScaling.Linear,
+            apply: scaling => { if (Shown() is not { } window) return Undrawn; WindowModes.SetScaling(window, scaling); return null; })
         { Saved = true, Lock = Windowless };
         yield return new Setting<bool>("window.resizable", "Whether the window's edges can be dragged to resize it.", true,
             () => Shown() is { } window ? (SDL.GetWindowFlags(window.Sdl.Window) & SDL.WindowFlags.Resizable) != 0 : true,
@@ -56,10 +60,10 @@ internal static partial class EngineSettings
         // offscreen run draws at, and with neither the default.
         static (int Width, int Height) Sized() => At() is { } world && WindowCommands.Windowed(world) is { } size ? size : (600, 400);
         static string? Resize(int width, int height) => At() is { } world && WindowCommands.Resize(world, width, height) ? null : Undrawn;
-        yield return new Setting<int>("window.width", "The width of the window as a window, which it takes on leaving a mode that covers its screen, or of the images an offscreen run draws into, which window.size sets with the height.",
+        yield return new Setting<int>("window.width", "The width of the window as a window and as a borderless one, and of the frames borderless fullscreen draws, which the window takes on leaving fullscreen, or of the images an offscreen run draws into, which window.size sets with the height.",
             600, () => Sized().Width, apply: width => Resize(width, Sized().Height))
         { Low = 0, High = 16384, Step = 16, Saved = true, Lock = Hidden };
-        yield return new Setting<int>("window.height", "The height of the window as a window, which it takes on leaving a mode that covers its screen, or of the images an offscreen run draws into, which window.size sets with the width.",
+        yield return new Setting<int>("window.height", "The height of the window as a window and as a borderless one, and of the frames borderless fullscreen draws, which the window takes on leaving fullscreen, or of the images an offscreen run draws into, which window.size sets with the width.",
             400, () => Sized().Height, apply: height => Resize(Sized().Width, height))
         { Low = 0, High = 16384, Step = 16, Saved = true, Lock = Hidden };
 
