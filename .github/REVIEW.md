@@ -607,6 +607,56 @@ one crop at a whole ratio and at a ratio of one and a half.
     black-bordered whole multiple is not kept as a fourth. The sheet replaces the Integer column
     with Sharp at both ratios, and the guides and the cheatsheet follow.
 
+315. **Display resolution, render resolution, aspect and fit, each with a native choice.** The
+picture and the display get their own sizes, so a player sets what the display shows and what the
+scene is drawn at apart, and every setting defaults to native so that a player who touches none sees
+the display's own size throughout. The settings are these. `window.mode` keeps its four choices, and
+borderless fullscreen always covers the screen. `window.resolution` is Native or one of the sizes
+the screen lists, and any width by height from the console. It is the window's size in windowed and
+borderless, the screen's mode in fullscreen, and unused in borderless fullscreen, and it takes the
+place of `window.width` and `window.height`. `render.resolution` is Native, which is the window's
+size, or a size of its own, and the scene is drawn at it. `render.scale` is a helper and holds no
+state of its own. Setting it writes `render.resolution` as that share of the window's size, and
+reading it gives the share the two stand in. `render.aspect` is Native or one of 16 to 9, 16 to 10,
+21 to 9, 32 to 9, 4 to 3, 1 to 1, 9 to 16 and 10 to 16, and where set the scene is drawn at the
+largest size of that shape inside `render.resolution`. `render.fit` says how the picture sits in the
+window where the shapes differ. Fit keeps the shape with black bars, Fill keeps the shape and covers
+the window with the overhang cut, Stretch covers the window and gives up the shape. `render.filter`
+is Linear, Nearest or Sharp and takes the place of `window.scaling`. The interface, the panels and
+the overlay are drawn after the picture is brought to the window, at the window's own size, so they
+stay sharp at any render size, and the pointer and touch reach the scene through the same placement.
+Cameras take the picture's shape and not the window's. Tests hold each setting's native choice, the
+helper's write and read, each fit at a shape unlike the window's, and the interface's size under a
+small render size. The sheet shows a 4 to 3 picture on a 16 to 9 screen in the three fits, a render
+scale of 67% in the three filters with a panel sharp over it, and the page of settings. The guides
+and the cheatsheet follow. Where the settings module lacks a kind of setting this needs, the ask
+comes to the review and the module's session writes it. Four rules complete it. What was set last
+holds when the window's size changes, so after `render.scale` the share holds and the render size
+follows the window, and after `render.resolution` that size holds whatever the window does. The
+debug panels, the console and the overlay take the whole window always, and a game's own interface
+takes the whole window unless the game asks for the picture's area, which one call gives. The aspect
+belongs to the picture alone, so in windowed and borderless the window keeps its size and the bars
+stand inside it. The render size may stand above the window's, to twice it, the panel offering 50,
+67, 75, 100, 150 and 200%, and a picture brought down to the window is filtered smoothly whatever
+`render.filter` says, since Nearest and Sharp only bring a picture up. In 3DEngine the scene and the
+interface leave their shared pass for this, which is wanted for its own sake. The review's later
+choices change three things in the above and stand over it. First, who sets what. The panel's page
+shows the mode, the window's size, the render scale and the filter, with the aspect and the fit
+under them, and `render.resolution` is a console setting and a call a game makes and has no row.
+Second, `render.fit` has two choices, Fit and Stretch, and no Fill, and `render.aspect` lists
+Native, 16 to 9, 16 to 10, 21 to 9 and 4 to 3 and takes any ratio from the console. Third, two
+settings join. `interface.scale` sizes the panels, the console and the overlay's text by one number
+and defaults to the display's own scale factor. `render.fps_limit` caps the frames a second beside
+the vertical sync and has an Off choice. The render scale is never changed by the engine itself, and
+no dynamic scale is built. One more cut stands over all of the above. There is no
+`render.resolution` setting, in the panel, the console or the settings file, and no rule of what was
+set last. A game's code keeps it. The picture's typed value carries an optional exact render size
+beside the scale, a game sets it with the same one call, and code reads the render size in use at
+any time. While a game holds an exact size, `render.scale` is kept but not applied, its panel row
+says the game fixes the size, and clearing the exact size brings the scale back. The render size is
+always the window's size times `render.scale`, shaped by the aspect, and the scale is a stored
+setting of its own and no helper.
+
 310. **Rough reflections from the cascades, shown in a scene.** Reflection is the next large step
     after the branch, tried rough first and whole each frame with no history. The RadianceCascades
     module's item 10 writes the kernel that reads a reflection cone from the cascades and names the
@@ -622,8 +672,8 @@ one crop at a whole ratio and at a ratio of one and a half.
 
 ## Verdicts
 
-Verdict 134 is open, the build on `1c9704cf` red on `LiveFilesTests`' wait of 10 s in the Windows
-job, suspected of the runner's late file notice.
+Verdict 134 is settled at 11:55 on 2026-11-23, the build on `96714e78` green, the system's file
+notice late on the runner and the wait bounding the notice and the reload apart.
 
 131. **The reflections' reference frame recorded again for item 299 differs on the runners.** In run
     44943683933 on `31c089de`, read at 22:56 on 2026-11-21, the reference frame test of
@@ -835,184 +885,66 @@ numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
 
 ## Replies
 
-On main the right parts fall from 4.91 and 6.73 settled to 1.31 and 2.39, while the left and
-middle rise from about 1.2 to about 1.55 and the whole wall from 1.12 to 1.51. Of Rendering's 827
-tests 3 fail with it on main, the open box at Low at 0.729, the corridor's light rising 7.84 times
-as the walk's slabs are built, and the floor at the two blocks' edge 7 levels off the trace. On the
-branch it leaves the open box, the roof slab and the lintel or the canopy failing as they did. The
-global illumination of Sponza and the Bistro takes 6.02 and 9.41 ms with it on main, against 6.02
-and 9.45 before.
+Item 311, the gloss in the reference, the door's thirds and the device's rays in the gather.
 
-Against the reference of 256 paths with one bounce, which holds 0.42 of the other's light on the
-wall and 0.20 to 0.48 in its parts, the wall at zero stands at 1.26 before the rule and 1.98 after
-it, 1.39 on the branch merging at the ray's end and 0.82 merging about the probe. The surplus is the
-rule's first read, since the light past the first bounce adds 0.68 of the whole reference with it
-against the reference's own 0.58.
+The left wall at the door reads as below, the bounce at zero over the reference of one bounce
+with every face's gloss (`ReferenceGloss.Every`), the mean of the last 16 frames, with the gather
+by pixel's rays through the window's depth and the field and through the device's rays
+(`gi.gather_rays on`). Every reads 1.22 times First on the whole wall.
 
-Item 311, step two, the gather by pixel through the distance field.
-
-`gi.gather pixels` sends one ray from each texel of a grid of the window's pixels at full, half,
-quarter or eighth size (`gi.gather_size`, half unless set), traced and shaded as a screen probe's
-ray is, its way drawn by its cosine to the normal with each four by four texels holding the sixteen
-strata of the hemisphere's square once, at a place in its stratum that stays from frame to frame.
-The texels are blended with the five by five around them within the frame by the screen filter's
-second pass with no cycle standing in, nothing is kept from the frame before, and the screen's
-probes stand beside the grid for the glow lights alone. The setting stays `probes` until step
-three's sheet. The hardware scene's ray is not in it yet, since it needs a ray query build of
-`gi_screen.slang` with its bindings 17 to 20 moved off the ray scene's 18 to 20.
-
-The left wall at the door reads as below, each pair the bounce at zero over the reference of 256
-paths with one bounce and settled over the one with every bounce, the mean of the last 16 frames,
-main's row with the screen probes off as in item 313's table.
-
-| Part | Main, screen probes off | Screen probes | Gather, full | Half | Quarter | Eighth |
-|---|---|---|---|---|---|---|
-| Whole wall | 1.26, 1.12 | 2.22, 1.57 | 2.36, 1.65 | 2.32, 1.64 | 2.32, 1.62 | 2.52, 1.69 |
-| Top left | 1.22, 1.16 | 2.36, 1.70 | 2.65, 1.86 | 2.65, 1.86 | 2.67, 1.86 | 2.72, 1.87 |
-| Top middle | 1.52, 1.26 | 2.45, 1.70 | 2.21, 1.59 | 2.16, 1.57 | 2.25, 1.61 | 2.54, 1.74 |
-| Top right | 9.47, 4.91 | 9.77, 5.09 | 6.88, 3.96 | 4.06, 3.16 | 3.21, 2.00 | 11.61, 5.96 |
-| Bottom left | 0.57, 0.71 | 1.30, 1.10 | 1.46, 1.17 | 1.62, 1.25 | 1.58, 1.22 | 1.46, 1.14 |
-| Bottom middle | 1.61, 1.18 | 2.24, 1.52 | 2.60, 1.67 | 2.42, 1.61 | 2.25, 1.54 | 2.96, 1.69 |
-| Bottom right | 26.99, 6.73 | 35.06, 8.66 | 70.31, 15.89 | 20.36, 7.84 | 17.41, 4.71 | 24.48, 6.13 |
-
-The gather stands with the screen's probes and not with main's surface read, the whole wall at
-zero 2.32 at half against the probes' 2.22 and main's 1.26. A ray from the pixel brings what the
-probes' rays bring, so the first bounce's surplus on this wall lies in what a screen ray brings,
-its hit's shading or the cascades' light at its end, and not in where a probe stands. The two
-right parts, whose reference light is small enough that their ratios run from 2 to 70, swing with
-the size.
-
-The suite's 2563 tests pass with it, the gather's test at each size among them.
-
-Verdict 134, the live files' wait on a notice that came late.
-
-The test's wait polls the reloads and the watch only listens, compares no stamp, and is armed before
-`Watch` returns, so neither a write before it listens nor a shared stamp hides a save. The notice
-came late, and the mend bounds it at a minute and the watch's own reload at the quiet and 5 s after.
-
-Item 311, the gather's reach.
-
-The gather's ray goes on through the field past the probes' reach to what it meets, as far as
-`gi.gather_reach` sets and the coarsest cascade by default, and takes the cascades' light only
-where it leaves that cascade having met nothing. The screen probes' rays are as they were. The left
-wall at the door reads as below, each pair the bounce at zero over the one bounce reference and
-settled over the one with every bounce, the mean of the last 16 frames, main with the screen probes
-off reading 1.26 and 1.12 as in the table above.
-
-| Part | Screen probes | Gather to 2 units, half | Reach, full | Half | Quarter | Eighth |
-|---|---|---|---|---|---|---|
-| Whole wall | 2.22, 1.57 | 2.32, 1.64 | 1.79, 1.76 | 1.66, 1.78 | 1.39, 1.53 | 0.14, 1.14 |
-| Top left | 2.36, 1.70 | 2.65, 1.86 | 1.23, 1.53 | 1.56, 1.88 | 1.26, 1.32 | 0.04, 1.49 |
-| Top middle | 2.45, 1.70 | 2.16, 1.57 | 1.60, 1.82 | 0.40, 1.17 | 2.10, 1.92 | 0.04, 0.67 |
-| Top right | 9.77, 5.09 | 4.06, 3.16 | 5.49, 3.46 | 5.61, 4.46 | 2.20, 1.65 | 8.19, 4.50 |
-| Bottom left | 1.30, 1.10 | 1.62, 1.25 | 1.64, 1.45 | 1.45, 1.40 | 1.41, 1.28 | 0.14, 0.84 |
-| Bottom middle | 2.24, 1.52 | 2.42, 1.61 | 4.77, 2.57 | 5.25, 2.71 | 0.19, 1.85 | 0.14, 1.12 |
-| Bottom right | 35.06, 8.66 | 20.36, 7.84 | 67.01, 15.35 | 3.16, 4.58 | 23.48, 5.97 | 25.46, 7.02 |
-
-The GI's milliseconds at the passes' views, each one session of 120 frames.
-
-| Scene | Screen probes | Full | Half | Quarter | Eighth |
-|---|---|---|---|---|---|
-| Sponza | 5.99 | 10.24 | 6.08 | 5.05 | 4.78 |
-| Bistro | 9.32 | 12.76 | 7.68 | 6.93 | 6.73 |
-
-Of the wall's 33692 rays at full in the picture's first 125 columns, 2 end past the reach, against
-84 to 93 percent at 2 units, and the rest meet a face 5.0 units out on the top half and 5.5 on the
-bottom, their mean within a hundredth of the meshes'. Read beside the same rays traced through the
-meshes at the bounce at zero, the top half takes 1.31 times their light and the bottom 1.39. The
-sun's diffuse light at the hits is 1.04 and 0.83 of theirs, and the hits' gloss toward the ray adds
-0.27 and 0.23 of it, which the reference's one bounce leaves out at a face past the first. The 2
-rays past the reach crossed a wall in the field that the meshes stop them at and read the cascades
-66 units out, which adds 0.33 on the bottom half. The sun reaches the face 175 of the 33692 rays
-meet, and those rays bring the wall's light at zero, the same ones each frame, so the parts swing
-with the size, and the eighth's grid reads 0.14 at zero.
-
-The suite's 2563 tests pass with it.
-
-Item 314, the sharp scaling.
-
-`window.scaling` takes Linear, Nearest and Sharp, Linear the default, and Integer is gone. Sharp
-draws the frame onto the window in one pass of `scaled.slang` in place of the copy, each window
-pixel reading the frame at its place moved toward its frame pixel's middle and taking the next one
-by its share past the edge, read with four loads where the filter's weights are fixed point. It is
-placed as the other two are, as large as fits with black round it. A test holds Sharp equal to
-Nearest to the bit at a ratio of 2. One at 1.5 holds that the frame fills the screen as far as its
-shape lets it, that a screen pixel whose middle lies inside a frame pixel takes it whole, that one
-whose middle is on an edge is the even blend of the two either side, and that each lies within the
-colors of a square of two by two frame pixels holding the one Nearest shows. Run with Nearest in
-Sharp's place it fails at the even blend, and with Linear at the whole pixel. In the headless
-mutter at 1920 by 1080 the shown capture of Sharp at 960 by 540 is Nearest's byte for byte. The
-sheet has Sharp in Integer's column at both ratios, and the guides name the three.
-
-The suite's 2565 tests pass with it.
-
-Item 311, the gather's guide.
-
-`gi.gather_guide cascades`, off unless set, has every other texel of the gather by pixel draw its
-way from a table of eight by eight cells of the hemisphere's square, each cell weighed by the light
-the finest cascade's nearest probe holds along its middle's way times its cosine and the share of
-the hemisphere it spans, and weighs every ray, drawn either way, by its cosine over the chance of
-its way under the two draws mixed half and half. The ray goes to its hit and is lit there as
-before. The eight texels of a four by four block that draw alike take eight strata of the whole
-square, since the sixteen strata split by the checkerboard left the cosine's texels turning to one
-side and the table's drawing its middle rows alone, which read 1.35 times the irradiance of a sky
-with one bright patch in a sum over 512 by 512 texels, where the eight strata read 1.00 and the
-cosine alone 0.98. The left wall at the door reads as below, each pair the bounce at zero over the
-one bounce reference and settled over the one with every bounce, the mean of the last 16 frames.
-
-| Part | Full | Full, guided | Half | Half, guided | Quarter | Quarter, guided | Eighth | Eighth, guided |
+| Part | Full | Full, rays | Full, guided | Full, guided, rays | Half | Half, rays | Half, guided | Half, guided, rays |
 |---|---|---|---|---|---|---|---|---|
-| Whole wall | 1.79, 1.76 | 1.89, 1.83 | 1.66, 1.78 | 1.37, 1.62 | 1.39, 1.53 | 0.84, 1.41 | 0.14, 1.14 | 0.97, 1.10 |
-| Top left | 1.23, 1.53 | 1.11, 1.42 | 1.56, 1.88 | 0.86, 1.51 | 1.26, 1.32 | 0.88, 1.72 | 0.04, 1.49 | 0.72, 1.19 |
-| Top middle | 1.60, 1.82 | 1.72, 1.71 | 0.40, 1.17 | 1.14, 1.66 | 2.10, 1.92 | 0.74, 1.11 | 0.04, 0.67 | 0.55, 0.95 |
-| Top right | 5.49, 3.46 | 6.55, 4.35 | 5.61, 4.46 | 5.72, 4.63 | 2.20, 1.65 | 2.20, 1.88 | 8.20, 4.49 | 8.22, 4.62 |
-| Bottom left | 1.64, 1.45 | 1.63, 1.38 | 1.45, 1.40 | 0.93, 1.29 | 1.41, 1.28 | 0.57, 0.95 | 0.14, 0.84 | 0.74, 0.82 |
-| Bottom middle | 4.77, 2.57 | 6.00, 3.44 | 5.25, 2.71 | 4.95, 2.17 | 0.19, 1.85 | 1.30, 1.57 | 0.14, 1.11 | 2.99, 1.28 |
-| Bottom right | 66.97, 15.36 | 67.01, 18.27 | 3.16, 4.58 | 3.16, 3.35 | 23.47, 5.96 | 23.51, 6.40 | 25.46, 7.00 | 25.49, 6.77 |
+| Whole wall | 1.46 | 0.91 | 1.54 | 0.81 | 1.36 | 0.65 | 1.12 | 0.66 |
+| Top left | 1.00 | 0.84 | 0.91 | 0.76 | 1.28 | 0.83 | 0.70 | 0.63 |
+| Top middle | 1.34 | 1.05 | 1.44 | 1.09 | 0.33 | 0.26 | 0.95 | 0.82 |
+| Top right | 4.64 | 4.62 | 5.53 | 5.50 | 4.74 | 4.78 | 4.83 | 4.87 |
+| Bottom left | 1.30 | 0.90 | 1.29 | 0.61 | 1.16 | 0.68 | 0.74 | 0.42 |
+| Bottom middle | 3.91 | 0.59 | 4.92 | 0.49 | 4.30 | 0.28 | 4.06 | 0.61 |
+| Bottom right | 75.16 | 20.88 | 75.20 | 20.97 | 3.54 | 3.55 | 3.55 | 3.55 |
 
-The grain is each pixel's light's mean distance from the mean of the five by five around it, over
-the mean light, in the last frame read, for the wall's 61800 pixels whose five by five lies on it
-and for the whole picture, each pair without the guide and with it.
+Of the rays of each third at full, those whose hit in the field lies more than a cell past the face
+the same ray traced through the meshes meets are 3.7 and 5.5 percent of the left third's on top and
+below, carrying 1.1 and 2.2 percent of the light, 2.9 and 4.1 percent of the middle's, carrying 5.0
+and 3.5, and 4.0 and 4.2 percent of the right's, carrying none, so neither the door nor a thin wall
+brings the light in that way. The middle bottom's 10.1 is ten rays, 0.06 percent of its rays, that
+meet nothing in the field to 67 or further while the meshes meet a face 5 to 27 along, which carry
+71 percent of its light, the rest reading 2.61. They leave the wall's foot in the fourth cascade,
+whose cells are 1 wide, and a march of the field read back from 1.5 along them meets the floor at
+once or 5 to 9 along, so the gather's march loses the floor there. The rest of the excess is hits
+the field finds sunlit where the meshes shade them, 35 and 36 percent of the light on top in the
+left and middle thirds and 23 and 19 percent below. The field's march toward the sun starts a cell
+and a half off the hit, 0.75 in the third cascade and 1.5 in the fourth, past the faces that shade
+them, block undersides 0.5 to 0.6 above the hit and 0.03 to 0.09 thick, the gray ceiling 15.9
+above and 0.25 thick in cells 1 wide, and a block's underside 0.26 thick in the far cascade's cells
+2 wide.
 
-| Grain | Full | Half | Quarter | Eighth |
-|---|---|---|---|---|
-| Wall at zero | 0.664, 0.587 | 0.232, 0.205 | 0.136, 0.117 | 0.240, 0.100 |
-| Wall settled | 0.413, 0.370 | 0.165, 0.145 | 0.107, 0.097 | 0.087, 0.088 |
-| Picture at zero | 0.611, 0.535 | 0.266, 0.238 | 0.162, 0.192 | 0.135, 0.113 |
-| Picture settled | 0.436, 0.399 | 0.200, 0.188 | 0.134, 0.140 | 0.117, 0.107 |
+The right thirds' rays read 0.69 of the same rays traced on top, where the picture reads 5.11 of
+the reference's bounce in the diffuse term alone, since the light is the model pass's at the 452
+pixels on the wall's edge by the door, 0.50 of the 0.54 the top right holds against the
+reference's 0.06 there. At such a pixel the pass blends the gather's four texels around with the
+world probes' light by how far those texels stand on a surface like its own and how far the
+screen's probes hold there (`screenMatched`, `screenHoldPlaced`), and the world probes alone give
+those pixels 0.94 and the gather's texels alone 0.33, so both read high there. With the device's
+rays they read 0.50 again, the top right 4.62 and the bottom right 20.9.
 
-The GI's milliseconds at the passes' views, without the guide and with it in one session of 120
-frames each, the screen pass's own in the second row of each scene.
+With `gi.gather_rays on`, at High on a device that traces rays, the screen pass's build with
+`RAY_QUERY` runs the gather by pixel, its ray meeting the window's meshes from its start to its
+reach (`meshHit`), the face it meets lit by its own normal, color and gloss with the sun reaching it
+through a ray of its own (`MeshSun`), the ray scene bound at 18 to 20 as for the probes' trace and
+the pass's bindings there moved past it. The bottom middle falls from 3.91 to 0.59 with it, and
+the whole wall reads under the reference at 0.91 at full and 0.65 at half. Started a
+hundredth of a unit off the surface in place of half a cell it reads 0.86 at full, so the start
+does not hold it under. The meshes' hits take each copy's color and its corners', as the probes'
+trace through the device's rays does, where the reference takes the materials' textures, which is
+not yet read apart. The half's top middle reads 0.33 through the field and 0.26 through the rays
+against 1.34 and 1.05 at full, so its shortfall is the half grid's and not the rays'.
 
-| Scene | Full | Half | Quarter | Eighth |
-|---|---|---|---|---|
-| Sponza | 19.84, 20.42 | 12.02, 12.38 | 10.49, 10.44 | 10.01, 9.93 |
-| Sponza's screen pass | 9.29, 10.56 | 2.21, 2.59 | 0.67, 0.69 | 0.20, 0.22 |
-| Bistro | 12.86, 13.16 | 7.74, 7.81 | 6.90, 6.93 | 6.76, 6.76 |
-| Bistro's screen pass | 7.43, 7.71 | 2.39, 2.46 | 1.59, 1.60 | 1.42, 1.42 |
+Sponza's times with the card held alone under the exclusive lock and nothing else on it read the
+probes at 6.03 with the first cascade's trace at 2.10, and the gather at 10.43 and 10.81 at full
+without the guide and with it, the screen pass 5.46 and 6.03, at 6.18 and 6.29 at half, 5.09 and
+5.15 at a quarter and 4.80 and 4.81 at an eighth. The 2.3 times of the earlier sessions was other
+work on the card, so the Sponza rows of the times in the guide's Reply read high by that.
 
-Sponza's cascades' traces read 2.3 times what they read in the reach's sessions in both of today's
-two sessions, with nothing of theirs changed between and the Bistro's as they were, so Sponza reads
-11.4 with the screen probes against 5.99 in the table above, and the guide's cost is the screen
-pass's difference.
-
-Of the wall's 33692 rays at full in the picture's first 125 columns, 1273 meet a face the sun
-reaches with the guide, 3.78 percent, against 175 without it, 0.52 percent, and the guided rays'
-light is 1.30 and 1.12 of the same rays traced through the meshes on the top and bottom halves
-against 1.31 and 1.39. At the eighth the bounce at zero reads 0.97 against 0.14, its texels drawn
-toward the sunlit faces the sixteen strata missed.
-
-The whole wall's 1.79 at full and the rays' 1.31 and 1.39 read different things. The rays are the
-left third's, which the picture reads 1.23 on top and 1.64 below, and are set against the same rays
-traced through the meshes, so they hold the hits' light alone where the picture holds which ways
-were drawn as well, and the whole wall's mean is raised by its middle and right thirds by the door,
-where the reference is darkest, 5.49 at the top right and 67 at the bottom right.
-
-The model pass lights its own first face by the lights' diffuse share and by GGX toward the eye.
-Every hit a probe's ray or the gather's ray meets is lit by `glossyHit`, its gloss toward the ray
-by GGX as well, which is light that face sends toward the pixel and so belongs in the irradiance
-the pixel gathers. The reference's `ReferenceGloss.First` leaves it out at every face past the
-first and `Every` keeps it, so the hits' gloss of 0.27 and 0.23 is what First lacks, and against
-Every the hits and the reference light the same terms.
-
-The suite's 2565 tests pass with it.
+A descriptor pool leaves out a layout taken for no sets, since the screen pass's build with the
+rays, made on a device that traces rays and run only where the setting asks, otherwise put the ray
+scene's kind in the pool with a count of none. The suite's 2565 tests pass with it.

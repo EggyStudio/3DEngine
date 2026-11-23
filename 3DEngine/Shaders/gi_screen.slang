@@ -12,12 +12,15 @@
 // same pass on a grid of the window's texels at full, half, quarter or eighth size, one ray each
 // and no glow light marked, the probes beside it standing for the glow lights alone. Its ray goes
 // on through the field past the probes' reach to the gather's own, as far as the coarsest cascade
-// reaches by default, and takes the light from beyond only where it meets nothing there.
+// reaches by default, and takes the light from beyond only where it meets nothing there. Built with
+// RAY_QUERY, the screen pass runs the gather by pixel alone, whose ray meets the window's meshes
+// through the device's rays in place of the depth and the field (gi.gather_rays).
 import gi;
 import probelight;
 import scenefield;
 import lightthrough;
 import gi_ways;
+import meshrays;
 
 [[vk::binding(0, 0)]]
 Sampler2D depth;
@@ -41,8 +44,13 @@ ConstantBuffer<GiLights> lights;
 Sampler3D bounced;
 
 // The world probes' faces' light at the surfaces they are read for, which a hit's probes read
-// (gi_ambient.slang).
+// (gi_ambient.slang). This binding and those of the fourth and fifth cascades stand past the ray
+// scene's in the build that reads it (meshrays).
+#if defined(RAY_QUERY)
+[[vk::binding(23, 0)]]
+#else
 [[vk::binding(20, 0)]]
+#endif
 Sampler3D bouncedAtSurface;
 
 // The world's first cascade, merged, a tile of octahedron texels a probe.
@@ -59,10 +67,18 @@ Texture3D<float4> mergedSecond;
 [[vk::binding(17, 0)]]
 Texture3D<float4> mergedThird;
 
+#if defined(RAY_QUERY)
+[[vk::binding(21, 0)]]
+#else
 [[vk::binding(18, 0)]]
+#endif
 Texture3D<float4> mergedFourth;
 
+#if defined(RAY_QUERY)
+[[vk::binding(22, 0)]]
+#else
 [[vk::binding(19, 0)]]
+#endif
 Texture3D<float4> mergedFifth;
 
 // rgb: the light arriving at each probe's surface, irradiance. a: 1 for a probe that holds it.
@@ -622,16 +638,27 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             float rayReach = pixels ? min(farthest, leavesProbes(start, way)) : length;
             float stepped = min(length, rayReach);
             float3 light;
-            float3 hit;
-            float leftAt;
+            float3 hit = start;
+            float leftAt = rayReach;
             // What the surface sends on without the indirect light, which the screen's probes
             // keep no account of.
             float3 own;
             float met = 0.0;
             float3 reached = start + way * rayReach;
             own = float3(0.0);
-            bool onScreen = traceScreen(depth, camera(), start, way, stepped, 12, hit, leftAt);
-            float t = onScreen ? distance(start, hit) : leftAt < rayReach ? traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, leftAt, rayReach) : -1.0;
+#if defined(RAY_QUERY)
+            // The gather by pixel's ray meets the window's meshes from its start to its reach, and
+            // the face it meets is lit by its own normal, color and gloss, the sun reaching it
+            // through a ray of its own (MeshSun).
+            float3 meshNormal = n, meshColor = float3(0.0);
+            float2 meshGloss = float2(0.5, 0.0);
+            bool meshes = pixels;
+            float meshAt = meshes ? meshHit(start, way, rayReach, meshNormal, meshColor, meshGloss) : -1.0;
+#else
+            bool meshes = false;
+#endif
+            bool onScreen = !meshes && traceScreen(depth, camera(), start, way, stepped, 12, hit, leftAt);
+            float t = meshes ? -1.0 : onScreen ? distance(start, hit) : leftAt < rayReach ? traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, leftAt, rayReach) : -1.0;
             // A surface that lets a share of light through, as a canopy's leaves, is crossed
             // through the field, which holds what lies behind it where the window's depth does not,
             // the ray keeping that share for each unit of its depth and the rest taking the
@@ -704,6 +731,16 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                     view.trace.y, view.trace.z, view.trace.w, around >= 2u, float3(1.0), FieldSun(), itsOwn, true) * weight;
                 own += itsOwn * weight;
             }
+#if defined(RAY_QUERY)
+            if (meshAt >= 0.0)
+            {
+                reached = start + way * meshAt;
+                met = 1.0;
+                crossed = shadeProbeHitAt(sceneField, fieldInfo, fieldInfo, fieldAlbedo, fieldGlow, lights, bounced, bouncedAtSurface, reached, meshNormal,
+                    meshColor, meshGloss, way, view.trace.y, view.trace.z, view.trace.w, float3(1.0), MeshSun(), own);
+                t = meshAt;
+            }
+#endif
             light = crossed;
             if (t < 0.0)
             {

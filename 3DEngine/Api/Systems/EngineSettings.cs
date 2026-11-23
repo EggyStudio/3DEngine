@@ -101,6 +101,8 @@ internal static partial class EngineSettings
             0f, s => s.GatherReach, (s, v) => s.GatherReach = v, low: 0);
         yield return Of("gi.gather_guide", "Where gi.gather pixels draws its rays' ways from, off by the cosine alone, or cascades by the cosine for half the texels and toward the light the nearest probe of the cascades holds for the rest.",
             GatherGuide.Off, s => s.GatherGuide, (s, v) => s.GatherGuide = v);
+        yield return Of("gi.gather_rays", "Whether gi.gather pixels traces each ray through the meshes by the device's own ray tracing at High, where it has it, in place of the window's depth and the scene's distance field.", false,
+            s => s.GatherRays, (s, on) => s.GatherRays = on);
         yield return Part("gi.merge", "Whether each cascade takes the light of the cascade above.", s => s.MergeOff, (s, off) => s.MergeOff = off);
         yield return Part("gi.again", "Whether the light past the first bounce comes from the frame before's probes.", s => s.AgainOff, (s, off) => s.AgainOff = off);
         yield return Part("gi.follow", "Whether the indirect light follows a light that goes out within the frames each bounce takes.",

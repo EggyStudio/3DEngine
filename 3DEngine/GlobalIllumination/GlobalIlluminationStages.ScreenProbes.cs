@@ -23,11 +23,14 @@ internal sealed unsafe partial class GlobalIlluminationStages
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordScreenProbes(ICommandBuffer commandBuffer, GpuIllumination gi, GpuScreenProbes screen, GpuSceneField field,
         IImageView depth, ISampler depthSampler, ReadOnlySpan<byte> view, bool glowLights, int loggedProbe = -1, bool glowOnly = false,
-        bool loggedNotANumber = false, bool lightThrough = false)
+        bool loggedNotANumber = false, bool lightThrough = false, GpuRayScene? rays = null)
     {
         var pixels = glowOnly ? null : screen.Gathered;
         var probesGlowOnly = glowOnly || pixels is not null;
-        var run = new ProbeRun(this, device, commandBuffer, [(ScreenStage, pixels is null ? 1 : 2),
+        // The gather by pixel's rays meet the meshes through the device's rays where a ray scene is
+        // given and the screen pass's build for them was made.
+        var rayed = pixels is not null && rays is not null && GiStages[RayScreenStage].Pipeline.Handle != 0;
+        var run = new ProbeRun(this, device, commandBuffer, [(ScreenStage, pixels is null || rayed ? 1 : 2), (RayScreenStage, rayed ? 1 : 0),
             (FilterStage, (probesGlowOnly ? 0 : 2) + (pixels is null ? 0 : 1)), (GlowStage, glowLights ? 1 : 0)]);
         var cmd = run.Commands;
         var readers = VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
@@ -55,9 +58,14 @@ internal sealed unsafe partial class GlobalIlluminationStages
             readers | VkPipelineStageFlags2.Transfer, VkAccessFlags2.ShaderRead | VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader,
             VkAccessFlags2.ShaderWrite | VkAccessFlags2.ShaderRead))]);
 
-        void Screen(IImageView light, IImageView surfaces, IBuffer viewBuffer, int across, int down, uint logged, uint mode)
+        void Screen(IImageView light, IImageView surfaces, IBuffer viewBuffer, int across, int down, uint logged, uint mode, bool meshes = false)
         {
-            var set = run.Set(ScreenStage);
+            var stage = meshes ? RayScreenStage : ScreenStage;
+            // The bindings from the ray scene's on stand past its three in the build that reads it.
+            uint At(int binding) => (uint)(meshes && binding >= RayScreenFirst ? binding + 3 : binding);
+            var set = run.Set(stage);
+            if (meshes)
+                device.WriteRayScene(set, RayScreenFirst, rays!);
             run.Image(set, 0, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)depth).View, depthSampler, VkImageLayout.ShaderReadOnlyOptimal);
             run.Image(set, 1, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)field.View).View, field.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
             run.Buffer(set, 2, VkDescriptorType.UniformBuffer, field.Info);
@@ -65,7 +73,7 @@ internal sealed unsafe partial class GlobalIlluminationStages
             run.Image(set, 4, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)field.GlowView).View, field.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
             run.Buffer(set, 5, VkDescriptorType.UniformBuffer, gi.Lights);
             run.Image(set, 6, VkDescriptorType.CombinedImageSampler, ((VulkanImageView)gi.CubesView).View, gi.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
-            run.Image(set, 20, VkDescriptorType.CombinedImageSampler, gi.CubesAtView, gi.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
+            run.Image(set, At(20), VkDescriptorType.CombinedImageSampler, gi.CubesAtView, gi.Sampler, VkImageLayout.ShaderReadOnlyOptimal);
             run.Image(set, 7, VkDescriptorType.SampledImage, gi.Merged[0].View, null, VkImageLayout.General);
             run.Image(set, 12, VkDescriptorType.SampledImage, gi.Merged[Math.Min(1, gi.Cascades - 1)].View, null, VkImageLayout.General);
             run.Image(set, 8, VkDescriptorType.StorageImage, ((VulkanImageView)light).View, null, VkImageLayout.General);
@@ -79,13 +87,13 @@ internal sealed unsafe partial class GlobalIlluminationStages
             // The third to fifth cascades', merged, the last the probes have again where they have
             // fewer.
             for (int c = 2; c < 5; c++)
-                run.Image(set, (uint)(15 + c), VkDescriptorType.SampledImage, gi.Merged[Math.Min(c, gi.Cascades - 1)].View, null, VkImageLayout.General);
+                run.Image(set, At(15 + c), VkDescriptorType.SampledImage, gi.Merged[Math.Min(c, gi.Cascades - 1)].View, null, VkImageLayout.General);
             uint TexelsOf(int c) => c < gi.Cascades ? (uint)gi.Texels[c] : 0;
             // The probes stand in the cascades before the far cascade's alone (gi_screen.slang).
             var standing = (uint)Math.Min(gi.Cascades - (gi.Far ? 1 : 0), 5);
             ReadOnlySpan<uint> push = [TexelsOf(0), TexelsOf(1), logged, mode | (lightThrough ? 4u : 0) | standing << 8, TexelsOf(2), TexelsOf(3), TexelsOf(4),
                 (uint)Math.Min(gi.Cascades, 5)];
-            var (pipeline, layout, _) = GiStages[ScreenStage];
+            var (pipeline, layout, _) = GiStages[stage];
             device.Api.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline);
             device.Api.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
             fixed (uint* p = push)
@@ -97,7 +105,7 @@ internal sealed unsafe partial class GlobalIlluminationStages
             (probesGlowOnly ? 1u : 0) | (loggedNotANumber ? 2u : 0));
         // The gather's grid beside the probes, a ray from each texel and no probe logged or fed.
         if (pixels is not null)
-            Screen(pixels.LightView, pixels.GeometryView, pixels.View, pixels.Across, pixels.Down, 0, 8u);
+            Screen(pixels.LightView, pixels.GeometryView, pixels.View, pixels.Across, pixels.Down, 0, 8u, rayed);
         MarkGlobalIllumination(commandBuffer, "gi_screen");
 
         // Each probe's light kept over the frames, then blended with its neighbors' on like

@@ -118,6 +118,9 @@ internal sealed unsafe partial class GraphicsDevice
         uint sets = 0;
         foreach (var (descriptors, n) in layouts)
         {
+            // A layout taken for no sets adds none of its kinds, since a pool may not hold a kind
+            // with a count of none.
+            if (n == 0) continue;
             foreach (var type in descriptors) counts[type] = counts.GetValueOrDefault(type) + (uint)n;
             sets += (uint)n;
         }

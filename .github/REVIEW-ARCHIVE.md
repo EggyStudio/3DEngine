@@ -23760,3 +23760,185 @@ mean of the last 16 frames, with the bounce at zero and then settled.
 | Bottom left | 0.23, 0.71 | 0.63, 1.27 | 0.35, 0.92 | 0.24, 0.68 |
 | Bottom middle | 0.41, 1.18 | 0.90, 1.69 | 0.07, 0.90 | 0.14, 0.78 |
 | Bottom right | 5.50, 6.73 | 1.40, 2.39 | 0.40, 1.74 | 0.28, 0.98 |
+
+On main the right parts fall from 4.91 and 6.73 settled to 1.31 and 2.39, while the left and
+middle rise from about 1.2 to about 1.55 and the whole wall from 1.12 to 1.51. Of Rendering's 827
+tests 3 fail with it on main, the open box at Low at 0.729, the corridor's light rising 7.84 times
+as the walk's slabs are built, and the floor at the two blocks' edge 7 levels off the trace. On the
+branch it leaves the open box, the roof slab and the lintel or the canopy failing as they did. The
+global illumination of Sponza and the Bistro takes 6.02 and 9.41 ms with it on main, against 6.02
+and 9.45 before.
+
+Against the reference of 256 paths with one bounce, which holds 0.42 of the other's light on the
+wall and 0.20 to 0.48 in its parts, the wall at zero stands at 1.26 before the rule and 1.98 after
+it, 1.39 on the branch merging at the ray's end and 0.82 merging about the probe. The surplus is the
+rule's first read, since the light past the first bounce adds 0.68 of the whole reference with it
+against the reference's own 0.58.
+
+Item 311, step two, the gather by pixel through the distance field.
+
+`gi.gather pixels` sends one ray from each texel of a grid of the window's pixels at full, half,
+quarter or eighth size (`gi.gather_size`, half unless set), traced and shaded as a screen probe's
+ray is, its way drawn by its cosine to the normal with each four by four texels holding the sixteen
+strata of the hemisphere's square once, at a place in its stratum that stays from frame to frame.
+The texels are blended with the five by five around them within the frame by the screen filter's
+second pass with no cycle standing in, nothing is kept from the frame before, and the screen's
+probes stand beside the grid for the glow lights alone. The setting stays `probes` until step
+three's sheet. The hardware scene's ray is not in it yet, since it needs a ray query build of
+`gi_screen.slang` with its bindings 17 to 20 moved off the ray scene's 18 to 20.
+
+The left wall at the door reads as below, each pair the bounce at zero over the reference of 256
+paths with one bounce and settled over the one with every bounce, the mean of the last 16 frames,
+main's row with the screen probes off as in item 313's table.
+
+| Part | Main, screen probes off | Screen probes | Gather, full | Half | Quarter | Eighth |
+|---|---|---|---|---|---|---|
+| Whole wall | 1.26, 1.12 | 2.22, 1.57 | 2.36, 1.65 | 2.32, 1.64 | 2.32, 1.62 | 2.52, 1.69 |
+| Top left | 1.22, 1.16 | 2.36, 1.70 | 2.65, 1.86 | 2.65, 1.86 | 2.67, 1.86 | 2.72, 1.87 |
+| Top middle | 1.52, 1.26 | 2.45, 1.70 | 2.21, 1.59 | 2.16, 1.57 | 2.25, 1.61 | 2.54, 1.74 |
+| Top right | 9.47, 4.91 | 9.77, 5.09 | 6.88, 3.96 | 4.06, 3.16 | 3.21, 2.00 | 11.61, 5.96 |
+| Bottom left | 0.57, 0.71 | 1.30, 1.10 | 1.46, 1.17 | 1.62, 1.25 | 1.58, 1.22 | 1.46, 1.14 |
+| Bottom middle | 1.61, 1.18 | 2.24, 1.52 | 2.60, 1.67 | 2.42, 1.61 | 2.25, 1.54 | 2.96, 1.69 |
+| Bottom right | 26.99, 6.73 | 35.06, 8.66 | 70.31, 15.89 | 20.36, 7.84 | 17.41, 4.71 | 24.48, 6.13 |
+
+The gather stands with the screen's probes and not with main's surface read, the whole wall at
+zero 2.32 at half against the probes' 2.22 and main's 1.26. A ray from the pixel brings what the
+probes' rays bring, so the first bounce's surplus on this wall lies in what a screen ray brings,
+its hit's shading or the cascades' light at its end, and not in where a probe stands. The two
+right parts, whose reference light is small enough that their ratios run from 2 to 70, swing with
+the size.
+
+The suite's 2563 tests pass with it, the gather's test at each size among them.
+
+Verdict 134, the live files' wait on a notice that came late.
+
+The test's wait polls the reloads and the watch only listens, compares no stamp, and is armed before
+`Watch` returns, so neither a write before it listens nor a shared stamp hides a save. The notice
+came late, and the mend bounds it at a minute and the watch's own reload at the quiet and 5 s after.
+
+Item 311, the gather's reach.
+
+The gather's ray goes on through the field past the probes' reach to what it meets, as far as
+`gi.gather_reach` sets and the coarsest cascade by default, and takes the cascades' light only
+where it leaves that cascade having met nothing. The screen probes' rays are as they were. The left
+wall at the door reads as below, each pair the bounce at zero over the one bounce reference and
+settled over the one with every bounce, the mean of the last 16 frames, main with the screen probes
+off reading 1.26 and 1.12 as in the table above.
+
+| Part | Screen probes | Gather to 2 units, half | Reach, full | Half | Quarter | Eighth |
+|---|---|---|---|---|---|---|
+| Whole wall | 2.22, 1.57 | 2.32, 1.64 | 1.79, 1.76 | 1.66, 1.78 | 1.39, 1.53 | 0.14, 1.14 |
+| Top left | 2.36, 1.70 | 2.65, 1.86 | 1.23, 1.53 | 1.56, 1.88 | 1.26, 1.32 | 0.04, 1.49 |
+| Top middle | 2.45, 1.70 | 2.16, 1.57 | 1.60, 1.82 | 0.40, 1.17 | 2.10, 1.92 | 0.04, 0.67 |
+| Top right | 9.77, 5.09 | 4.06, 3.16 | 5.49, 3.46 | 5.61, 4.46 | 2.20, 1.65 | 8.19, 4.50 |
+| Bottom left | 1.30, 1.10 | 1.62, 1.25 | 1.64, 1.45 | 1.45, 1.40 | 1.41, 1.28 | 0.14, 0.84 |
+| Bottom middle | 2.24, 1.52 | 2.42, 1.61 | 4.77, 2.57 | 5.25, 2.71 | 0.19, 1.85 | 0.14, 1.12 |
+| Bottom right | 35.06, 8.66 | 20.36, 7.84 | 67.01, 15.35 | 3.16, 4.58 | 23.48, 5.97 | 25.46, 7.02 |
+
+The GI's milliseconds at the passes' views, each one session of 120 frames.
+
+| Scene | Screen probes | Full | Half | Quarter | Eighth |
+|---|---|---|---|---|---|
+| Sponza | 5.99 | 10.24 | 6.08 | 5.05 | 4.78 |
+| Bistro | 9.32 | 12.76 | 7.68 | 6.93 | 6.73 |
+
+Of the wall's 33692 rays at full in the picture's first 125 columns, 2 end past the reach, against
+84 to 93 percent at 2 units, and the rest meet a face 5.0 units out on the top half and 5.5 on the
+bottom, their mean within a hundredth of the meshes'. Read beside the same rays traced through the
+meshes at the bounce at zero, the top half takes 1.31 times their light and the bottom 1.39. The
+sun's diffuse light at the hits is 1.04 and 0.83 of theirs, and the hits' gloss toward the ray adds
+0.27 and 0.23 of it, which the reference's one bounce leaves out at a face past the first. The 2
+rays past the reach crossed a wall in the field that the meshes stop them at and read the cascades
+66 units out, which adds 0.33 on the bottom half. The sun reaches the face 175 of the 33692 rays
+meet, and those rays bring the wall's light at zero, the same ones each frame, so the parts swing
+with the size, and the eighth's grid reads 0.14 at zero.
+
+The suite's 2563 tests pass with it.
+
+Item 314, the sharp scaling.
+
+`window.scaling` takes Linear, Nearest and Sharp, Linear the default, and Integer is gone. Sharp
+draws the frame onto the window in one pass of `scaled.slang` in place of the copy, each window
+pixel reading the frame at its place moved toward its frame pixel's middle and taking the next one
+by its share past the edge, read with four loads where the filter's weights are fixed point. It is
+placed as the other two are, as large as fits with black round it. A test holds Sharp equal to
+Nearest to the bit at a ratio of 2. One at 1.5 holds that the frame fills the screen as far as its
+shape lets it, that a screen pixel whose middle lies inside a frame pixel takes it whole, that one
+whose middle is on an edge is the even blend of the two either side, and that each lies within the
+colors of a square of two by two frame pixels holding the one Nearest shows. Run with Nearest in
+Sharp's place it fails at the even blend, and with Linear at the whole pixel. In the headless
+mutter at 1920 by 1080 the shown capture of Sharp at 960 by 540 is Nearest's byte for byte. The
+sheet has Sharp in Integer's column at both ratios, and the guides name the three.
+
+The suite's 2565 tests pass with it.
+
+Item 311, the gather's guide.
+
+`gi.gather_guide cascades`, off unless set, has every other texel of the gather by pixel draw its
+way from a table of eight by eight cells of the hemisphere's square, each cell weighed by the light
+the finest cascade's nearest probe holds along its middle's way times its cosine and the share of
+the hemisphere it spans, and weighs every ray, drawn either way, by its cosine over the chance of
+its way under the two draws mixed half and half. The ray goes to its hit and is lit there as
+before. The eight texels of a four by four block that draw alike take eight strata of the whole
+square, since the sixteen strata split by the checkerboard left the cosine's texels turning to one
+side and the table's drawing its middle rows alone, which read 1.35 times the irradiance of a sky
+with one bright patch in a sum over 512 by 512 texels, where the eight strata read 1.00 and the
+cosine alone 0.98. The left wall at the door reads as below, each pair the bounce at zero over the
+one bounce reference and settled over the one with every bounce, the mean of the last 16 frames.
+
+| Part | Full | Full, guided | Half | Half, guided | Quarter | Quarter, guided | Eighth | Eighth, guided |
+|---|---|---|---|---|---|---|---|---|
+| Whole wall | 1.79, 1.76 | 1.89, 1.83 | 1.66, 1.78 | 1.37, 1.62 | 1.39, 1.53 | 0.84, 1.41 | 0.14, 1.14 | 0.97, 1.10 |
+| Top left | 1.23, 1.53 | 1.11, 1.42 | 1.56, 1.88 | 0.86, 1.51 | 1.26, 1.32 | 0.88, 1.72 | 0.04, 1.49 | 0.72, 1.19 |
+| Top middle | 1.60, 1.82 | 1.72, 1.71 | 0.40, 1.17 | 1.14, 1.66 | 2.10, 1.92 | 0.74, 1.11 | 0.04, 0.67 | 0.55, 0.95 |
+| Top right | 5.49, 3.46 | 6.55, 4.35 | 5.61, 4.46 | 5.72, 4.63 | 2.20, 1.65 | 2.20, 1.88 | 8.20, 4.49 | 8.22, 4.62 |
+| Bottom left | 1.64, 1.45 | 1.63, 1.38 | 1.45, 1.40 | 0.93, 1.29 | 1.41, 1.28 | 0.57, 0.95 | 0.14, 0.84 | 0.74, 0.82 |
+| Bottom middle | 4.77, 2.57 | 6.00, 3.44 | 5.25, 2.71 | 4.95, 2.17 | 0.19, 1.85 | 1.30, 1.57 | 0.14, 1.11 | 2.99, 1.28 |
+| Bottom right | 66.97, 15.36 | 67.01, 18.27 | 3.16, 4.58 | 3.16, 3.35 | 23.47, 5.96 | 23.51, 6.40 | 25.46, 7.00 | 25.49, 6.77 |
+
+The grain is each pixel's light's mean distance from the mean of the five by five around it, over
+the mean light, in the last frame read, for the wall's 61800 pixels whose five by five lies on it
+and for the whole picture, each pair without the guide and with it.
+
+| Grain | Full | Half | Quarter | Eighth |
+|---|---|---|---|---|
+| Wall at zero | 0.664, 0.587 | 0.232, 0.205 | 0.136, 0.117 | 0.240, 0.100 |
+| Wall settled | 0.413, 0.370 | 0.165, 0.145 | 0.107, 0.097 | 0.087, 0.088 |
+| Picture at zero | 0.611, 0.535 | 0.266, 0.238 | 0.162, 0.192 | 0.135, 0.113 |
+| Picture settled | 0.436, 0.399 | 0.200, 0.188 | 0.134, 0.140 | 0.117, 0.107 |
+
+The GI's milliseconds at the passes' views, without the guide and with it in one session of 120
+frames each, the screen pass's own in the second row of each scene.
+
+| Scene | Full | Half | Quarter | Eighth |
+|---|---|---|---|---|
+| Sponza | 19.84, 20.42 | 12.02, 12.38 | 10.49, 10.44 | 10.01, 9.93 |
+| Sponza's screen pass | 9.29, 10.56 | 2.21, 2.59 | 0.67, 0.69 | 0.20, 0.22 |
+| Bistro | 12.86, 13.16 | 7.74, 7.81 | 6.90, 6.93 | 6.76, 6.76 |
+| Bistro's screen pass | 7.43, 7.71 | 2.39, 2.46 | 1.59, 1.60 | 1.42, 1.42 |
+
+Sponza's cascades' traces read 2.3 times what they read in the reach's sessions in both of today's
+two sessions, with nothing of theirs changed between and the Bistro's as they were, so Sponza reads
+11.4 with the screen probes against 5.99 in the table above, and the guide's cost is the screen
+pass's difference.
+
+Of the wall's 33692 rays at full in the picture's first 125 columns, 1273 meet a face the sun
+reaches with the guide, 3.78 percent, against 175 without it, 0.52 percent, and the guided rays'
+light is 1.30 and 1.12 of the same rays traced through the meshes on the top and bottom halves
+against 1.31 and 1.39. At the eighth the bounce at zero reads 0.97 against 0.14, its texels drawn
+toward the sunlit faces the sixteen strata missed.
+
+The whole wall's 1.79 at full and the rays' 1.31 and 1.39 read different things. The rays are the
+left third's, which the picture reads 1.23 on top and 1.64 below, and are set against the same rays
+traced through the meshes, so they hold the hits' light alone where the picture holds which ways
+were drawn as well, and the whole wall's mean is raised by its middle and right thirds by the door,
+where the reference is darkest, 5.49 at the top right and 67 at the bottom right.
+
+The model pass lights its own first face by the lights' diffuse share and by GGX toward the eye.
+Every hit a probe's ray or the gather's ray meets is lit by `glossyHit`, its gloss toward the ray
+by GGX as well, which is light that face sends toward the pixel and so belongs in the irradiance
+the pixel gathers. The reference's `ReferenceGloss.First` leaves it out at every face past the
+first and `Every` keeps it, so the hits' gloss of 0.27 and 0.23 is what First lacks, and against
+Every the hits and the reference light the same terms.
+
+The suite's 2565 tests pass with it.

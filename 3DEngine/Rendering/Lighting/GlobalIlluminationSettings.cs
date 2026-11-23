@@ -100,6 +100,18 @@ internal sealed class GlobalIlluminationSettings
     /// </summary>
     public GatherGuide GatherGuide { get; set; }
 
+    /// <summary>
+    /// Whether the gather by pixel's rays meet the window's meshes through the device's ray tracing
+    /// in place of the window's depth and the scene's distance field, and the faces they meet take
+    /// the sun through a ray of their own, as <c>gi.gather_rays on</c> sets it, where High builds
+    /// the meshes for the device's rays.
+    /// </summary>
+    /// <remarks>
+    /// Off unless set. Every face such a ray meets stops it, as a solid one does, a canopy's leaves
+    /// among them.
+    /// </remarks>
+    public bool GatherRays { get; set; }
+
     /// <summary>The window's screen probe whose rays are written for <c>gi.screenprobe</c> to read, by its index, or -1 for none.</summary>
     public int LoggedScreenProbe { get; set; } = -1;
 

@@ -1554,7 +1554,12 @@ holds along its middle's way times that way's cosine and the share of the hemisp
 under the two draws mixed half and half (`guidedWay`), so the texels' mean stays the irradiance.
 The eight texels of a four by four block that draw alike take eight strata of the whole square once
 (`guidePoint`), since the sixteen strata split by the checkerboard leave each draw two rows of them,
-the cosine's draw then turning to one side alone. The texels are blended with the five
+the cosine's draw then turning to one side alone. With `gi.gather_rays on` the screen pass's
+build with `RAY_QUERY` runs the gather in place of the plain one, its ray meeting the window's
+meshes (`meshHit` in `meshrays.slang`) from its start to its reach and the face it meets lit by
+its own normal, color and gloss (`shadeProbeHitAt`) with the sun reaching it through a ray of its
+own (`MeshSun`), the ray scene bound at 18 to 20 as for the probes' trace and the screen pass's
+bindings there moved past it. The texels are blended with the five
 by five around them within the frame by the filter's second pass with no cycle standing in, and the
 model pass reads them as it reads the probes, the grid's texel in place of the tile.
 

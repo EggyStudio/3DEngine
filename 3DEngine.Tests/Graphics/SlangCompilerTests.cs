@@ -396,16 +396,17 @@ public partial class SlangCompilerTests : IDisposable
     }
 
     [Fact]
-    public void The_Probes_Trace_Is_Built_Without_The_Crossing_Of_What_Lets_Light_Through_And_Through_The_Device_s_Rays_And_The_Screen_s_Is_Not()
+    public void The_Probes_Trace_Is_Built_Without_The_Crossing_Of_What_Lets_Light_Through_And_Through_The_Device_s_Rays_And_The_Screen_s_Through_The_Rays_Alone()
     {
         // A frame where no surface lets light through traces with the build that leaves the
-        // crossing out, at High through the device's rays where gi.meshes asks, and the
-        // screen's probes, which cross through a flag, have no such build.
+        // crossing out, at High through the device's rays where gi.meshes asks, and the screen's
+        // pass, whose probes cross through a flag, has the build alone whose gather by pixel meets
+        // the meshes through the device's rays where gi.gather_rays asks.
         var shaders = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
         string BuildsOf(string file) =>
             string.Join(", ", SlangLoader.BuildsOf(File.ReadAllText(Path.Combine(shaders, file)), shaders).Select(build => string.Join(' ', build)));
         BuildsOf("gi_trace.slang").Should().Be("RAY_QUERY, NO_LIGHT_THROUGH, RAY_QUERY NO_LIGHT_THROUGH");
-        BuildsOf("gi_screen.slang").Should().BeEmpty();
+        BuildsOf("gi_screen.slang").Should().Be("RAY_QUERY");
     }
 
     [Fact]

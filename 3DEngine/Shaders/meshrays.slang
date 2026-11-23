@@ -1,8 +1,10 @@
 // The window's meshes as the device's ray tracing holds them, which gi_trace.slang traces the
-// probes' rays through at the top quality where the device traces rays, and how a ray meets them.
+// probes' rays through at the top quality where the device traces rays, and gi_screen.slang the
+// gather by pixel's where gi.gather_rays asks, and how a ray meets them.
 module meshrays;
 
 import color;
+import gi;
 
 #if defined(RAY_QUERY)
 // Where the device traces rays, the window's meshes as its ray tracing sees them, each copy's color
@@ -143,5 +145,24 @@ public float meshDepthInside(float3 origin, float3 way, float t, uint copy)
 public float meshPassing(uint copy)
 {
     return min(asfloat(raySurfaces[copy].corners.w), 1.0);
+}
+
+// The sun found through the device's rays, a ray from the point a thousandth of a unit off its
+// face toward the sun reaching it where it meets none of the window's meshes, so a face that lies
+// closer under another than a cell of the field takes that face's shadow.
+public struct MeshSun : ISunShadow
+{
+    public float reached(GiLights lights, float3 p, float3 n, float cell)
+    {
+        RayQuery<RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> query;
+        RayDesc ray;
+        ray.Origin = p + n * 1e-3;
+        ray.Direction = lights.sunDirection.xyz;
+        ray.TMin = 0.0;
+        ray.TMax = 1e5;
+        query.TraceRayInline(rayScene, RAY_FLAG_NONE, 0xFF, ray);
+        query.Proceed();
+        return query.CommittedStatus() == COMMITTED_TRIANGLE_HIT ? 0.0 : 1.0;
+    }
 }
 #endif

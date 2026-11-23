@@ -56,7 +56,8 @@ internal sealed class GlobalIlluminationPlugin : IPlugin
                     Renderer.Build("gi_trace.slang", ["NO_LIGHT_THROUGH"], "The probes' rays cross what lets light through in every frame")?.Compute,
                     device.CanQueryRays ? Renderer.Build("gi_trace.slang", ["RAY_QUERY", "NO_LIGHT_THROUGH"], "The probes' rays are traced through the field alone")?.Compute : default,
                     device.CanQueryRays ? Renderer.Build("gi_trace.slang", ["RAY_QUERY"], "The probes' rays cross what lets light through in the field alone")?.Compute : default,
-                    server.LoadSync<ShaderProgram>("shaders/glow_faces.slang").Compute);
+                    server.LoadSync<ShaderProgram>("shaders/glow_faces.slang").Compute,
+                    device.CanQueryRays ? Renderer.Build("gi_screen.slang", ["RAY_QUERY"], "The gather by pixel's rays are traced through the field alone")?.Compute : default);
             _illumination = new GlobalIlluminationRenderer();
             renderer.RenderWorld.Set(_illumination);
             renderer.RenderWorld.Set<IIlluminationPasses>(_illumination);

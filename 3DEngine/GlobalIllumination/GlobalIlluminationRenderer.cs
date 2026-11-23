@@ -116,6 +116,11 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     /// <inheritdoc />
     public bool TracesRays => _rays is not null;
 
+    // The window's meshes the gather by pixel's rays meet through the device's rays where
+    // gi.gather_rays asks and they are built, or null for the field.
+    private GpuRayScene? GatherRays(RenderWorld renderWorld) =>
+        renderWorld.TryGet<GlobalIlluminationSettings>() is { GatherRays: true } ? _rays : null;
+
     /// <summary>
     /// Whether the screen's probes stand for the glow lights alone this frame, which they do at
     /// <see cref="GlobalIllumination.Low"/>, which leaves them out, while some glow light is lit.
@@ -311,7 +316,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
                 renderWorld.TryGet<GlobalIlluminationSettings>());
             _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
                 renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbe ?? -1, glowOnly,
-                renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbeNotANumber ?? false, _lightThrough)));
+                renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbeNotANumber ?? false, _lightThrough, GatherRays(renderWorld))));
             _lastScreen = (window.Unjittered, window.Eye, seen);
         }
         else if (_screen is not null)
@@ -371,7 +376,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         var jitter = JitterAt(_frame, tile);
         var bytes = ViewBytes(camera, inverse, at, seen, state.Screen, depth.Extent, size, jitter, state.Last, renderWorld.TryGet<RenderOrigin>(), settings);
         _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
-            glowOnly: glowOnly, lightThrough: _lightThrough)));
+            glowOnly: glowOnly, lightThrough: _lightThrough, rays: GatherRays(renderWorld))));
         state.Last = (camera, at, seen);
         targets.ByTarget[id] = new IlluminationBinding(_gi, field.Field, state.Screen, depth, GlowLights: _glowCount);
     }

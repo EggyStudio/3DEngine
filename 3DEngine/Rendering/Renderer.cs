@@ -260,15 +260,15 @@ internal sealed class Renderer : IDisposable
 
     /// <summary>
     /// Each build beside the plain ones the engine loads on a device that traces rays where
-    /// <paramref name="rays"/> says, the model pass's, the probes' trace's and the circular
-    /// occluders' main pass's at eight points a pixel.
+    /// <paramref name="rays"/> says, the model pass's, the probes' trace's, the screen pass's and
+    /// the circular occluders' main pass's at eight points a pixel.
     /// </summary>
     internal static (string File, string[] Defines)[] Builds(bool rays)
     {
         string[] traces = rays ? ["RAY_QUERY"] : [];
         return [("model.slang", traces), ("model.slang", [.. traces, "NO_GLOW_LIGHTS"]),
             ("model_streams.slang", ["NO_GLOW_LIGHTS"]), ("model.slang", ["NO_BOUNCE"]), ("model_streams.slang", ["NO_BOUNCE"]),
-            ("gi_trace.slang", ["NO_LIGHT_THROUGH"]), ("gi_trace.slang", [.. traces, "NO_LIGHT_THROUGH"]), ("gi_trace.slang", traces),
+            ("gi_trace.slang", ["NO_LIGHT_THROUGH"]), ("gi_trace.slang", [.. traces, "NO_LIGHT_THROUGH"]), ("gi_trace.slang", traces), ("gi_screen.slang", traces),
             ("ao_cortao_main.slang", [CircularOccluders.EightOccluders])];
     }
 
