@@ -80,7 +80,8 @@ public struct Lighting
     // w: the switches a reading sets, 1 where every surface is drawn white, the light alone
     // (gi.albedo off), 2 where the reflection of the indirect light is left out (gi.specular off)
     // and 4 where the materials' normal maps are, the faces lit by their own normals (gi.normals
-    // off), set with global illumination off as well.
+    // off), set with global illumination off as well. 8 where the surfaces' roughness is left as
+    // the materials give it, and 16 where the screen's texels are the gather by pixel's.
     public float4 screen;
     // The window's camera this frame, a place to clip space and back, and the frame before's, both
     // ways, which a glossy surface's reflection is traced through the window's depth with and

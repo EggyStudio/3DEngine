@@ -170,6 +170,53 @@ public float3 screenBounced(ScreenProbesHere probes)
     return sum.w > 1e-3 ? sum.rgb / sum.w / 3.14159265 : float3(-1.0);
 }
 
+// How alike a screen texel's surface is to the fragment's, by its normal and by how near its
+// distance from the eye is to the distance the fragment's own plane lies at under the texel's
+// middle, as screenProbesHere weighs the probes, or -1 for a texel on no surface or with no light.
+float screenTexelLike(ModelVertexOutput input, float3 n, int2 at, float2 place, float3 acrossOne, float3 downOne)
+{
+    float4 surface = screenSurfaces.Load(int3(at, 0));
+    if (surface.w < 0.0 || screenLight.Load(int3(at, 0)).a < 0.5)
+        return -1.0;
+    float2 toTexel = (float2(at) + 0.5) * lighting.screen.x - place;
+    float expected = length(input.toEye - acrossOne * toTexel.x - downOne * toTexel.y);
+    return pow(saturate(dot(n, surface.xyz)), 8.0)
+         * exp(-abs(surface.w - expected) / (0.02 * length(input.toEye) + 0.05));
+}
+
+// The indirect light of the gather by pixel's texel nearest the pixel a fragment is at that stands
+// on a surface like its own for at least a quarter, irradiance over pi, the texel under the pixel
+// first and then the eight around it, or -1 where none does. A pixel at a surface's edge whose own
+// texel shows the surface behind, as where a pixel's samples cover the edge but its middle does
+// not, reads the texel beside it on its own surface.
+public float3 screenNearest(ModelVertexOutput input, float3 n)
+{
+    uint across, down;
+    screenLight.GetDimensions(across, down);
+    float2 place = screenPlace(input);
+    int2 under = clamp(int2(floor(place / lighting.screen.x)), int2(0), int2(int(across) - 1, int(down) - 1));
+    float3 acrossOne = worldAcross(input), downOne = worldDown(input);
+    if (screenTexelLike(input, n, under, place, acrossOne, downOne) >= 0.25)
+        return screenLight.Load(int3(under, 0)).rgb / 3.14159265;
+    float nearest = 1e9;
+    int2 found = int2(-1);
+    for (int y = -1; y <= 1; y++)
+        for (int x = -1; x <= 1; x++)
+        {
+            int2 at = under + int2(x, y);
+            if ((x == 0 && y == 0) || any(at < int2(0)) || at.x >= int(across) || at.y >= int(down))
+                continue;
+            float2 toTexel = (float2(at) + 0.5) * lighting.screen.x - place;
+            float far = dot(toTexel, toTexel);
+            if (far < nearest && screenTexelLike(input, n, at, place, acrossOne, downOne) >= 0.25)
+            {
+                nearest = far;
+                found = at;
+            }
+        }
+    return found.x >= 0 ? screenLight.Load(int3(found, 0)).rgb / 3.14159265 : float3(-1.0);
+}
+
 // The light the glow lights send a pixel straight, irradiance over pi, as gi_screen_glow.slang left
 // it on the two by two texels of the window's depth around the pixel, the share each texel takes of
 // the rough light of the glow light that gives it the most of it near it (glowLightRough,
@@ -507,6 +554,19 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
         // it falls short, since the few like probes it has, normalized to the whole, lend it the
         // light of the wall behind.
         float matched = screenMatched(probes);
+        // The gather by pixel's texels each stand at a pixel's own place, so at its full size a
+        // pixel reads its own texel, or the nearest like one where its own shows another surface,
+        // and at the smaller sizes a pixel its four texels fall short for reads the nearest like
+        // texel, before the world's probes in either case.
+        if (screen && (switches & 16u) != 0u && (lighting.screen.x <= 1.0 || bouncedHere.x < 0.0 || matched < 0.25))
+        {
+            float3 nearest = screenNearest(input, facingEye);
+            if (nearest.x >= 0.0)
+            {
+                bouncedHere = nearest;
+                matched = 1.0;
+            }
+        }
         float near = bouncedHere.x >= 0.0 ? screenHoldPlaced(input.place, n) * saturate(matched / 0.25) : 0.0;
         if (near < 1.0)
         {

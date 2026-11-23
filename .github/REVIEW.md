@@ -948,3 +948,53 @@ work on the card, so the Sponza rows of the times in the guide's Reply read high
 A descriptor pool leaves out a layout taken for no sets, since the screen pass's build with the
 rays, made on a device that traces rays and run only where the setting asks, otherwise put the ray
 scene's kind in the pool with a count of none. The suite's 2565 tests pass with it.
+
+Item 311, the gather's edges, the copies' colors and the sheet.
+
+With the gather by pixel the model pass reads a pixel's own texel at full size where that texel
+stands on a surface like the pixel's for at least a quarter, and otherwise the nearest of the eight
+around it that does. At the smaller sizes a pixel whose four texels stand on a like surface for
+under a quarter of their weight reads the nearest like texel the same way. The world's probes come
+in only where no texel around is like it (`screenNearest` in `modelpass.slang`, 16 among the
+lighting's switches saying the texels are the gather's). The 452 pixels on the wall's edge by the
+door, which the window draws at four samples a pixel, read 0.177 at full through the field and
+through the rays against the reference's 0.075, where they read 0.539, and 0.245 at half where they
+read 0.399. The parts read as below over the reference of one bounce with every face's gloss, the
+last two columns over the same reference traced with the copies' colors past the first face.
+
+| Part | Field, full | Rays, full | Field, half | Rays, half | Rays, full, copies' colors | Rays, half, copies' colors |
+|---|---|---|---|---|---|---|
+| Whole wall | 1.46 | 0.89 | 1.35 | 0.63 | 0.93 | 0.66 |
+| Top left | 1.01 | 0.84 | 1.28 | 0.83 | 0.89 | 0.87 |
+| Top middle | 1.34 | 1.05 | 0.33 | 0.25 | 1.10 | 0.27 |
+| Top right | 1.67 | 1.67 | 3.55 | 3.59 | 1.75 | 3.74 |
+| Bottom left | 1.36 | 0.92 | 1.17 | 0.67 | 0.97 | 0.70 |
+| Bottom middle | 4.01 | 0.59 | 4.31 | 0.28 | 0.61 | 0.29 |
+| Bottom right | 61.24 | 1.34 | 0.12 | 0.12 | 1.54 | 0.14 |
+
+The top right reads 1.67 at full through the field and through the rays, where it read 4.64 and
+4.62. The bottom right reads 1.34 through the rays where it read 20.9, and 61.2 through the field,
+whose own texels at the wall's foot read high as before. At half the top right reads 3.55 and 3.59
+where it read 4.74 and 4.78. The bottom right reads 0.12 through both where it read 3.54 and 3.55,
+since the nearest like texels at the wall's foot by the door hold next to no light through either,
+where the reference holds little, 0.0028 over the 164 pixels of its edge. The 93 pixels of the top
+right three or more from its edge read next to nothing in every run, before the change as well,
+against the reference's 0.017.
+
+The reference traced with each copy's own color times its corners' at the faces past the first, as
+the device's rays in the gather take them, reads 0.954 of the one with the materials' textures over
+the wall. The rays read 0.93 over it at full and 0.66 at half, so the 0.91 before the change would
+read 0.95, and the rest of the shortfall at full is not the colors. The reference bends the faces
+past the first by their normal maps as well, which the rays' hits do not, and that is not read
+apart.
+
+`2026-11-23-item-311-door-rays.webp` shows the reference, the gather through the field and through
+the device's rays at full, each one's difference from the reference and the figures above. The
+gather at full holds its light at zero in a lattice of bright texels along diagonals with dark
+between, the same before the change. A still view draws the same ways each frame, so the mean of 16
+frames keeps it, and the difference shows it as red patches over the fifteen by fifteen pixels it
+is read over. The GI's milliseconds under the exclusive lock with the card otherwise idle read 5.15
+at the door with the screen probes, 8.40 through the field at full and 10.29 through the rays, and
+5.19 and 5.68 at half, and in the atrium 5.92, 10.20 and 10.05, and 6.13 and 6.05.
+
+The suite's 2565 tests pass with it.

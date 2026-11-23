@@ -1561,7 +1561,12 @@ its own normal, color and gloss (`shadeProbeHitAt`) with the sun reaching it thr
 own (`MeshSun`), the ray scene bound at 18 to 20 as for the probes' trace and the screen pass's
 bindings there moved past it. The texels are blended with the five
 by five around them within the frame by the filter's second pass with no cycle standing in, and the
-model pass reads them as it reads the probes, the grid's texel in place of the tile.
+model pass reads them as it reads the probes, the grid's texel in place of the tile. At full size a
+pixel reads its own texel alone, and at the smaller sizes a pixel whose four texels stand on a
+surface like its own for under a quarter of their weight reads the nearest texel that does, the one
+under it first and then the eight around it (`screenNearest`), the world's probes coming in only
+where none does. A pixel at a wall's edge whose own texel shows the surface beyond, as where the
+pixel's samples cover the wall but its middle does not, so reads the wall's texel beside it.
 
 A glossy surface traces its reflection in the model pass (`tracedReflection` in
 `lights.slang`), where it has its own normal, its normal map's included, and its roughness, so
