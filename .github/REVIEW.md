@@ -945,3 +945,74 @@ mutter at 1920 by 1080 the shown capture of Sharp at 960 by 540 is Nearest's byt
 sheet has Sharp in Integer's column at both ratios, and the guides name the three.
 
 The suite's 2565 tests pass with it.
+
+Item 311, the gather's guide.
+
+`gi.gather_guide cascades`, off unless set, has every other texel of the gather by pixel draw its
+way from a table of eight by eight cells of the hemisphere's square, each cell weighed by the light
+the finest cascade's nearest probe holds along its middle's way times its cosine and the share of
+the hemisphere it spans, and weighs every ray, drawn either way, by its cosine over the chance of
+its way under the two draws mixed half and half. The ray goes to its hit and is lit there as
+before. The eight texels of a four by four block that draw alike take eight strata of the whole
+square, since the sixteen strata split by the checkerboard left the cosine's texels turning to one
+side and the table's drawing its middle rows alone, which read 1.35 times the irradiance of a sky
+with one bright patch in a sum over 512 by 512 texels, where the eight strata read 1.00 and the
+cosine alone 0.98. The left wall at the door reads as below, each pair the bounce at zero over the
+one bounce reference and settled over the one with every bounce, the mean of the last 16 frames.
+
+| Part | Full | Full, guided | Half | Half, guided | Quarter | Quarter, guided | Eighth | Eighth, guided |
+|---|---|---|---|---|---|---|---|---|
+| Whole wall | 1.79, 1.76 | 1.89, 1.83 | 1.66, 1.78 | 1.37, 1.62 | 1.39, 1.53 | 0.84, 1.41 | 0.14, 1.14 | 0.97, 1.10 |
+| Top left | 1.23, 1.53 | 1.11, 1.42 | 1.56, 1.88 | 0.86, 1.51 | 1.26, 1.32 | 0.88, 1.72 | 0.04, 1.49 | 0.72, 1.19 |
+| Top middle | 1.60, 1.82 | 1.72, 1.71 | 0.40, 1.17 | 1.14, 1.66 | 2.10, 1.92 | 0.74, 1.11 | 0.04, 0.67 | 0.55, 0.95 |
+| Top right | 5.49, 3.46 | 6.55, 4.35 | 5.61, 4.46 | 5.72, 4.63 | 2.20, 1.65 | 2.20, 1.88 | 8.20, 4.49 | 8.22, 4.62 |
+| Bottom left | 1.64, 1.45 | 1.63, 1.38 | 1.45, 1.40 | 0.93, 1.29 | 1.41, 1.28 | 0.57, 0.95 | 0.14, 0.84 | 0.74, 0.82 |
+| Bottom middle | 4.77, 2.57 | 6.00, 3.44 | 5.25, 2.71 | 4.95, 2.17 | 0.19, 1.85 | 1.30, 1.57 | 0.14, 1.11 | 2.99, 1.28 |
+| Bottom right | 66.97, 15.36 | 67.01, 18.27 | 3.16, 4.58 | 3.16, 3.35 | 23.47, 5.96 | 23.51, 6.40 | 25.46, 7.00 | 25.49, 6.77 |
+
+The grain is each pixel's light's mean distance from the mean of the five by five around it, over
+the mean light, in the last frame read, for the wall's 61800 pixels whose five by five lies on it
+and for the whole picture, each pair without the guide and with it.
+
+| Grain | Full | Half | Quarter | Eighth |
+|---|---|---|---|---|
+| Wall at zero | 0.664, 0.587 | 0.232, 0.205 | 0.136, 0.117 | 0.240, 0.100 |
+| Wall settled | 0.413, 0.370 | 0.165, 0.145 | 0.107, 0.097 | 0.087, 0.088 |
+| Picture at zero | 0.611, 0.535 | 0.266, 0.238 | 0.162, 0.192 | 0.135, 0.113 |
+| Picture settled | 0.436, 0.399 | 0.200, 0.188 | 0.134, 0.140 | 0.117, 0.107 |
+
+The GI's milliseconds at the passes' views, without the guide and with it in one session of 120
+frames each, the screen pass's own in the second row of each scene.
+
+| Scene | Full | Half | Quarter | Eighth |
+|---|---|---|---|---|
+| Sponza | 19.84, 20.42 | 12.02, 12.38 | 10.49, 10.44 | 10.01, 9.93 |
+| Sponza's screen pass | 9.29, 10.56 | 2.21, 2.59 | 0.67, 0.69 | 0.20, 0.22 |
+| Bistro | 12.86, 13.16 | 7.74, 7.81 | 6.90, 6.93 | 6.76, 6.76 |
+| Bistro's screen pass | 7.43, 7.71 | 2.39, 2.46 | 1.59, 1.60 | 1.42, 1.42 |
+
+Sponza's cascades' traces read 2.3 times what they read in the reach's sessions in both of today's
+two sessions, with nothing of theirs changed between and the Bistro's as they were, so Sponza reads
+11.4 with the screen probes against 5.99 in the table above, and the guide's cost is the screen
+pass's difference.
+
+Of the wall's 33692 rays at full in the picture's first 125 columns, 1273 meet a face the sun
+reaches with the guide, 3.78 percent, against 175 without it, 0.52 percent, and the guided rays'
+light is 1.30 and 1.12 of the same rays traced through the meshes on the top and bottom halves
+against 1.31 and 1.39. At the eighth the bounce at zero reads 0.97 against 0.14, its texels drawn
+toward the sunlit faces the sixteen strata missed.
+
+The whole wall's 1.79 at full and the rays' 1.31 and 1.39 read different things. The rays are the
+left third's, which the picture reads 1.23 on top and 1.64 below, and are set against the same rays
+traced through the meshes, so they hold the hits' light alone where the picture holds which ways
+were drawn as well, and the whole wall's mean is raised by its middle and right thirds by the door,
+where the reference is darkest, 5.49 at the top right and 67 at the bottom right.
+
+The model pass lights its own first face by the lights' diffuse share and by GGX toward the eye.
+Every hit a probe's ray or the gather's ray meets is lit by `glossyHit`, its gloss toward the ray
+by GGX as well, which is light that face sends toward the pixel and so belongs in the irradiance
+the pixel gathers. The reference's `ReferenceGloss.First` leaves it out at every face past the
+first and `Every` keeps it, so the hits' gloss of 0.27 and 0.23 is what First lacks, and against
+Every the hits and the reference light the same terms.
+
+The suite's 2565 tests pass with it.

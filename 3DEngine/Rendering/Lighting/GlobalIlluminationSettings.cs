@@ -95,6 +95,11 @@ internal sealed class GlobalIlluminationSettings
     /// </summary>
     public float GatherReach { get; set; }
 
+    /// <summary>
+    /// Where the gather by pixel draws its rays' ways from, as <c>gi.gather_guide</c> sets it.
+    /// </summary>
+    public GatherGuide GatherGuide { get; set; }
+
     /// <summary>The window's screen probe whose rays are written for <c>gi.screenprobe</c> to read, by its index, or -1 for none.</summary>
     public int LoggedScreenProbe { get; set; } = -1;
 

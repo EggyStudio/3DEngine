@@ -308,7 +308,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             // The window's camera without its move, with its eye where the frame noted it.
             var seen = window.Turned is { } turned ? new ViewEye(window.Eye, turned * window.Back) : (ViewEye?)null;
             var bytes = ViewBytes(window.Unjittered, inverse, window.Eye, seen, _screen, depth.Extent, swapchain.Extent, jitter, _lastScreen, origin,
-                renderWorld.TryGet<GlobalIlluminationSettings>()?.GatherReach ?? 0);
+                renderWorld.TryGet<GlobalIlluminationSettings>());
             _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
                 renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbe ?? -1, glowOnly,
                 renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbeNotANumber ?? false, _lightThrough)));
@@ -369,7 +369,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         var seen = renderWorld.TryGet<ModelDrawList>()?.EyeOf(camera);
         var at = seen?.Eye ?? new Vector3(eye.X, eye.Y, eye.Z) / eye.W;
         var jitter = JitterAt(_frame, tile);
-        var bytes = ViewBytes(camera, inverse, at, seen, state.Screen, depth.Extent, size, jitter, state.Last, renderWorld.TryGet<RenderOrigin>(), settings.GatherReach);
+        var bytes = ViewBytes(camera, inverse, at, seen, state.Screen, depth.Extent, size, jitter, state.Last, renderWorld.TryGet<RenderOrigin>(), settings);
         _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordScreenProbes(renderContext.CommandBuffer, _gi, state.Screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
             glowOnly: glowOnly, lightThrough: _lightThrough)));
         state.Last = (camera, at, seen);
@@ -410,7 +410,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     // frame's, since the passes read them with this frame's places, and a camera whose eye the frame
     // noted (seen) from its eye, so no float of the world's size is in it.
     private byte[] ViewBytes(Matrix4x4 viewProjection, Matrix4x4 inverse, Vector3 eye, ViewEye? seen, GpuScreenProbes screen, Extent2D depth,
-        Extent2D size, Vector2 jitter, (Matrix4x4 ViewProjection, Vector3 Eye, ViewEye? Seen)? last, RenderOrigin origin, float gatherReach)
+        Extent2D size, Vector2 jitter, (Matrix4x4 ViewProjection, Vector3 Eye, ViewEye? Seen)? last, RenderOrigin origin, GlobalIlluminationSettings? settings)
     {
         var bytes = new byte[GpuScreenProbes.ViewBytes];
         var placedView = origin.Seen(viewProjection, seen);
@@ -418,7 +418,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         MemoryMarshal.Write(bytes.AsSpan(64), Matrix4x4.Invert(placedView, out var placedInverse) ? placedInverse : origin.Inverse(inverse));
         var floats = MemoryMarshal.Cast<byte, float>(bytes.AsSpan());
         var placed = origin.Against(eye);
-        (floats[32], floats[33], floats[34], floats[35]) = (placed.X, placed.Y, placed.Z, gatherReach);
+        (floats[32], floats[33], floats[34], floats[35]) = (placed.X, placed.Y, placed.Z, settings?.GatherReach ?? 0);
         (floats[36], floats[37], floats[38]) = (screen.Tile, screen.Across, screen.Down);
         // What of the screen's blend is left out, the frame before's light and the neighbors'.
         floats[39] = _switches is { } off ? (off.HistoryOff ? 1 : 0) + (off.FilterOff ? 2 : 0) : 0;
@@ -434,7 +434,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             var thenPlaced = origin.Against(then.Eye);
             (floats[64], floats[65], floats[66], floats[67]) = (thenPlaced.X, thenPlaced.Y, thenPlaced.Z, still ? 2 : 1);
         }
-        floats[72] = _glowCount;
+        (floats[72], floats[73]) = (_glowCount, settings?.GatherGuide == GatherGuide.Cascades ? 1 : 0);
         var uints = MemoryMarshal.Cast<byte, uint>(bytes.AsSpan());
         uints[75] = _fieldRebuilt;
         var (changedLow, changedHigh) = (origin.Against(_fieldChanged.Min), origin.Against(_fieldChanged.Max));

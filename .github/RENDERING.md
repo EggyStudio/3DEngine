@@ -1544,9 +1544,17 @@ leaves the coarsest cascade. Ended at the probes' reach, a ray reads the cascade
 way there, which lends the light their probes see of a sunlit floor to ways that go on to meet a
 dark wall, and the wall across the room from the floor at Sponza's door took light the triangles'
 reference does not give it. The ray's way is drawn by its cosine to the normal (`cosineWay` in
-`gi_screen.slang`), each four by four texels holding the sixteen strata of the hemisphere's square
+`gi_ways.slang`), each four by four texels holding the sixteen strata of the hemisphere's square
 once as a probe's sixteen rays do, at a place in its stratum the same from frame to frame, so a
-still view holds still with nothing kept from the frame before. The texels are blended with the five
+still view holds still with nothing kept from the frame before. With `gi.gather_guide cascades`
+every other texel draws its way from a table of eight by eight cells of the hemisphere's square in
+place, each cell weighed by the brightness of the light the nearest probe of the finest cascade
+holds along its middle's way times that way's cosine and the share of the hemisphere it spans
+(`guideWeight`), and each ray, drawn either way, is weighed by its cosine over the chance of its way
+under the two draws mixed half and half (`guidedWay`), so the texels' mean stays the irradiance.
+The eight texels of a four by four block that draw alike take eight strata of the whole square once
+(`guidePoint`), since the sixteen strata split by the checkerboard leave each draw two rows of them,
+the cosine's draw then turning to one side alone. The texels are blended with the five
 by five around them within the frame by the filter's second pass with no cycle standing in, and the
 model pass reads them as it reads the probes, the grid's texel in place of the tile.
 

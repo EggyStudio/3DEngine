@@ -17,6 +17,7 @@ import gi;
 import probelight;
 import scenefield;
 import lightthrough;
+import gi_ways;
 
 [[vk::binding(0, 0)]]
 Sampler2D depth;
@@ -191,31 +192,6 @@ float3 wayAlong(float2 uv, float3 p, float2 texel)
     return aheadIn && (!behindIn || dot(aheadMiss, aheadMiss) <= dot(behindMiss, behindMiss)) ? ahead - p : p - behind;
 }
 
-// A direction of the hemisphere around +z for a point of the square, the octahedron's upper half
-// unfolded onto it, its length before it was made one in w.
-float4 hemisphere(float2 uv)
-{
-    float2 a = uv * 2.0 - 1.0;
-    float x = (a.x + a.y) * 0.5, y = (a.x - a.y) * 0.5;
-    float3 d = float3(x, y, 1.0 - abs(x) - abs(y));
-    return float4(normalize(d), length(d));
-}
-
-// A way of the hemisphere around +z for the texel at id, as likely as the cosine of its angle to
-// +z. Each four by four block of texels holds the sixteen strata of the square once, in the order
-// the probes' places take (TracePlaces), so a blend over the block takes the ways a probe's sixteen
-// rays would, each texel at a place in its stratum spread over the block (interleaved gradient
-// noise), the same from frame to frame, so a still view holds still with no history.
-float3 cosineWay(uint2 id)
-{
-    uint stratum = TracePlaces[(id.x & 3u) + 4u * (id.y & 3u)];
-    float2 at = float2(id);
-    float2 spread = frac(52.9829189 * frac(float2(dot(at, float2(0.06711056, 0.00583715)), dot(at.yx, float2(0.06711056, 0.00583715)))));
-    float2 square = (float2(stratum & 3u, stratum >> 2u) + spread) / 4.0;
-    float r = sqrt(square.x), turn = 2.0 * Pi * square.y;
-    return float3(r * cos(turn), r * sin(turn), sqrt(max(1.0 - square.x, 0.0)));
-}
-
 // The texels along each side of the world's cascade c's octahedron.
 uint texelsOf(uint c)
 {
@@ -238,6 +214,19 @@ float4 mergedOf(uint c, int4 at)
     default:
         return mergedFifth.Load(at);
     }
+}
+
+// The guide's weight for a cell of its table, the brightness of the light the world's probe at
+// `probe` of cascade c holds along the way through the cell's middle, times that way's cosine to
+// the normal and the share of the hemisphere the cell spans.
+float guideWeight(int2 cell, float3 side, float3 along, float3 n, uint c, int3 probe)
+{
+    float4 local = hemisphere((float2(cell) + 0.5) / float(GuideCells));
+    float3 way = side * local.x + along * local.y + n * local.z;
+    uint texels = texelsOf(c);
+    int2 texel = min(int2(octahedron(way) * float(texels)), int2(int(texels) - 1));
+    float4 light = mergedOf(c, int4(probe.xy * int(texels) + texel, probe.z, 0));
+    return light.a > 0.25 ? luminance(light.rgb) * local.z / (local.w * local.w * local.w) : 0.0;
 }
 
 // The finest of the cascades the screen's probes stand in that holds p, its eight probes around p
@@ -594,6 +583,25 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // The gather by pixel sends one ray a texel, drawn by the cosine of its angle to the normal, so
     // its light times pi is the texel's irradiance whatever weight it is given (cosineWay).
     uint rays = pixels ? 1u : Rays;
+    // The gather by pixel's guide, as gi.gather_guide cascades sets it (the view's glows' y), a
+    // table of the light the probe of the finest cascade nearest the surface holds along each way
+    // of the hemisphere around the normal (guideWeight).
+    float guideCells[GuideCells * GuideCells];
+    float guideTotal = 0.0;
+    uint guideCascade;
+    int3 guideBase;
+    float3 guideFrom;
+    for (int g = 0; g < GuideCells * GuideCells; g++)
+        guideCells[g] = 0.0;
+    if (pixels && view.glows.y > 0.5 && finestAround(start, guideCascade, guideBase, guideFrom))
+    {
+        int3 probe = clamp(guideBase + int3(step(0.5, guideFrom)), int3(0), int3(int(view.trace.y) - 1));
+        for (int g = 0; g < GuideCells * GuideCells; g++)
+        {
+            guideCells[g] = guideWeight(int2(g % GuideCells, g / GuideCells), side, along, n, guideCascade, probe);
+            guideTotal += guideCells[g];
+        }
+    }
     for (uint v = 0u; v < rays; v++)
         for (uint u = 0u; u < rays; u++)
         {
@@ -603,6 +611,14 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             // texel spans, one over the cube of its octahedron point's distance, as the gather of
             // the world's probes weighs its texels.
             float weight = local.z / (local.w * local.w * local.w);
+            // The ray's share of the texel's light, its weight over one where the guide draws it.
+            float counted = weight;
+            if (guideTotal > 0.0)
+            {
+                local = float4(guidedWay(id.xy, guideCells, guideTotal, weight), 1.0);
+                way = normalize(side * local.x + along * local.y + n * local.z);
+                counted = 1.0;
+            }
             float rayReach = pixels ? min(farthest, leavesProbes(start, way)) : length;
             float stepped = min(length, rayReach);
             float3 light;
@@ -725,7 +741,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 own += pastOwn * through;
             }
             sum += light * weight;
-            weights += weight;
+            weights += counted;
             if (logged)
             {
                 uint at = 4u + (v * Rays + u) * 4u;
