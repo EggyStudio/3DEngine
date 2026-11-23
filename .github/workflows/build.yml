@@ -235,11 +235,11 @@ jobs:
           version=1.4.363.0
           mkdir -p "$RUNNER_TEMP/vulkan"
           cd "$RUNNER_TEMP/vulkan"
-          curl -fsSL --retry 3 -o runtime.zip "https://sdk.lunarg.com/sdk/download/$version/windows/VulkanRT-X64-$version-Components.zip"
+          curl -fsSL --retry 5 --retry-all-errors --retry-delay 5 -o runtime.zip "https://sdk.lunarg.com/sdk/download/$version/windows/VulkanRT-X64-$version-Components.zip"
           7z x -y runtime.zip > /dev/null
           loader=$(find "$PWD" -path '*x64*' -name vulkan-1.dll | head -1)
           cp "$loader" "$GITHUB_WORKSPACE/"
-          curl -fsSL --retry 3 -o sdk.exe "https://sdk.lunarg.com/sdk/download/$version/windows/vulkansdk-windows-X64-$version.exe"
+          curl -fsSL --retry 5 --retry-all-errors --retry-delay 5 -o sdk.exe "https://sdk.lunarg.com/sdk/download/$version/windows/vulkansdk-windows-X64-$version.exe"
           ./sdk.exe --root "C:\VulkanSDK" --accept-licenses --default-answer --confirm-command install
           gh release download --repo pal1000/mesa-dist-win --pattern '*release-msvc.7z' --output mesa.7z
           7z x -y mesa.7z -omesa > /dev/null

@@ -140,9 +140,9 @@ struct TracePush
     // probe the dispatch traces, past 0 where it traces a part of the cascade's probes (the far
     // cascade's, a part a frame). z: 1 where a carried probe's rays move within their texels and meet
     // the meshes through the device's rays, 2 where every ray meets them (gi.meshes), 4 where the
-    // probes' marches read the field from their own cascade outward (fieldFloor). w: 1
-    // where the cascade traces half its probes this frame, with the half's parity in its second
-    // bit (GlobalIlluminationStages.Halved).
+    // probes' marches read the field from their own cascade outward (fieldFloor), 8 where their
+    // places do (placed). w: 1 where the cascade traces half its probes this frame, with the half's
+    // parity in its second bit (GlobalIlluminationStages.Halved).
     uint4 above;
 };
 
@@ -183,20 +183,26 @@ SceneFieldInfo gatheredAt()
 
 // Where the probe whose spot in the grid is at stands, moved off a surface nearer than Clearance of
 // the spacing, or out of a mesh, along the field's normal, by MostMoved of the spacing at most, as
-// its move in its spacing, with w 1 where it then stands outside every mesh. Above the first
-// cascade, a spot in or beside a wall between a space narrower than the spacing and a wider one
-// goes into the narrow one, through the wall's farther face, since the wider holds the probes
-// beside it and the narrow one would hold none. Moved out through their nearer faces, the spots in
-// the walls of a corridor narrower than the spacing leave it no probe of the cascades above the
-// first, and the walls by its open end, past the first cascade's reach, take no light past the
-// first bounce. The first cascade's probes are not moved so, and a space narrow along one axis
-// alone does not draw a probe in (narrowAt), since either moves a room's light further from the
-// light it receives.
-float4 placed(float3 at, float apart)
+// its move in its spacing, with w 1 where it then stands outside every mesh. The field is read from
+// the finest cascade holding the spot, so a probe by a face of a finer cascade's box stands
+// elsewhere each time that box moves with the eye, or where own holds (gi.own_place) from the
+// probe's own cascade outward (fieldOfProbes), so where it stands follows the world alone. Above
+// the first cascade, a spot in or beside a wall, or where own holds in it alone, between a space
+// narrower than the spacing and a wider one goes into the narrow one, through the wall's farther
+// face, since the wider holds the probes beside it and the narrow one would hold none. Moved out
+// through their nearer faces, the spots in the walls of a corridor narrower than the spacing leave
+// it no probe of the cascades above the first, and the walls by its open end, past the first
+// cascade's reach, take no light past the first bounce. The first cascade's probes are not moved
+// so, and a space narrow along one axis alone does not draw a probe in (narrowAt), since either
+// moves a room's light further from the light it receives.
+float4 placed(float3 at, float apart, bool own, int ownFloor)
 {
+    int floorBefore = fieldFloor;
+    fieldFloor = own ? ownFloor : fieldFloor;
     SheetVolume sheets = SheetVolume(sceneField, fieldSecond);
     float3 p = at;
     float d = fieldDistanceSheet(sheets, fieldInfo, p);
+    float least = d;
     float3 normal = fieldNormalSheet(sheets, fieldInfo, p);
     bool near = d < Clearance * apart;
     for (int step = 0; step < 4 && d < Clearance * apart; step++)
@@ -208,11 +214,10 @@ float4 placed(float3 at, float apart)
             p = at + move * (MostMoved * apart / length);
         d = fieldDistanceSheet(sheets, fieldInfo, p);
     }
-    if (near && push.cascade.x >= 1u)
+    if (near && push.cascade.x >= 1u && (!own || least <= 0.0))
     {
         // Past the farther side of what the spot stands in or beside, the first point clear by
         // Clearance once the way has crossed a surface.
-        float least = fieldDistanceSheet(sheets, fieldInfo, at);
         for (int k = 1; k <= 8; k++)
         {
             float3 q = at - normal * (MostMoved * apart * float(k) / 8.0);
@@ -229,6 +234,7 @@ float4 placed(float3 at, float apart)
             }
         }
     }
+    fieldFloor = floorBefore;
     return float4((p - at) / apart, d >= 0.0 ? 1.0 : 0.0);
 }
 
@@ -326,8 +332,9 @@ bool skyPastAbove(float3 way, float3 origin, int3 baseAbove, uint probes)
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
 {
+    int ownFloor = fieldOfProbes(fieldInfo, int(push.cascade.x), int(push.interval.w));
     if ((push.above.z & 4u) != 0u)
-        fieldFloor = fieldOfProbes(fieldInfo, int(push.cascade.x), int(push.interval.w));
+        fieldFloor = ownFloor;
     uint probes = push.cascade.y;
     uint texels = push.cascade.z;
     // A thread a ray, a texel's rays (RaysAt) side by side in a workgroup.
@@ -357,7 +364,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     // its cascade moved since, the finding is not this probe's.
     if (lane == 0u)
     {
-        place = oc.w > 0.0 ? placed(spot, apart) : float4(0.0);
+        place = oc.w > 0.0 ? placed(spot, apart, (push.above.z & 8u) != 0u, ownFloor) : float4(0.0);
         int z = int(push.cascade.x) * int(probes) + int(at.z);
         walledIn = place.w > 0.5 && push.follow.x != 0u && held[int3(2 * int(probes) + int(at.x), int(at.y), z)].w > 0.5;
         held[int3(3 * int(probes) + int(at.x), int(at.y), z)] = walledIn ? float4(place.xyz, 0.0) : place;

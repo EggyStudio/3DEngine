@@ -69,7 +69,7 @@ jobs:
       - name: Make the scene packs from BevyCSharp's
         run: |
           while read -r name source; do
-            curl -fsSL --retry 3 -o bevy.pack "https://github.com/EggyStudio/BevyCSharp/releases/download/scene-packs/$name.pack"
+            curl -fsSL --retry 5 --retry-all-errors --retry-delay 5 -o bevy.pack "https://github.com/EggyStudio/BevyCSharp/releases/download/scene-packs/$name.pack"
             python build/make-scene-pack.py bevy.pack "$name.pack" --sha256 "$source"
             rm bevy.pack
             size=$(stat -c %s "$name.pack"); hash=$(sha256sum "$name.pack" | cut -d' ' -f1)

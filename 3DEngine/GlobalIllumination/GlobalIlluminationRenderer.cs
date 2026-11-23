@@ -286,7 +286,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, sunMap, sunSampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
             far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart, switches.MeshesTraced || moving ? _rays : null, shifts, CarriedShare, CarriedSince, CarriedPhase,
-            (moving ? 1u : 0) | (switches.MeshesTraced ? 2u : 0) | (switches.OwnFieldMarched ? 4u : 0), spread, _fieldRebuilt,
+            (moving ? 1u : 0) | (switches.MeshesTraced ? 2u : 0) | (switches.OwnFieldMarched ? 4u : 0) | (switches.OwnFieldPlaced ? 8u : 0), spread, _fieldRebuilt,
             origin.Against(_fieldChanged.Min), origin.Against(_fieldChanged.Max))));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval

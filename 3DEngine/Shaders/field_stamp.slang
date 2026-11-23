@@ -105,7 +105,7 @@ void computeMain(uint3 group : SV_GroupID, uint3 local : SV_GroupThreadID)
     still.paint = stillPaint[at];
     still.glow = stillGlow[at];
     still.face = stillFaces[at];
-    FieldCell stamped = stampCell(BrickShapes(push.counts.x * 4u + brick.z, brick.w), p, reach, still);
+    FieldCell stamped = stampCell(BrickShapes(push.counts.x * 4u + brick.z, brick.w), p, oc.w, reach, still);
     field[at] = float4(stamped.distance, stamped.sheet);
     albedoField[at] = stamped.paint;
     glowField[at] = stamped.glow;

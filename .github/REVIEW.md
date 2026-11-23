@@ -672,8 +672,8 @@ setting of its own and no helper.
 
 ## Verdicts
 
-Verdict 134 is settled at 11:55 on 2026-11-23, the build on `96714e78` green, the system's file
-notice late on the runner and the wait bounding the notice and the reload apart.
+The newest verdict reads the red run on 2786c574, a download reset on Windows and no fault of the
+commit; the install steps' downloads should repeat every error.
 
 131. **The reflections' reference frame recorded again for item 299 differs on the runners.** In run
     44943683933 on `31c089de`, read at 22:56 on 2026-11-21, the reference frame test of
@@ -705,6 +705,15 @@ notice late on the runner and the wait bounding the notice and the reload apart.
     in `LiveReloadTests` bounds the same wait at 20 s. The mend reads whether the wait polls or only
     listens, makes it pass on a late notice where the load itself is sound, and says in the Reply
     which it was. `0ee0408e` is pushed over this red.
+
+135. **A reset download on Windows turned the run on 2786c574 red.** Read at 22:57 on 2026-11-23.
+    One job alone failed, windows (4), at the step that installs the Vulkan loader, the validation
+    layer and lavapipe. Its curl ended with exit 56, the connection reset by the far side, before
+    any test ran. Every other job passed, the three other Windows parts among them, so the commit is
+    not at fault. The failed job is started again. The step's curl carries --retry 3, which does not
+    repeat a reset connection. Ask, with the next commit that touches the workflow, that each
+    install step's curl repeats every error (--retry 5 --retry-all-errors --retry-delay 5), on
+    Windows and wherever else a tool is fetched.
 
 ## Decisions
 
@@ -884,4 +893,3 @@ numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
     module in both engines, the engine's own copies deleted as each step lands.
 
 ## Replies
-

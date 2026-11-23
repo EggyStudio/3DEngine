@@ -169,7 +169,11 @@ that stays off until it reads every view at least as near a path-traced referenc
 from the cascade they stand in outward rather than from the finest cascade holding each point, so a
 coarser cascade's light holds still where a finer cascade's box moves with the eye, a step that
 stays off since it lights some walls well past a path-traced reference, and `off` puts the finest
-first back.
+first back. `gi.own_place on` places each cascade's probes by the field from the cascade they stand
+in outward rather than from the finest cascade holding each spot, so a probe stands still where a
+finer cascade's box moves with the eye, a step that stays off since a probe deep in a passage a unit
+wide then reads the court through its opening at 0.62 of a path-traced reference, and `off` puts the
+finest first back.
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so

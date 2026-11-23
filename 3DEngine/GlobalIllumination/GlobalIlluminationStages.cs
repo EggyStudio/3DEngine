@@ -336,7 +336,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     /// <param name="traceFlags">
     /// 1 where a carried probe's rays move within their texels and are traced through
     /// <paramref name="rays"/>, 2 where every ray is, 4 where each cascade's trace and merge march
-    /// the field from the cascade its probes stand in outward.
+    /// the field from the cascade its probes stand in outward, 8 where its trace places its probes
+    /// by the field from there.
     /// </param>
     /// <param name="spread">Whether the cascades past the first trace half their probes a frame while they lie still (<see cref="Halved"/>).</param>
     /// <param name="fieldBuilt">The cascades a build of the frame changed, a bit a cascade, none where no build did.</param>
@@ -430,7 +431,7 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
                 Edge = intervals[lastCounted >= 0 ? lastCounted : gi.Cascades - 1].End,
                 BelowEnd = c > 0 ? intervals[c - 1].End : 0,
                 TexelsAbove = c + 1 < gi.Cascades && c != lastCounted ? (uint)gi.Texels[c + 1] : 0,
-                Flags = gi.CycleOn ? traceFlags : traceFlags & 6u,
+                Flags = gi.CycleOn ? traceFlags : traceFlags & 14u,
             };
             // The far cascade's probes trace one part of them a frame, layers of probes in turn,
             // each part's rays' light kept until its turn comes again, and the merge and the gather

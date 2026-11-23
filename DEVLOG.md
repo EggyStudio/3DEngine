@@ -84,6 +84,21 @@ wall's light at 11 still points as the eye steps 0.1 along it every 40 frames, w
 cascade 0 moves its box through the field and the rays alike, and the near wall's light over the
 reference's, whose blue shapes are the scene's dirt decal the reference does not hold.
 
+![](.github/assets/readings/2026-11-23-item-311-own-field.webp)
+scenes_sponza offscreen at 800 by 450, metered, with the world's cascades alone, on white under its
+title with each panel titled, view 1 and the gallery as their light over the reference's with
+gi.own_field off and on, red more and blue less, and on over off, with their figures, the light
+inside a closed room of walls of each thickness built from no field, and the gallery's back wall's
+light at 11 still points as the eye steps along it off and on, with lines under them.
+
+![](.github/assets/readings/2026-11-23-item-311-placement.webp)
+scenes_sponza offscreen at 800 by 450, metered, with the world's cascades alone, on white under its
+title with each panel titled, view 1 and the gallery as their light over the reference's with
+gi.own_place off and on, red more and blue less, the two walls boxed, with their figures, the probes
+that stood elsewhere after each move of cascade 0's box seen from above and counted by cascade, and
+the gallery's back wall's light at 11 still points as the eye steps along it off and on, with lines
+under them.
+
 ## 2026-11-22
 
 ![](.github/assets/readings/2026-11-22-item-302-console-overlay.webp)

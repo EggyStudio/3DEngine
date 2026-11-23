@@ -209,6 +209,20 @@ internal sealed class GlobalIlluminationSettings
     public bool OwnFieldMarched { get; set; }
 
     /// <summary>
+    /// Whether each cascade's probes are placed by the field from the cascade they stand in
+    /// outward, as <c>gi.own_place on</c> sets it, so a probe stands where it stood when a finer
+    /// cascade's box moves with the eye, where they are otherwise placed by its finest cascade that
+    /// holds each spot. A probe above the first cascade beside a wall then stays on its side of it.
+    /// </summary>
+    /// <remarks>
+    /// Off unless set, since a probe of the first cascade deep in a passage a unit wide then reads
+    /// the sunlit court through the passage's opening at 0.62 of a path-traced reference, the
+    /// probes of the cascade above, moved out of the passage's walls into it, giving it less of the
+    /// court's light than its own rays carried on bring.
+    /// </remarks>
+    public bool OwnFieldPlaced { get; set; }
+
+    /// <summary>
     /// The one term of the model pass's light drawn, numbered as modelpass.slang's termTaken lists
     /// them, or 0 for all, which light.terms sets in turn to read a pixel's light by its terms.
     /// </summary>
