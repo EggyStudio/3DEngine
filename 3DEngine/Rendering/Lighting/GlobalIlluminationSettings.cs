@@ -88,6 +88,13 @@ internal sealed class GlobalIlluminationSettings
     /// <summary>The size of the gather by pixel's grid, as <c>gi.gather_size</c> sets it.</summary>
     public GatherSize GatherSize { get; set; } = GatherSize.Half;
 
+    /// <summary>
+    /// How far the gather by pixel's rays are traced through the scene's distance field before the
+    /// cascades' light along their way is read, in units, or 0 for as far as the field reaches, as
+    /// <c>gi.gather_reach</c> sets it.
+    /// </summary>
+    public float GatherReach { get; set; }
+
     /// <summary>The window's screen probe whose rays are written for <c>gi.screenprobe</c> to read, by its index, or -1 for none.</summary>
     public int LoggedScreenProbe { get; set; } = -1;
 

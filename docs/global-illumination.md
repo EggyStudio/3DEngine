@@ -231,13 +231,14 @@ the same cost however many there are. In a voxel game's closed room of forty glo
 all in view, at 1280 by 720, the scene pass took 2.2 ms with the screen's probes and 1.2 with those
 standing for the glow lights alone, where each pixel marching to every glow light itself took 13.3.
 For debugging, `gi.screen off` and the box of the screen's probes in the global
-illumination window leave them out whole at any quality, those standing for the glow lights at
-`Low` with them, neither made nor traced, for the window and a render texture, so what they cost and
-give can be read, and each pixel then marches to the glow lights itself. The setting `gi.gather
-pixels` brings the light by one ray from each texel of a grid of the window's pixels in place of
-the screen's probes, at the size `gi.gather_size` sets, `half` unless set, made whole each frame
-with no light kept from the frame before and blended with the texels around it within the frame,
-and the screen's probes stand for the glow lights alone beside it.
+illumination window leave them out whole at any quality, those standing for the glow lights at `Low`
+with them, neither made nor traced, for the window and a render texture, so what they cost and give
+can be read, and each pixel then marches to the glow lights itself. The setting `gi.gather pixels`
+brings the light by one ray from each texel of a grid of the window's pixels in place of the
+screen's probes, at the size `gi.gather_size` sets, `half` unless set, each ray traced through the
+field as far as `gi.gather_reach` sets, as far as the field reaches unless set, made whole each
+frame with no light kept from the frame before and blended with the texels around it within the
+frame, and the screen's probes stand for the glow lights alone beside it.
 
 A probe's ray that meets a surface takes the light of every glow light in its reach there, about
 thirty at a hit in Ore's lit caves, of which the brightest four give nine tenths. A light giving
@@ -438,7 +439,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 | `gi.difference <png>` | Draws the frame over the window against a reference |
 | `gi.passes <on\|off>` | The setting that times global illumination's passes apart in the profile, the ray scene, each cascade's trace, the merges, the gather, the screen's probes, their filter and the glow lights, as `gpu.gi_` lines, the rest staying `gpu.global_illumination` |
 | `gi.history`, `gi.filter`, `gi.screen`, `gi.merge`, `gi.again`, `gi.follow`, `gi.glow`, `gi.through`, `gi.albedo`, `gi.specular`, `gi.normals`, `gi.spread`, `gi.points` `<on\|off>` | Settings that leave out the frame before's light, the screen's filter, the screen's probes, neither made nor traced, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, the crossing of what lets light through, the surfaces' colors, their reflection of the indirect light, their normal maps, the coarser cascades' trace in halves or the faint glow lights taken as one point |
-| `gi.gather <probes\|pixels>`, `gi.gather_size <full\|half\|quarter\|eighth>` | Settings that bring the cascades' light to the picture by the screen's probes or by one ray from each texel of a grid of the window's pixels at the size set, made whole each frame and blended within it, the screen's probes then standing for the glow lights alone |
+| `gi.gather <probes\|pixels>`, `gi.gather_size <full\|half\|quarter\|eighth>`, `gi.gather_reach <units>` | Settings that bring the cascades' light to the picture by the screen's probes or by one ray from each texel of a grid of the window's pixels at the size set, traced through the field as far as the reach set, `0` for as far as the field reaches, made whole each frame and blended within it, the screen's probes then standing for the glow lights alone |
 | `gi.cascade <cascade>`, `gi.meshes <on\|off>` | Settings that keep one cascade's light alone, `-1` for all, and trace the probes' rays through the GPU's own rays at `High` |
 | `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it, each face by where its ways were met, and the ways that carry most of the face furthest from it, each with how far its rays went against what and how far the reference's path through the texel's middle first met, and whether the probe was carried past its interval with its rays moving |
 | `field.march <x> <y> <z> [dx] [dy] [dz] [sun]` | Marches the scene's distance field from a point along a way, or toward the sun, as the passes march it, and says where it met a surface, in which cascade and cell, and each step, with `sun` marching on from that surface toward the sun as a probe's hit does |

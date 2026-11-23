@@ -10,7 +10,9 @@
 // that stand on a surface like the pixel's. A probe on no surface, or outside the world's cascades,
 // holds nothing, and the model pass reads the world's probes there. The gather by pixel runs the
 // same pass on a grid of the window's texels at full, half, quarter or eighth size, one ray each
-// and no glow light marked, the probes beside it standing for the glow lights alone.
+// and no glow light marked, the probes beside it standing for the glow lights alone. Its ray goes
+// on through the field past the probes' reach to the gather's own, as far as the coarsest cascade
+// reaches by default, and takes the light from beyond only where it meets nothing there.
 import gi;
 import probelight;
 import scenefield;
@@ -306,6 +308,20 @@ float probeReaches(float3 q, float3 probe, int3 at, uint c, float apart)
     return saturate((reached + slack - d) / slack);
 }
 
+// How far a ray from p along way goes before it leaves the world's coarsest cascade of probes, a
+// hundredth of a cell short of its side, so the light from beyond read where it ends is that
+// cascade's.
+float leavesProbes(float3 p, float3 way)
+{
+    float4 oc = cascadeAt(fieldInfo, int(push.farther.w) - 1, int(view.trace.w));
+    float side = view.trace.y * oc.w * view.trace.z;
+    float leaves = 1e30;
+    for (int axis = 0; axis < 3; axis++)
+        if (abs(way[axis]) > 1e-6)
+            leaves = min(leaves, ((way[axis] > 0.0 ? oc.xyz[axis] + side : oc.xyz[axis]) - p[axis]) / way[axis]);
+    return max(leaves - 0.01 * oc.w, 0.0);
+}
+
 // The light from beyond a ray's reach along way, the world's merged light blended between the eight
 // probes of the finest cascade around the point the ray reached, each weighed by how near it is and
 // by whether its rays reached the point the ray passed half their spacing before its end the frame
@@ -549,6 +565,13 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // Ending nearer, a recess's rays meet nothing in reach and read the probes along their way,
     // which see past the floor the ray would meet, and the recess reads light it does not receive.
     float length = view.trace.x * float(1u << (max(around, 1u) - 1u));
+    // The gather by pixel's ray is stepped through the depth as a probe's is and through the field
+    // from there to the gather's reach (the view's eye's w), as far as the coarsest cascade reaches
+    // where that is 0, and lit at what it meets as a probe's ray within reach is lit. Read at the
+    // end of a probe's reach, the cascades' light along its way lends the light their probes see of
+    // a lit floor to ways that go on to meet a dark wall, and a wall across a room from a sunlit
+    // floor takes light it does not receive.
+    float farthest = pixels && view.eye.w > 0.0 ? view.eye.w : 1e6;
     float3 sum = float3(0.0);
     float weights = 0.0;
     bool logged = push.texels.z == probe + 1u;
@@ -580,6 +603,8 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             // texel spans, one over the cube of its octahedron point's distance, as the gather of
             // the world's probes weighs its texels.
             float weight = local.z / (local.w * local.w * local.w);
+            float rayReach = pixels ? min(farthest, leavesProbes(start, way)) : length;
+            float stepped = min(length, rayReach);
             float3 light;
             float3 hit;
             float leftAt;
@@ -587,10 +612,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             // keep no account of.
             float3 own;
             float met = 0.0;
-            float3 reached = start + way * length;
+            float3 reached = start + way * rayReach;
             own = float3(0.0);
-            bool onScreen = traceScreen(depth, camera(), start, way, length, 12, hit, leftAt);
-            float t = onScreen ? distance(start, hit) : leftAt < length ? traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, leftAt, length) : -1.0;
+            bool onScreen = traceScreen(depth, camera(), start, way, stepped, 12, hit, leftAt);
+            float t = onScreen ? distance(start, hit) : leftAt < rayReach ? traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, leftAt, rayReach) : -1.0;
             // A surface that lets a share of light through, as a canopy's leaves, is crossed
             // through the field, which holds what lies behind it where the window's depth does not,
             // the ray keeping that share for each unit of its depth and the rest taking the
@@ -601,7 +626,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
             // reach, and the light from beyond taken from where the ray left it, so the world's
             // probes there lend the light past it rather than lending it again from under it, which
             // gives the floor under a canopy two leaves deep too much of the sky's light.
-            float handed = length;
+            float handed = rayReach;
             float3 crossed = float3(0.0);
             float through = 1.0;
             float3 leafAt = float3(0.0), stopAt = float3(0.0);
@@ -641,7 +666,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                     break;
                 onScreen = false;
                 handed = max(handed, t + deep);
-                t = inside ? -1.0 : traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, t + deep, length);
+                t = inside ? -1.0 : traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, t + deep, rayReach);
             }
             [loop]
             for (int shaded = 0; shaded < 2; shaded++)
@@ -684,8 +709,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
                 // at the field's side takes the sky's light (CascadeEdgeTests). Where the probes
                 // hold light along its way and it is dark, as in a cave the far cascade keeps the
                 // sky out of, the ray takes their dark, since marching every such ray makes the
-                // screen probes in a deep cave slower.
-                if (luminance(past) <= 1e-6 && !holds)
+                // screen probes in a deep cave slower. The gather by pixel's ray has marched to the
+                // gather's reach already.
+                if (!pixels && luminance(past) <= 1e-6 && !holds)
                 {
                     float far = traceFieldWithinSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, start, way, handed, 4.0 * length, fieldCascade(fieldInfo, start, 1.0) + 1);
                     if (far >= 0.0)

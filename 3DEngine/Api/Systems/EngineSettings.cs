@@ -97,6 +97,8 @@ internal static partial class EngineSettings
             ScreenGather.Probes, s => s.Gather, (s, v) => s.Gather = v);
         yield return Of("gi.gather_size", "The size of the grid gi.gather pixels sends a ray from each texel of, full, half, quarter or eighth.",
             GatherSize.Half, s => s.GatherSize, (s, v) => s.GatherSize = v);
+        yield return Of("gi.gather_reach", "How far gi.gather pixels traces each ray through the scene's distance field before reading the cascades' light along its way, in units, or 0 for as far as the field reaches.",
+            0f, s => s.GatherReach, (s, v) => s.GatherReach = v, low: 0);
         yield return Part("gi.merge", "Whether each cascade takes the light of the cascade above.", s => s.MergeOff, (s, off) => s.MergeOff = off);
         yield return Part("gi.again", "Whether the light past the first bounce comes from the frame before's probes.", s => s.AgainOff, (s, off) => s.AgainOff = off);
         yield return Part("gi.follow", "Whether the indirect light follows a light that goes out within the frames each bounce takes.",

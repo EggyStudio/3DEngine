@@ -51,7 +51,8 @@ public struct ScreenView
     // World to clip space, and back, as the window's camera has it this frame.
     public float4x4 viewProjection;
     public float4x4 inverseViewProjection;
-    // xyz: the eye.
+    // xyz: the eye. w: how far the gather by pixel's rays are traced through the field, 0 for as
+    // far as the field reaches.
     public float4 eye;
     // x: a tile's pixels along each side. y: the probes across. z: the probes down. w: 1 where the
     // frame before's light is left out, plus 2 where each probe keeps its own light, its neighbors'

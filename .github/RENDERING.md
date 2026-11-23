@@ -1536,9 +1536,14 @@ reflection probes', which reaches a surface only through the rays that meet noth
 
 Where `gi.gather pixels` is set, the screen's probes stand for the glow lights alone and the light
 comes by one ray from each texel of a grid of the window's pixels, at full, half, quarter or eighth
-size (`gi.gather_size`, half unless set), traced as a probe's ray is through the depth and the
-field, a hit taking its light from the cascades with nothing traced past it and a miss the cascades'
-light along the ray. The ray's way is drawn by its cosine to the normal (`cosineWay` in
+size (`gi.gather_size`, half unless set), traced as a probe's ray is through the depth and then
+through the field past the probes' reach to the gather's own (`gi.gather_reach`, as far as the field
+reaches unless set), a hit lit as a probe's ray's hit is, its light past the first bounce from the
+cascades at the hit, and a ray that meets nothing taking the cascades' light along it where it
+leaves the coarsest cascade. Ended at the probes' reach, a ray reads the cascades' light along its
+way there, which lends the light their probes see of a sunlit floor to ways that go on to meet a
+dark wall, and the wall across the room from the floor at Sponza's door took light the triangles'
+reference does not give it. The ray's way is drawn by its cosine to the normal (`cosineWay` in
 `gi_screen.slang`), each four by four texels holding the sixteen strata of the hemisphere's square
 once as a probe's sixteen rays do, at a place in its stratum the same from frame to frame, so a
 still view holds still with nothing kept from the frame before. The texels are blended with the five

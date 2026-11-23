@@ -592,6 +592,21 @@ one crop at a whole ratio and at a ratio of one and a half.
     only where the tests hold and the wall's parts stand nearer the reference, with a sheet of the
     door view before and after beside the reference.
 
+314. **The third scaling fills the screen and holds still.** `window.scaling` Integer draws the
+    picture at the largest whole multiple with black round it, so at a ratio of one and a half it
+    stands small in the screen's middle. The third choice is to differ from Nearest in one thing
+    only, that it holds still at an uneven ratio, and it fills the screen as the other two do. So
+    Integer goes and Sharp takes its place. Sharp scales the picture by the largest whole number
+    under the ratio with no filtering and brings that to the screen's size with the linear filter,
+    done in one pass by moving each sample toward its texel's middle. Every picture pixel is then a
+    block of even color with one blended screen pixel at most on an edge, the blocks all of one
+    width, and nothing crawls as the picture moves. At a whole ratio Sharp equals Nearest to the
+    bit, which a test holds, and a second test holds at one and a half that the picture covers the
+    screen and that no screen pixel differs from Nearest's by more than a blend of two neighboring
+    picture pixels. The choices are Linear, Nearest and Sharp, Linear the default, and the
+    black-bordered whole multiple is not kept as a fourth. The sheet replaces the Integer column
+    with Sharp at both ratios, and the guides and the cheatsheet follow.
+
 310. **Rough reflections from the cascades, shown in a scene.** Reflection is the next large step
     after the branch, tried rough first and whole each frame with no history. The RadianceCascades
     module's item 10 writes the kernel that reads a reflection cone from the cascades and names the
@@ -820,188 +835,6 @@ numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
 
 ## Replies
 
-The whole GI's time and the merge's, in milliseconds, five sessions of each scene, the hold's three
-passes running only in (a), where they take 0.75 on Sponza and 0.89 on the Bistro.
-
-| | Sponza whole | Sponza merge | Bistro whole | Bistro merge |
-|---|---|---|---|---|
-| (a) held | 5.72 ± 0.10 | 0.67 | 9.38 ± 0.31 | 0.74 |
-| (b) traced | 6.43 ± 0.03 | 2.18 | 11.22 ± 0.68 | 3.53 |
-| (c) no march | 4.39 ± 0.01 | 0.14 | 7.85 ± 0.37 | 0.14 |
-| df4d0559 | 6.06 ± 0.04 | 0.34 | 9.35 ± 0.06 | 0.29 |
-
-- Neither (b) nor (c) passes the mark. (b) is off main by up to 1.03 in a part at zero and costs
-  more than main in both scenes. (c) is off by up to 0.50 at zero and 0.62 settled, its top three
-  parts brightest, and costs less than main in both. The branch takes no commit from either.
-- The roof slab at 2.5, the lintel's probe past its interval and the open box at Low fail in all
-  three, the probe held under the lintel and GlowStillTests' two cases pass. Under the lintel (c)
-  reads 0.197 against the reference's 0.081, (a) and (b) 0.016. The open box reads 1.371 at Low in
-  all three, so the march does not carry it.
-- (c) blends the far probes about the ray's end. df4d0559 blends the probes above about its own
-  probe, reads each toward the point of the ray nearest its own hit along the way, and passes over
-  those a march past the interval disagrees with. With that march test taken out, df4d0559 reads
-  0.688 at zero and 1.312 settled, its top left and middle at 0.601 and 0.693, where (c) reads
-  0.912 and 1.186. The top parts' surplus is where (c) blends, and the test is what darkens main's
-  bottom parts, by 0.29 to 0.69 at zero.
-- (c) blended about its own probe without reading each probe above toward its hit falls to 0.271
-  at zero and 0.615 settled, so the two go together. The module's item 11 takes them up.
-
-Item 311, step one, the screen probes' flicker read offscreen.
-
-Each case recorded 33 frames in a row at 1280 by 720 offscreen on main, the camera still and then
-turning 0.1 degrees a frame, in Sponza's atrium at noon with its camera fixed and in the feature
-test's Illumination zone. A still view is read as each pixel's change from one frame to the next in
-levels of 255. A Sponza turn is read by `build/flicker.py --turn`, which carries each frame along
-the turn first, as the share of pixels that move 3 levels or more a frame. The feature test's camera
-follows the player, so its turn is read as each frame against the mean of the frames either side.
-
-| Still view, mean change | Low | Medium | High |
-|---|---|---|---|
-| Sponza | 0.011 | 0.011 | 0.011 |
-| Sponza, history off | 0.011 | 0.570 | 0.530 |
-| Feature test | 0.001 | 0.001 | 0.001 |
-
-A still view does not flicker at any quality, offscreen or shown in a headless window, metered or
-not, paced at 60 or free. With the history off Medium and High change with a period of 16 frames,
-the cycle of the rays' places that the kept light evens out. Low stands no screen probes, so its
-history setting changes nothing.
-
-| Turning, pixels moving 3 levels or more | Medium | High |
-|---|---|---|
-| Sponza, screen probes on | 9.42% | 9.14% |
-| Sponza, screen probes off | 7.30% | 7.27% |
-| Sponza, history off | | 14.6% |
-| Sponza, filter off | | 9.94% |
-| Feature test, screen probes on | 0.41% | 0.37% |
-| Feature test, screen probes off | 0.43% | 0.43% |
-
-Sponza at Low moves 6.92%. Shown in a window under the meter at High it moves 22.3% with the screen
-probes and 16.9% without. In a turn the screen probes add a fine grain over Sponza's surfaces, the
-walls, the arches' undersides and the columns, and none at edges. The feature test's plain blocks
-show none.
-
-The source, read. The history view (`gi.show history`) shows which probes keep less than half their
-light from the frames before. In a still view none do. Turning at High 9.19% of Sponza's probes do
-each frame, 8.91% at Medium, scattered over the columns, the arches and the carved stone. A probe
-took the frame before's light from the four probes around its place then, and passed over each that
-faced more than 26 degrees from it. In the same frame 40.1% of Sponza's probes have a neighbor a
-tile away, at a like distance from the eye, that faces further from them than that, as the stone's
-relief is finer than a tile. A still view finds each probe at its own place, so it never weighs one
-probe's facing against another's. A turn puts the place among the neighbors, and where all four
-were passed over the probe started again from one frame's rays, whose noise is the grain. In a test
-a plain floor, wall and round column turning lose no probe this way, and a wall of eight-sided
-columns loses 19 to 23 percent of the probes on the columns' slanted faces a frame.
-
-| Sponza turning at High | Probes without history | Pixels moving 3 levels or more |
-|---|---|---|
-| Facing within 26 degrees (before) | 9.19% | 9.08% |
-| Facing within 45 degrees | 4.31% | 8.36% |
-| Facing within 60 degrees | 2.73% | 8.28% |
-| Facing asked, distance not asked | 8.55% | 9.03% |
-| Facing asked of the cycle's means alone | 1.10% | 8.28% |
-| Facing not asked (the mend) | 1.10% | 8.03% |
-| Screen probes off | | 6.81% |
-
-The mend takes the four probes by their distance from the eye alone. The kept light taken from them
-is held within the spread of this frame's like probes, as before. A still view reads 0.004% of its
-pixels at 3 levels or more before and after. The screen probes add 1.22 points to a turn's moving
-pixels, where they added 2.27, and what they add past that is not named by this reading.
-`In_A_Slow_Turn_The_Screen_Probes_On_A_Fluted_Wall_Keep_The_Frames_Befores_Light` holds the case at
-Medium and High, the share of the slanted faces' probes that keep a frame's light alone under 1
-percent, where it was 19 to 23 percent.
-
-The sheet `.github/assets/readings/2026-11-23-item-311-turn-flicker.webp` shows the turn's 17th
-frame and its change from the 16th carried along the turn, before the mend, after it and with the
-screen probes off, and the middle of the atrium's change at full size. There 10.61% of the pixels
-move 3 levels or more before the mend, 8.76% after and 5.91% with the screen probes off.
-
-Verdict 133, the byte count of a load no one observes.
-
-What moves by 160 bytes is the load's debug line. `SceneFile.Read` logs that it spawned 3 entities,
-and `Logger` hands the line to the file log once an app in the process has begun the file, and not
-before that nor once the file is full. The line it builds, its time, level and category before the
-message, is 69 characters, a string of 160 bytes. On the Windows job's second part a test beside
-this one opened an app between the reads of the world without an observer and those with one, so
-each read after took the line's bytes. Opening the file log between the two sets of reads in a test
-of this layout reads 2,632 bytes without an observer and 2,792 with one, 160 apart, in 3 runs of 3.
-The registry's lookup building its index again for a codec registered beside it is the other change
-of the same kind that the least of several was there for.
-
-The mend reads two worlds in pairs, one without an observer and one with an observer of something
-else, and holds that at least one of five pairs reads the same. A change of the process's state
-between a pair's two reads parts that pair alone, and an observer that made the load do more would
-part all five. Opening the file log partway through this layout leaves 4 pairs of 5 equal in 3 runs
-of 3. The scenes' tests failed in 0 of 20 local runs before the mend and 0 of 20 after, since a
-local run starts no app beside them. The whole suite passes, 2,560 tests.
-
-Item 312, the four window modes and borderless fullscreen's scaling.
-
-`window.mode` takes `Windowed`, `Borderless`, `BorderlessFullscreen` and `Fullscreen`, the names
-BevyCSharp takes. Borderless is a window with no frame of `window.width` by `window.height` in the
-middle of the screen `window.monitor` names, and covers that screen at its size or larger. Setting
-the width or the height while it is borderless resizes it at once and keeps it in the middle.
-Windowed takes back the frame, the size and the place a borderless window gave up, which SDL keeps
-of a window only across its own fullscreen. `ToggleBorderlessWindowed` is borderless at its
-monitor's size, so it covers and draws at the monitor's resolution, and gives the window back its
-size as it toggles off.
-
-Borderless fullscreen always covers. Where the size set is not the screen's, the device draws the
-frames into images of its own at that size, one to each of the swapchain's, and at the end of the
-frame one blit copies the frame onto the swapchain's image, cleared to black round it, before the
-present. At the screen's own size the frames are drawn into the swapchain's images with no copy.
-The interface is drawn with the picture, into the frame image, since the 2D batch and ImGui draw in
-the window's pass after the composite, and a split would need every pass to take a scene size
-apart from the window's. The program is given the size drawn at, in `GetScreenWidth`,
-`GetRenderWidth`, the cameras' aspect and ImGui's display size, and the pointer's place, its
-motion, a finger's place and `SetMousePosition`'s warp go through where the frame stands on the
-screen. Linear and Nearest keep the frame's shape, as large as fits with black round it, rather
-than stretch it onto a screen of another shape. On a screen with more pixels than points the frame
-is the size set times the window's pixels to a point, the pixels a window of that size has. A
-surface that cannot be copied into draws at the screen's size and says so in the log. `shot` and
-the captures read the frame as drawn, and `shot.shown` reads it as the screen shows it, which the
-sheet is made from.
-
-`window.scaling` is `Linear` by default, filtered and soft, `Nearest`, sharp, even at a whole ratio
-and uneven otherwise, which its help says, and `Integer`, the largest whole multiple that fits,
-centered with black round it, and as Linear where the frame is larger than the screen. It is kept
-in the settings file and given before the window is shown.
-
-`A_Borderless_Window_Takes_The_Size_Set_In_The_Middle_Of_Its_Screen_And_Covers_It_At_The_Screens_Size`
-holds the size, the place and the missing frame at 320 by 240 and at 400 by 240, the cover at the
-screen's size, and borderless fullscreen covering at any size. SDL's offscreen driver places no
-window and draws no frame, so the suite holds the size and the cover there, and the test holds the
-place and the frame on SDL's X11 driver in a headless mutter through Xwayland, as
-`E3D_TEST_VIDEO_DRIVER=x11` runs it, where all six window tests pass.
-`Borderless_Fullscreen_Draws_At_The_Size_Set_And_Scales_It_Onto_Its_Screen_As_Window_Scaling_Says`
-holds the frame drawn at 300 by 200, the offscreen screen's 1024 by 768 shown with the frame at
-each scaling's place, black round it, and the pointer at the frame's corner and middle landing on
-its first pixel and its middle. On Wayland the system places each window itself, so a borderless
-window stands where it puts it, which the guide says.
-
-The sheet `.github/assets/readings/2026-11-23-item-312-window-modes.webp` shows the four modes on a
-screen of 1920 by 1080, and the three scalings on one crop of the camera's help at 960 by 540, a
-ratio of 2, and at 1280 by 720, a ratio of 1.5. At 2 Nearest and Integer are the same pixels and
-Linear is soft, and at 1.5 Nearest's columns are uneven and Integer draws at 1. The run that made
-it reported no validation errors. The whole suite passes, 2,562 tests, the settings' test counting
-the window page's eighth setting and the file keeping it.
-
-Item 313, the surface gather reading the finest level up to half a spacing past its last probes.
-
-Nothing is committed from it. The rule takes level 0 in full up to its side, half a spacing past
-its last probes, and fades to level 1 across the next half spacing. The left wall at the door with
-the screen probes off reads as below, over the reference of 256 paths with every bounce, each the
-mean of the last 16 frames, with the bounce at zero and then settled.
-
-| Part | Main before | Main after | Branch, merge at the ray's end | Branch, merge about the probe |
-|---|---|---|---|---|
-| Whole wall | 0.53, 1.12 | 0.83, 1.51 | 0.58, 1.32 | 0.35, 0.90 |
-| Top left | 0.59, 1.16 | 0.87, 1.56 | 0.80, 1.57 | 0.53, 1.19 |
-| Top middle | 0.68, 1.26 | 0.91, 1.52 | 0.80, 1.60 | 0.28, 0.69 |
-| Top right | 4.06, 4.91 | 0.71, 1.31 | 0.19, 0.95 | 0.01, 0.38 |
-| Bottom left | 0.23, 0.71 | 0.63, 1.27 | 0.35, 0.92 | 0.24, 0.68 |
-| Bottom middle | 0.41, 1.18 | 0.90, 1.69 | 0.07, 0.90 | 0.14, 0.78 |
-| Bottom right | 5.50, 6.73 | 1.40, 2.39 | 0.40, 1.74 | 0.28, 0.98 |
-
 On main the right parts fall from 4.91 and 6.73 settled to 1.31 and 2.39, while the left and
 middle rise from about 1.2 to about 1.55 and the whole wall from 1.12 to 1.51. Of Rendering's 827
 tests 3 fail with it on main, the open box at Low at 0.729, the corridor's light rising 7.84 times
@@ -1056,3 +889,42 @@ Verdict 134, the live files' wait on a notice that came late.
 The test's wait polls the reloads and the watch only listens, compares no stamp, and is armed before
 `Watch` returns, so neither a write before it listens nor a shared stamp hides a save. The notice
 came late, and the mend bounds it at a minute and the watch's own reload at the quiet and 5 s after.
+
+Item 311, the gather's reach.
+
+The gather's ray goes on through the field past the probes' reach to what it meets, as far as
+`gi.gather_reach` sets and the coarsest cascade by default, and takes the cascades' light only
+where it leaves that cascade having met nothing. The screen probes' rays are as they were. The left
+wall at the door reads as below, each pair the bounce at zero over the one bounce reference and
+settled over the one with every bounce, the mean of the last 16 frames, main with the screen probes
+off reading 1.26 and 1.12 as in the table above.
+
+| Part | Screen probes | Gather to 2 units, half | Reach, full | Half | Quarter | Eighth |
+|---|---|---|---|---|---|---|
+| Whole wall | 2.22, 1.57 | 2.32, 1.64 | 1.79, 1.76 | 1.66, 1.78 | 1.39, 1.53 | 0.14, 1.14 |
+| Top left | 2.36, 1.70 | 2.65, 1.86 | 1.23, 1.53 | 1.56, 1.88 | 1.26, 1.32 | 0.04, 1.49 |
+| Top middle | 2.45, 1.70 | 2.16, 1.57 | 1.60, 1.82 | 0.40, 1.17 | 2.10, 1.92 | 0.04, 0.67 |
+| Top right | 9.77, 5.09 | 4.06, 3.16 | 5.49, 3.46 | 5.61, 4.46 | 2.20, 1.65 | 8.19, 4.50 |
+| Bottom left | 1.30, 1.10 | 1.62, 1.25 | 1.64, 1.45 | 1.45, 1.40 | 1.41, 1.28 | 0.14, 0.84 |
+| Bottom middle | 2.24, 1.52 | 2.42, 1.61 | 4.77, 2.57 | 5.25, 2.71 | 0.19, 1.85 | 0.14, 1.12 |
+| Bottom right | 35.06, 8.66 | 20.36, 7.84 | 67.01, 15.35 | 3.16, 4.58 | 23.48, 5.97 | 25.46, 7.02 |
+
+The GI's milliseconds at the passes' views, each one session of 120 frames.
+
+| Scene | Screen probes | Full | Half | Quarter | Eighth |
+|---|---|---|---|---|---|
+| Sponza | 5.99 | 10.24 | 6.08 | 5.05 | 4.78 |
+| Bistro | 9.32 | 12.76 | 7.68 | 6.93 | 6.73 |
+
+Of the wall's 33692 rays at full in the picture's first 125 columns, 2 end past the reach, against
+84 to 93 percent at 2 units, and the rest meet a face 5.0 units out on the top half and 5.5 on the
+bottom, their mean within a hundredth of the meshes'. Read beside the same rays traced through the
+meshes at the bounce at zero, the top half takes 1.31 times their light and the bottom 1.39. The
+sun's diffuse light at the hits is 1.04 and 0.83 of theirs, and the hits' gloss toward the ray adds
+0.27 and 0.23 of it, which the reference's one bounce leaves out at a face past the first. The 2
+rays past the reach crossed a wall in the field that the meshes stop them at and read the cascades
+66 units out, which adds 0.33 on the bottom half. The sun reaches the face 175 of the 33692 rays
+meet, and those rays bring the wall's light at zero, the same ones each frame, so the parts swing
+with the size, and the eighth's grid reads 0.14 at zero.
+
+The suite's 2563 tests pass with it.
