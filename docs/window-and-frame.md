@@ -414,17 +414,16 @@ any size, `Nearest` sharp, even at a whole ratio and uneven otherwise, and `Shar
 of the picture a block of one width, a window pixel across its edge a blend of the two it covers, so
 nothing crawls as the picture moves at any ratio, and the same as `Nearest` at a whole one. A
 picture brought down is filtered linearly whatever the filter says. The interface is drawn at the
-window's own size over the picture, the 2D drawn after the last shape drawn with depth, the overlay,
-the console, the panels and ImGui, so its text stays sharp at any scale. `GetScreenWidth` is the
-window's size and `GetRenderWidth` the picture's, and the cameras, `GetScreenToWorldRay`,
-`GetWorldToScreen` and the picking of mesh entities read the window's points through where the
-picture stands on it, and `GetPictureArea` is where that is in the window's units, so an interface
-of the program's own can keep to the picture. `SetPicture` sets the same from code, with a size in
-pixels of the program's own that holds the scale, whose row in the panel then says why it only
-reads. `render.fps_limit` holds the frames a second to a number, beside `window.vsync` and
-`SetTargetFPS`, the fewer of the two where both are set. `interface.scale` sizes the console, the
-panels and the overlay as a share of their size on a screen of scale factor one, `native` taking the
-screen's own factor.
+window's own size over the picture, the 2D drawn after the last 3D shape, the overlay, the console,
+the panels and ImGui, so its text stays sharp at any scale. `GetScreenWidth` is the window's size
+and `GetRenderWidth` the picture's, and the cameras, `GetScreenToWorldRay`, `GetWorldToScreen` and
+the picking of mesh entities read the window's points through where the picture stands on it, and
+`GetPictureArea` is where that is in the window's units, so an interface of the program's own can
+keep to the picture. `SetPicture` sets the same from code, with a size in pixels of the program's
+own that holds the scale, whose row in the panel then says why it only reads. `render.fps_limit`
+holds the frames a second to a number, beside `window.vsync` and `SetTargetFPS`, the fewer of the
+two where both are set. `interface.scale` sizes the console, the panels and the overlay as a share
+of their size on a screen of scale factor one, `native` taking the screen's own factor.
 
 A program whose window is shown keeps the settings a player chooses for the machine, the five keys,
 the `window` page but `samples`, the `render` and `interface` pages, and `imgui.viewports`, in one

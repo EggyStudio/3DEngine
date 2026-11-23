@@ -276,8 +276,8 @@ internal sealed partial class BloomRenderer : IDisposable
     internal RenderTarget? Blurred => _sized?.Lens is { } lens ? lens[1] : null;
 
     /// <summary>
-    /// Whether the window shows a scene this frame, a mesh, a particle or a shape drawn with depth
-    /// inside <c>BeginMode3D</c>, which is drawn into the HDR target and tonemapped into the window.
+    /// Whether the window shows a scene this frame, a mesh, a particle or a shape drawn inside
+    /// <c>BeginMode3D</c>, which is drawn into the HDR target and tonemapped into the window.
     /// A frame of 2D alone is drawn straight into the window, as it looks the same either way.
     /// </summary>
     public static bool ShowsScene(RenderWorld renderWorld)
@@ -285,7 +285,7 @@ internal sealed partial class BloomRenderer : IDisposable
         if (renderWorld.TryGet<ModelDrawList>()?.WindowViewProjection is not null
             || renderWorld.TryGet<ParticleRenderer>()?.DrawsInWindow(renderWorld) == true) return true;
         foreach (var batch in renderWorld.TryGet<DrawList>()?.Batches ?? [])
-            if (batch.Target == 0 && batch.DepthTest) return true;
+            if (batch.InWindowScene) return true;
         return false;
     }
 

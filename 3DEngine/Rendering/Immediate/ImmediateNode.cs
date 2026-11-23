@@ -454,7 +454,7 @@ internal sealed class ImmediateUploadPrepare : IPrepareSystem
 /// <summary>
 /// Render graph node that draws the window's share of the <see cref="DrawList"/> the picture holds
 /// into the swapchain pass <see cref="MainPassNode"/> opened, after the meshes, up to the batches
-/// after the last one drawn with depth, which <see cref="InterfaceNode"/> draws.
+/// after the last one of the scene, which <see cref="InterfaceNode"/> draws.
 /// </summary>
 internal sealed class ImmediateNode : INode
 {
@@ -472,8 +472,8 @@ internal sealed class ImmediateNode : INode
 
 /// <summary>
 /// Render graph node that draws the window's batches of the <see cref="DrawList"/> after its last
-/// one drawn with depth, the interface's, into the window's pass at the window's size, after the
-/// picture and before ImGui.
+/// one of the scene, drawn with depth or through a 3D camera, the interface's, into the window's
+/// pass at the window's size, after the picture and before ImGui.
 /// </summary>
 internal sealed class InterfaceNode : INode
 {

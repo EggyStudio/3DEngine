@@ -25,11 +25,20 @@ internal readonly record struct ImmediateVertex(Vector3 Position, Vector2 Uv, Co
 /// <param name="Factors">The factors a custom <paramref name="Blend"/> combines by, and default for the other modes.</param>
 /// <param name="DepthMask">Whether a depth tested run writes the depth it passes with.</param>
 /// <param name="Anchor">The place the run's positions were recorded against, a world point being the anchor plus the position, or the world's origin for positions in world numbers.</param>
+/// <param name="Scene">Whether the run was recorded through a 3D camera, with depth or not.</param>
 internal readonly record struct DrawBatch(
     PrimitiveTopology Topology, Matrix4x4 Transform, bool DepthTest, int FirstIndex, int IndexCount,
     int Texture = 0, int Target = 0, int Shader = 0, ShaderParams Params = default, byte[]? Uniforms = null, int[]? Textures = null,
     BlendMode Blend = BlendMode.Alpha, ScissorRect? Scissor = null, CullMode Cull = CullMode.None, BlendFactors Factors = default,
-    bool DepthMask = true, RenderOrigin Anchor = default);
+    bool DepthMask = true, RenderOrigin Anchor = default, bool Scene = false)
+{
+    /// <summary>
+    /// Whether the run is of the window's scene, drawn with depth or through a 3D camera, which the
+    /// picture holds, so the window's batches up to its last such run are drawn at the picture's
+    /// size.
+    /// </summary>
+    public bool InWindowScene => Target == 0 && (DepthTest || Scene);
+}
 
 /// <summary>A rectangle of a target's pixels, from its top left.</summary>
 internal readonly record struct ScissorRect(int X, int Y, int Width, int Height);
@@ -106,6 +115,19 @@ internal sealed class DrawList
 
     /// <summary>Whether the next recorded shapes are depth tested.</summary>
     public bool DepthTest { get; private set; }
+
+    /// <summary>Whether the next recorded shapes are drawn through a 3D camera.</summary>
+    public bool Scene { get; private set; }
+
+    /// <summary>Records the following shapes as drawn through a 3D camera, or not.</summary>
+    public void SetScene(bool scene)
+    {
+        using (Enter())
+        {
+            Scene = scene;
+            Close();
+        }
+    }
 
     /// <summary>The render target the next recorded shapes draw into, or 0 for the window.</summary>
     public int Target { get; private set; }
@@ -668,7 +690,7 @@ internal sealed class DrawList
                 && last.Texture == texture && last.Target == Target && last.Shader == Shader && last.Params == Params
                 && ReferenceEquals(last.Uniforms, Uniforms) && ReferenceEquals(last.Textures, Textures) && last.Blend == blend
                 && last.Factors == Factors && last.DepthMask == DepthMask && last.Scissor == Scissor && last.Cull == Cull
-                && last.Anchor == _recordAnchor && last.FirstIndex + last.IndexCount == first)
+                && last.Anchor == _recordAnchor && last.Scene == Scene && last.FirstIndex + last.IndexCount == first)
             {
                 Open(topology, texture, last.IndexCount + count);
                 return;
@@ -676,7 +698,7 @@ internal sealed class DrawList
         }
 
         _batches.Add(new DrawBatch(topology, Transform, DepthTest, first, count, texture, Target, Shader, Params, Uniforms, Textures, blend, Scissor, Cull, Factors, DepthMask,
-            _recordAnchor));
+            _recordAnchor, Scene));
         Open(topology, texture, count);
     }
 

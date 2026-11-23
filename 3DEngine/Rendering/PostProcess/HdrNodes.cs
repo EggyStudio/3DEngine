@@ -6,10 +6,10 @@ namespace Engine;
 /// <see cref="MainPassNode"/> composites it into the window.
 /// </summary>
 /// <remarks>
-/// The scene is the window's models and its draw list up to the last batch drawn with depth, the
-/// 3D shapes inside <c>BeginMode3D</c>. What is drawn after that, a game's interface, is left to
-/// <see cref="ImmediateNode"/>, which draws it into the window over the composite, so it is never
-/// bloomed or tonemapped and keeps its exact colors.
+/// The scene is the window's models and its draw list up to the last batch drawn with depth or
+/// through a 3D camera, the 3D shapes inside <c>BeginMode3D</c>. What is drawn after that, a game's
+/// interface, is left to <see cref="ImmediateNode"/>, which draws it into the window over the
+/// composite, so it is never bloomed or tonemapped and keeps its exact colors.
 /// </remarks>
 internal sealed class HdrSceneNode : INode
 {
@@ -54,15 +54,15 @@ internal sealed class HdrSceneNode : INode
     }
 
     /// <summary>
-    /// The batch after the window's last one drawn with depth, or the first when it has none, which
-    /// the interface's batches start at.
+    /// The batch after the window's last one of its scene (<see cref="DrawBatch.InWindowScene"/>),
+    /// or the first when it has none, which the interface's batches start at.
     /// </summary>
     internal static int Split(DrawList? drawList)
     {
         if (drawList is null) return 0;
         var batches = drawList.Batches;
         for (int i = batches.Count - 1; i >= 0; i--)
-            if (batches[i].Target == 0 && batches[i].DepthTest) return i + 1;
+            if (batches[i].InWindowScene) return i + 1;
         return 0;
     }
 }

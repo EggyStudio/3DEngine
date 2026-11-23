@@ -225,6 +225,20 @@ public sealed class RlglTests : IDisposable
     }
 
     [Fact]
+    public void A_3D_Shape_Drawn_Without_Depth_After_The_Last_With_It_Is_The_Pictures()
+    {
+        BeginMode3D(new Camera3D(new Vector3(0, 2, 5), Vector3.Zero, Vector3.UnitY, 60));
+        DrawCube(Vector3.Zero, 1, 1, 1, Color.White);
+        rlDisableDepthTest();
+        DrawLine3D(Vector3.Zero, Vector3.UnitX, Color.Red);
+        EndMode3D();
+        DrawRectangle(0, 0, 4, 4, Color.White);
+
+        List.Batches.Select(b => (b.DepthTest, b.Scene)).Should().Equal((true, true), (false, true), (false, false));
+        HdrSceneNode.Split(List).Should().Be(2, "the line drawn through the camera is the picture's and the rectangle after it the interface's");
+    }
+
+    [Fact]
     public void Blending_Off_Writes_Shapes_And_Models_As_They_Are_From_Frame_To_Frame()
     {
         _app.World.InitResource<ModelDrawList>();

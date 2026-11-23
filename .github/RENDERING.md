@@ -174,11 +174,11 @@ growing array of 24-byte vertices (position, texture coordinate and color) and a
 32-bit indices into it, split into batches. A quad, which every sprite, glyph and rectangle is, is
 four vertices and six indices. A batch is a run of consecutive shapes with the same topology (lines
 or triangles), transform, depth mode, texture, blend mode and scissor, so a scene of shapes drawn
-through one camera is two batches. Untextured shapes sample a white pixel, so one shader draws
-both. `ImmediateNode` runs after `main_pass` and draws the batches up to the one after the last
-drawn with depth, the scene's, into the picture, and `InterfaceNode` the rest, the interface's,
-after `present` at the window's size and before ImGui. The vertices and indices are written into
-the dynamic buffer arena in one copy each, and each batch is one indexed draw with
+through one camera is two batches. Untextured shapes sample a white pixel, so one shader draws both.
+`ImmediateNode` runs after `main_pass` and draws the batches up to the one after the last drawn with
+depth or through a 3D camera, the scene's, into the picture, and `InterfaceNode` the rest, the
+interface's, after `present` at the window's size and before ImGui. The vertices and indices are
+written into the dynamic buffer arena in one copy each, and each batch is one indexed draw with
 `immediate.slang`, the batch's transform a push constant. The list is cleared in `First`.
 
 A batch also carries a shader id and four `float4` values. Inside `BeginShaderMode`, the batch draws
@@ -5021,10 +5021,10 @@ every device has. The multisampled depth is stored even so, because NVIDIA's dri
 nothing from a depth that is not.
 
 The window's scene is drawn through the HDR frame every frame the window shows one, a mesh, a
-particle or a shape drawn with depth inside `BeginMode3D` (`BloomRenderer`,
-`Rendering/PostProcess`). A frame of 2D alone is drawn straight into the window, where it looks the
-same. Two nodes run between `probes` and `main_pass`. `hdr_scene` draws the window's models and its
-draw list up to its last batch with depth, the 3D shapes inside `BeginMode3D`, into a half-float
+particle or a shape drawn inside `BeginMode3D` (`BloomRenderer`, `Rendering/PostProcess`). A frame
+of 2D alone is drawn straight into the window, where it looks the same. Two nodes run between
+`probes` and `main_pass`. `hdr_scene` draws the window's models and its draw list up to its last
+batch with depth or through a 3D camera, the 3D shapes inside `BeginMode3D`, into a half-float
 target the size of the window at the window's samples, cleared to the clear color. The frame holds
 its light sRGB-encoded, as the eight-bit window does, and carried on past 1. The window's view of
 the model pass writes it so (§4), and the 2D colors and the clear color go in as they are. The

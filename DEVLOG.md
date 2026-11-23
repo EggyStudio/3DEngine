@@ -53,6 +53,20 @@ them each part's light over the reference's at full and half through the field a
 and 0.95 on the whole wall at full, the rays' over the reference traced with the copies' colors as
 well, and the GI's milliseconds at the door and in the atrium under the exclusive lock.
 
+![](.github/assets/readings/2026-11-23-item-315-picture-and-window.webp)
+The example core_3d_camera_first_person shown on SDL's X11 driver through the Xwayland of a headless
+mutter with one screen of 1920 by 1080 at a window of 960 by 540, on white under its title with each
+panel titled, a picture of 4:3 at Fit and at Stretch beside the picture as drawn, the window at a
+render scale of 67% with the settings panel over it beside the panel's render and window pages, and
+the same part of the window in the three filters with each window pixel drawn as three by three.
+
+![](.github/assets/readings/2026-11-23-item-311-reference-check.webp)
+scenes_sponza offscreen at 800 by 450 at its first view at 12:00 with the lamps off and the camera
+metered, on white under its title with each panel titled, the reference whole beside the engine's
+linear light and their difference, the light the first bounce alone and every bounce alone bring
+beside the far doorway three ways, and the engine's default picture at the last commit before
+2026-11-23 beside today's and their difference.
+
 ## 2026-11-22
 
 ![](.github/assets/readings/2026-11-22-item-302-console-overlay.webp)

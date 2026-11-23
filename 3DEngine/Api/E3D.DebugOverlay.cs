@@ -156,6 +156,7 @@ public static partial class E3D
         DrawList.SetBlend(BlendMode.Alpha);
         DrawList.SetCull(CullMode.None);
         DrawList.SetModel(Matrix4x4.Identity);
+        DrawList.SetScene(false);
         // Laid out in the window's units over interface.scale, so the whole overlay is drawn larger
         // or smaller by it.
         var scale = TryRes<AppWindow>(out var window) ? InterfaceScale.Over(window.Sdl.DisplayScale) : 1f;

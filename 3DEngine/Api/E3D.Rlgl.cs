@@ -148,12 +148,13 @@ public static partial class E3D
         else SetRlTransform(m * _rlTransform);
     }
 
-    // Sets the view and the projection a camera mode draws through, and whether it is depth
-    // tested, as raylib's modes load rlgl's modelview and projection.
+    // Sets the view and the projection a camera mode draws through, and whether it is a 3D camera,
+    // depth tested, as raylib's modes load rlgl's modelview and projection.
     private static void SetRlCamera(Matrix4x4 view, Matrix4x4 projection, bool depthTest)
     {
         (_rlView, _rlProjection) = (view, projection);
         DrawList.SetTransform(view * projection, depthTest);
+        DrawList.SetScene(depthTest);
         _rl3D = depthTest;
         ApplyRlCulling();
     }
