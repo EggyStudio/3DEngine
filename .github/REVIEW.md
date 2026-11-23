@@ -569,7 +569,13 @@ it to the screen, so a smaller size set gives a softer picture at less cost, whi
 choose. The scaling is one filtered copy at the frame's end, with the interface drawn after it at
 the screen's size where the engine has that split and with it otherwise, the Reply saying which.
 This part replaces the sentence above that lets the size decide the cover between two kinds, and the
-sheet shows all four.
+sheet shows all four. A setting `window.scaling` chooses how borderless fullscreen brings the
+picture to the screen, with three choices. Linear is the filtered copy, soft. Nearest takes each
+screen pixel from the one picture pixel under it, sharp, even at a whole ratio such as 1920 by 1080
+on 3840 by 2160 and uneven at any other, which its help line says. Integer scales by the largest
+whole number that fits and stands the picture in the screen's middle with black round it, every
+picture pixel a square block of screen pixels. The default is Linear. The sheet shows the three on
+one crop at a whole ratio and at a ratio of one and a half.
 
 310. **Rough reflections from the cascades, shown in a scene.** Reflection is the next large step
     after the branch, tried rough first and whole each frame with no history. The RadianceCascades
@@ -879,6 +885,11 @@ pixels, where they added 2.27, and what they add past that is not named by this 
 `In_A_Slow_Turn_The_Screen_Probes_On_A_Fluted_Wall_Keep_The_Frames_Befores_Light` holds the case at
 Medium and High, the share of the slanted faces' probes that keep a frame's light alone under 1
 percent, where it was 19 to 23 percent.
+
+The sheet `.github/assets/readings/2026-11-23-item-311-turn-flicker.webp` shows the turn's 17th
+frame and its change from the 16th carried along the turn, before the mend, after it and with the
+screen probes off, and the middle of the atrium's change at full size. There 10.61% of the pixels
+move 3 levels or more before the mend, 8.76% after and 5.91% with the screen probes off.
 
 Verdict 133, the byte count of a load no one observes.
 
