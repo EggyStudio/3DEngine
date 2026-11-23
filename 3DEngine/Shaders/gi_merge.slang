@@ -146,7 +146,8 @@ struct MergePush
     // w: where the cascade above's interval ends, which its ray that met nothing reached.
     float4 spacing;
     // x: how many cascades. y: how far the probes moved since the frame before, three signed bytes,
-    // with 1 << 24 where a cycle lies before to read and 1 << 25 where carried probes keep one. z:
+    // with 1 << 24 where a cycle lies before to read, 1 << 25 where carried probes keep one and
+    // 1 << 26 where the marches read the field from this cascade outward (fieldFloor). z:
     // the frames since the lights or the field changed. w: where the cycle stands, on sixteen.
     uint4 counts;
 };
@@ -229,6 +230,8 @@ groupshared uint seen[32];
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
 {
+    if ((push.counts.y & 0x4000000u) != 0u)
+        fieldFloor = fieldOfProbes(fieldInfo, int(push.cascade.x), int(push.counts.x));
     uint probes = push.cascade.y;
     uint texels = push.cascade.z;
     uint rays = texels * texels;

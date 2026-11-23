@@ -107,7 +107,12 @@ or `SetSceneFieldAhead(0.5f)` holds the field ahead of the camera along its view
 cascade's width, so that cascade lies before the eye rather than half of it behind, as the voxel
 game's does. `scenes_sponza` and `scenes_bistro` hold it three quarters of that width ahead, so the
 finer cascades hold what each view looks at as the camera turns, a turn building cascades as a walk
-does. A cascade that point has gone past the grid of keeps the cells it holds, moved on the GPU, and
+does. Each cascade's probes march the field from the finest cascade holding each point, so the
+stretch of a coarser cascade's ray within a finer cascade's box meets what lies there at the finer
+cells, and that cascade's light at a still surface steps where the finer box moves with the eye.
+`gi.own_field on` marches them from the cascade they stand in outward, which holds that light, and
+stays off since the coarser cells light some walls well past a path-traced reference, the wall of
+Sponza's ground floor arcade by the door at three and a half times its light. A cascade that point has gone past the grid of keeps the cells it holds, moved on the GPU, and
 builds the slab of cells the move brings in alone, as a clipmap does, so a walk splats a fraction of
 what building each cascade again did. One the point went half its width past or more is built again
 whole, as many cascades a frame as the budget says, the finest first, and where a mesh came or went
@@ -447,7 +452,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 | `gi.passes <on\|off>` | The setting that times global illumination's passes apart in the profile, the ray scene, each cascade's trace, the merges, the gather, the screen's probes, their filter and the glow lights, as `gpu.gi_` lines, the rest staying `gpu.global_illumination` |
 | `gi.history`, `gi.filter`, `gi.screen`, `gi.merge`, `gi.again`, `gi.follow`, `gi.glow`, `gi.through`, `gi.albedo`, `gi.specular`, `gi.normals`, `gi.spread`, `gi.points` `<on\|off>` | Settings that leave out the frame before's light, the screen's filter, the screen's probes, neither made nor traced, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, the crossing of what lets light through, the surfaces' colors, their reflection of the indirect light, their normal maps, the coarser cascades' trace in halves or the faint glow lights taken as one point |
 | `gi.gather <probes\|pixels>`, `gi.gather_size <full\|half\|quarter\|eighth>`, `gi.gather_reach <units>`, `gi.gather_guide <off\|cascades>`, `gi.gather_rays <on\|off>` | Settings that bring the cascades' light to the picture by the screen's probes or by one ray from each texel of a grid of the window's pixels at the size set, traced through the field as far as the reach set, `0` for as far as the field reaches, its ways drawn by the cosine or half of them toward the light the cascades hold, its rays meeting the meshes through the device's ray tracing where set, made whole each frame and blended within it, the screen's probes then standing for the glow lights alone |
-| `gi.cascade <cascade>`, `gi.meshes <on\|off>` | Settings that keep one cascade's light alone, `-1` for all, and trace the probes' rays through the GPU's own rays at `High` |
+| `gi.cascade <cascade>`, `gi.meshes <on\|off>`, `gi.own_field <on\|off>` | Settings that keep one cascade's light alone, `-1` for all, trace the probes' rays through the GPU's own rays at `High` and march each cascade's probes' rays through the field from the cascade they stand in outward |
 | `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it, each face by where its ways were met, and the ways that carry most of the face furthest from it, each with how far its rays went against what and how far the reference's path through the texel's middle first met, and whether the probe was carried past its interval with its rays moving |
 | `field.march <x> <y> <z> [dx] [dy] [dz] [sun]` | Marches the scene's distance field from a point along a way, or toward the sun, as the passes march it, and says where it met a surface, in which cascade and cell, and each step, with `sun` marching on from that surface toward the sun as a probe's hit does |
 | `gi.screenprobe <x> <y> [samples] [bounces]` | Each of the sixteen rays of the screen's probe under a pixel, where it was met and its light, against a path-traced reference along the same way |

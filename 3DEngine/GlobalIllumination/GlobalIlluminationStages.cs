@@ -333,7 +333,11 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     /// <param name="shifts">How far each cascade's probes moved since the frame before, in probes, or null for one with no light before to blend with.</param>
     /// <param name="carriedShare">The share of a carried probe's own light this frame takes in its mean.</param>
     /// <param name="carriedSince">The frames since the lights or the field last changed, which begins a carried probe's cycle again at 0.</param>
-    /// <param name="traceFlags">1 where a carried probe's rays move within their texels and are traced through <paramref name="rays"/>, 2 where every ray is.</param>
+    /// <param name="traceFlags">
+    /// 1 where a carried probe's rays move within their texels and are traced through
+    /// <paramref name="rays"/>, 2 where every ray is, 4 where each cascade's trace and merge march
+    /// the field from the cascade its probes stand in outward.
+    /// </param>
     /// <param name="spread">Whether the cascades past the first trace half their probes a frame while they lie still (<see cref="Halved"/>).</param>
     /// <param name="fieldBuilt">The cascades a build of the frame changed, a bit a cascade, none where no build did.</param>
     /// <param name="changedLow">The least corner of the box the frame's builds changed, against the frame's origin.</param>
@@ -426,7 +430,7 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
                 Edge = intervals[lastCounted >= 0 ? lastCounted : gi.Cascades - 1].End,
                 BelowEnd = c > 0 ? intervals[c - 1].End : 0,
                 TexelsAbove = c + 1 < gi.Cascades && c != lastCounted ? (uint)gi.Texels[c + 1] : 0,
-                Flags = gi.CycleOn ? traceFlags : traceFlags & 2u,
+                Flags = gi.CycleOn ? traceFlags : traceFlags & 6u,
             };
             // The far cascade's probes trace one part of them a frame, layers of probes in turn,
             // each part's rays' light kept until its turn comes again, and the merge and the gather
@@ -496,6 +500,7 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             var moved = shifts is not null && c < shifts.Count && shifts[c] is { } shift && Math.Max(Math.Abs(shift.X), Math.Max(Math.Abs(shift.Y), Math.Abs(shift.Z))) < p
                 ? (uint)(byte)(sbyte)shift.X | (uint)(byte)(sbyte)shift.Y << 8 | (uint)(byte)(sbyte)shift.Z << 16 | 1u << 24 : 0u;
             if (c < gi.CycleCascades && (traceFlags & 1u) != 0) moved |= 1u << 25;
+            if ((traceFlags & 4u) != 0) moved |= 1u << 26;
             // The last cascade and the one before the far cascade's probes merge nothing from above,
             // since their rays went on to the field's edge and brought the sky where they met nothing.
             // Merged from the far cascade's probes, whose cells hold the ground as a slab, the one

@@ -196,6 +196,19 @@ internal sealed class GlobalIlluminationSettings
     public bool PointsOff { get; set; }
 
     /// <summary>
+    /// Whether each cascade's probes march the field from the cascade they stand in outward, as
+    /// <c>gi.own_field on</c> sets it, so a coarser cascade's light does not move when a finer
+    /// cascade's box moves with the eye, where they otherwise march it from its finest cascade that
+    /// holds each point.
+    /// </summary>
+    /// <remarks>
+    /// Off unless set, since the coarser cells light some walls well past a path-traced reference,
+    /// a wall beside a doorway at three and a half times its light, and let the light through a
+    /// wall a tenth of a unit thick.
+    /// </remarks>
+    public bool OwnFieldMarched { get; set; }
+
+    /// <summary>
     /// The one term of the model pass's light drawn, numbered as modelpass.slang's termTaken lists
     /// them, or 0 for all, which light.terms sets in turn to read a pixel's light by its terms.
     /// </summary>

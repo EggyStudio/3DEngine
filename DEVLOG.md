@@ -75,6 +75,15 @@ lights at four times beside the far doorway's face by term, the bounces alone be
 as shown, and the default picture at the last commit before 2026-11-23 beside today's and their
 difference on white.
 
+![](.github/assets/readings/2026-11-23-item-311-world-alone.webp)
+scenes_sponza offscreen at 800 by 450, metered, on white under its title with each panel titled,
+view 1 and the gallery each as the reference traced at 4096 paths a pixel beside the world's
+cascades alone through the field and through the device's rays as their light over the reference's,
+red more and blue less, and as shown with albedo off, with their figures, then the gallery's back
+wall's light at 11 still points as the eye steps 0.1 along it every 40 frames, which steps where
+cascade 0 moves its box through the field and the rays alike, and the near wall's light over the
+reference's, whose blue shapes are the scene's dirt decal the reference does not hold.
+
 ## 2026-11-22
 
 ![](.github/assets/readings/2026-11-22-item-302-console-overlay.webp)

@@ -185,18 +185,36 @@ public bool fieldWaits(SceneFieldInfo info, float3 cell, float margin)
     return all(cell >= info.waitingFirst.xyz - margin) && all(cell <= info.waitingLast.xyz + 1.0 + margin);
 }
 
-// The finest built cascade p lies in, at least margin cells inside its sides, or -1 for none. A
-// point among the cells a shift brought into a cascade is read in the next one out, which holds
-// the meshes there, since in that cascade those cells hold nothing near, the rays through them
-// would go on past the walls they stand for, and far surfaces would flash lit while each slab of a
-// cascade builds as the field follows the eye. Probes are found by where their cascade lies, whose
-// rays read the field so.
+// The first of the field's cascades fieldCascade looks a point up in for a march, 0 for the
+// finest. The probes' trace and merge set it to the cascade their probes stand in (fieldOfProbes)
+// where gi.own_field is on. Looked up from the finest, the stretch of a coarser cascade's ray
+// inside a finer cascade's box is read at the finer cells, so each time the finer box moves with
+// the eye the coarser cascade's light at a still surface steps, cascade 1's moving at cascade 0's
+// recentering rather than its own. Read from their own cascade, the coarser cells light some
+// walls well past a path-traced reference, so the switch stays off. A lookup of the probes
+// themselves (probes above 0) starts at the finest all the same.
+public static int fieldFloor = 0;
+
+// The field's cascade the probes of cascade c of `probes` stand in, the far one's for the last
+// (cascadeAt).
+public int fieldOfProbes(SceneFieldInfo info, int c, int probes)
+{
+    int far = int(info.counts.w);
+    return probes > 0 && far > 0 && c == probes - 1 ? far : c;
+}
+
+// The finest built cascade p lies in from fieldFloor out, at least margin cells inside its sides,
+// or -1 for none. A point among the cells a shift brought into a cascade is read in the next one
+// out, which holds the meshes there, since in that cascade those cells hold nothing near, the rays
+// through them would go on past the walls they stand for, and far surfaces would flash lit while
+// each slab of a cascade builds as the field follows the eye. Probes are found by where their
+// cascade lies, whose rays read the field so.
 public int fieldCascade(SceneFieldInfo info, float3 p, float margin, int probes = 0)
 {
     int count = cascadesOf(info, probes);
     float size = info.counts.y;
     int waiting = probes > 0 ? -1 : int(info.waitingFirst.w + 0.5) - 1;
-    for (int i = 0; i < count; i++)
+    for (int i = probes > 0 ? 0 : fieldFloor; i < count; i++)
     {
         float4 oc = cascadeAt(info, i, probes);
         if (oc.w <= 0.0)

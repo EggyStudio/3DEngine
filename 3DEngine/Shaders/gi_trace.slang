@@ -139,7 +139,8 @@ struct TracePush
     // x: the cascade above's octahedron's texels along each side, 0 for the last. y: the first
     // probe the dispatch traces, past 0 where it traces a part of the cascade's probes (the far
     // cascade's, a part a frame). z: 1 where a carried probe's rays move within their texels and meet
-    // the meshes through the device's rays, 2 where every ray meets them (gi.meshes). w: 1
+    // the meshes through the device's rays, 2 where every ray meets them (gi.meshes), 4 where the
+    // probes' marches read the field from their own cascade outward (fieldFloor). w: 1
     // where the cascade traces half its probes this frame, with the half's parity in its second
     // bit (GlobalIlluminationStages.Halved).
     uint4 above;
@@ -325,6 +326,8 @@ bool skyPastAbove(float3 way, float3 origin, int3 baseAbove, uint probes)
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
 {
+    if ((push.above.z & 4u) != 0u)
+        fieldFloor = fieldOfProbes(fieldInfo, int(push.cascade.x), int(push.interval.w));
     uint probes = push.cascade.y;
     uint texels = push.cascade.z;
     // A thread a ray, a texel's rays (RaysAt) side by side in a workgroup.

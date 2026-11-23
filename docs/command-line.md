@@ -165,7 +165,11 @@ middle, so every light takes its own form, `gi.cascade 2` keeps the third cascad
 `on` or `-1` puts each back. `gi.meshes on` traces the world's probes' rays through the GPU's own
 rays at `High` in place of the field, crossing what lets light through as the field does, a step
 that stays off until it reads every view at least as near a path-traced reference as the field, and
-`off` puts the field back.
+`off` puts the field back. `gi.own_field on` marches each cascade's probes' rays through the field
+from the cascade they stand in outward rather than from the finest cascade holding each point, so a
+coarser cascade's light holds still where a finer cascade's box moves with the eye, a step that
+stays off since it lights some walls well past a path-traced reference, and `off` puts the finest
+first back.
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so
