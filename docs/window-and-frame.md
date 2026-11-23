@@ -357,7 +357,7 @@ it, a page of them for each first word of their names.
 | `ao` | `method` (`Horizons` or `Circular`), `samples`, `filter`, `slope`, `backface`, `boost`, `screen`, `size` (`Half` or `Full`) |
 | `gi` | `rays`, `passes`, the parts a reading leaves out, `history`, `filter`, `screen`, `merge`, `again`, `follow`, `glow`, `through`, `albedo`, `specular`, `normals`, `spread`, `points`, with `meshes`, `cascade`, and the view `show` with `show_cascade` |
 | `field` | `show`, the cascade of the scene's distance field drawn over the window |
-| `window` | `mode` (`Windowed`, `Borderless`, `BorderlessFullscreen` or `Fullscreen`), `scaling` (`Linear`, `Nearest` or `Integer`), `resizable`, `width` and `height` as a window, `monitor`, `vsync`, and `samples`, which only reads |
+| `window` | `mode` (`Windowed`, `Borderless`, `BorderlessFullscreen` or `Fullscreen`), `scaling` (`Linear`, `Nearest` or `Sharp`), `resizable`, `width` and `height` as a window, `monitor`, `vsync`, and `samples`, which only reads |
 | `imgui` | `viewports` |
 | `time` | `frame`, the seconds a frame moves time by, `E3D_FRAME_TIME` |
 | `live` | `reload`, `E3D_LIVE` |
@@ -388,8 +388,10 @@ borderlessfullscreen` always covers the screen with no frame and no change of th
 and draws at `window.width` by `window.height`, copied onto the screen at the end of each frame, so
 a player on a large screen draws fewer pixels and still fills it. `window.scaling` says how,
 `linear` filtered and soft at any size, `nearest` sharp, even at a whole ratio and uneven otherwise,
-and `integer` at the largest whole multiple that fits, each pixel a square of the same size. Each
-keeps the frame's shape, as large as fits in the middle with black round it. The program is given
+and `sharp` with each pixel of the frame a block of one width, a screen pixel across its edge a
+blend of the two it covers, so nothing crawls as the picture moves at any ratio, and the same as
+`nearest` at a whole one. Each keeps the frame's shape, as large as fits in the middle with black
+round it. The program is given
 the size drawn at, so `GetScreenWidth`, the cameras and the pointer are in the frame's pixels, and
 the interface is drawn into the frame with the rest and scaled with it. At the screen's own size the
 frames are drawn at it with no copy. `window.mode fullscreen` takes the screen's mode, and

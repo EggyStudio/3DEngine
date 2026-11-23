@@ -47,7 +47,7 @@ internal static partial class EngineSettings
             WindowMode.Windowed, () => Shown() is { } window ? WindowModes.Of(window) : WindowMode.Windowed,
             apply: mode => Shown() is { } window ? WindowModes.Set(window, mode) : Undrawn)
         { Saved = true, Lock = Windowless };
-        yield return new Setting<WindowScaling>("window.scaling", "How borderless fullscreen scales the frames it draws at window.width by window.height onto the screen, as large as fits with black round them, linear filtered and soft, nearest sharp, even at a whole ratio and uneven otherwise, or integer at the largest whole multiple that fits.",
+        yield return new Setting<WindowScaling>("window.scaling", "How borderless fullscreen scales the frames it draws at window.width by window.height onto the screen, as large as fits with black round them, linear filtered and soft, nearest sharp, even at a whole ratio and uneven otherwise, or sharp, each frame pixel a block of one width with one blended screen pixel at most on its edges.",
             WindowScaling.Linear, () => Shown() is { } window ? window.Sdl.Scaling : WindowScaling.Linear,
             apply: scaling => { if (Shown() is not { } window) return Undrawn; WindowModes.SetScaling(window, scaling); return null; })
         { Saved = true, Lock = Windowless };

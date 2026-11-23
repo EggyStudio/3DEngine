@@ -26,10 +26,11 @@ engine captured it set on the gray outline of the screen at the place SDL gave, 
 windowed at 560, 334 with a dark band standing for the frame mutter draws, borderless at 480, 270 in
 the middle with no frame, borderless fullscreen drawn at 960 by 540 and scaled onto the whole screen
 as shot.shown captured it, and fullscreen at the screen's own mode. The two rows under it are
-window.scaling's Linear, Nearest and Integer in borderless fullscreen drawn at 960 by 540, a ratio
-of 2, and at 1280 by 720, a ratio of 1.5, each a crop of the screen over the top of the camera's
-help with each screen pixel drawn as two by two, Linear soft at both, Nearest even at 2 and uneven
-at 1.5, and Integer even at 2 and at 1, the largest whole multiple that fits at 1.5.
+window.scaling's Linear, Nearest and Sharp in borderless fullscreen drawn at 960 by 540, a ratio of
+2, and at 1280 by 720, a ratio of 1.5, each a crop of the screen over the top of the camera's help
+with each screen pixel drawn as two by two, all three filling the screen, Linear soft at both,
+Nearest even at 2 and uneven at 1.5, and Sharp the same as Nearest to the bit at 2 and at 1.5 each
+frame pixel a block of one width with a screen pixel across its edge a blend of the two.
 
 ## 2026-11-22
 

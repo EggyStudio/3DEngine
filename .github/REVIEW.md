@@ -928,3 +928,20 @@ meet, and those rays bring the wall's light at zero, the same ones each frame, s
 with the size, and the eighth's grid reads 0.14 at zero.
 
 The suite's 2563 tests pass with it.
+
+Item 314, the sharp scaling.
+
+`window.scaling` takes Linear, Nearest and Sharp, Linear the default, and Integer is gone. Sharp
+draws the frame onto the window in one pass of `scaled.slang` in place of the copy, each window
+pixel reading the frame at its place moved toward its frame pixel's middle and taking the next one
+by its share past the edge, read with four loads where the filter's weights are fixed point. It is
+placed as the other two are, as large as fits with black round it. A test holds Sharp equal to
+Nearest to the bit at a ratio of 2. One at 1.5 holds that the frame fills the screen as far as its
+shape lets it, that a screen pixel whose middle lies inside a frame pixel takes it whole, that one
+whose middle is on an edge is the even blend of the two either side, and that each lies within the
+colors of a square of two by two frame pixels holding the one Nearest shows. Run with Nearest in
+Sharp's place it fails at the even blend, and with Linear at the whole pixel. In the headless
+mutter at 1920 by 1080 the shown capture of Sharp at 960 by 540 is Nearest's byte for byte. The
+sheet has Sharp in Integer's column at both ratios, and the guides name the three.
+
+The suite's 2565 tests pass with it.

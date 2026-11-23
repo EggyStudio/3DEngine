@@ -166,6 +166,7 @@ internal sealed unsafe partial class GraphicsDevice
             DeviceObjects.Gone(DeviceObjects.Kind.Memory);
             _deviceApi.vkFreeMemory(_msaaColorMemory);
         }
+        DestroySharpFrames();
         if (_swapchain.Handle != 0)
             _deviceApi.vkDestroySwapchainKHR(_swapchain);
         _shownImages = [];
@@ -243,7 +244,8 @@ internal sealed unsafe partial class GraphicsDevice
                 arrayLayers = 1,
                 samples = VkSampleCountFlags.Count1,
                 tiling = VkImageTiling.Optimal,
-                usage = VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.TransferSrc,
+                // Read by the sharp scaling's pass (GraphicsDevice.Sharp).
+                usage = VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.TransferSrc | VkImageUsageFlags.Sampled,
                 sharingMode = VkSharingMode.Exclusive,
                 initialLayout = VkImageLayout.Undefined,
             };

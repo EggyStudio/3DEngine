@@ -38,13 +38,20 @@ internal sealed unsafe partial class GraphicsDevice
     // Records the copy of the frame image onto the window's image it is presented in, scaled as the
     // surface says with black round it, once the frame and its captures are done with the frame
     // image, which the render pass leaves ready to be copied from. The acquire's wait holds the
-    // copy as it holds the drawing.
+    // copy as it holds the drawing. The sharp scaling onto a larger window draws its own pass in
+    // place of the copy, and where its shader was never given it is copied as the linear one is.
     private void RecordShown(VkCommandBuffer cmd, uint imageIndex)
     {
         if (!_scaled || imageIndex >= _shownImages.Length) return;
         var shown = _shownImages[imageIndex];
-        var (x, y, width, height, filtered) = Placement.Of((int)_swapchainExtent.width, (int)_swapchainExtent.height,
-            (int)_shownExtent.width, (int)_shownExtent.height, _surfaceSource!.Scaling);
+        var scaling = _surfaceSource!.Scaling;
+        var (x, y, width, height) = Placement.Of((int)_swapchainExtent.width, (int)_swapchainExtent.height,
+            (int)_shownExtent.width, (int)_shownExtent.height);
+        if (scaling == WindowScaling.Sharp && width >= _swapchainExtent.width && height >= _swapchainExtent.height && SharpReady())
+        {
+            RecordSharp(cmd, imageIndex, x, y, width, height);
+            return;
+        }
         var whole = ColorLevels(0, 1);
         PipelineBarrier(cmd, ImageBarrier(shown, whole, VkImageLayout.Undefined, VkImageLayout.TransferDstOptimal,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite));
@@ -64,7 +71,7 @@ internal sealed unsafe partial class GraphicsDevice
         blit.dstOffsets[0] = new VkOffset3D(x, y, 0);
         blit.dstOffsets[1] = new VkOffset3D(x + width, y + height, 1);
         _deviceApi.vkCmdBlitImage(cmd, _swapchainImages[imageIndex], VkImageLayout.TransferSrcOptimal, shown, VkImageLayout.TransferDstOptimal,
-            1, &blit, filtered ? VkFilter.Linear : VkFilter.Nearest);
+            1, &blit, scaling == WindowScaling.Nearest ? VkFilter.Nearest : VkFilter.Linear);
         PipelineBarrier(cmd, ImageBarrier(shown, whole, VkImageLayout.TransferDstOptimal, VkImageLayout.PresentSrcKHR,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.None, VkAccessFlags2.None));
     }

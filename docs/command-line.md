@@ -76,7 +76,7 @@ the validation layer. The setting `window.vsync on` turns vsync on, and `off` of
 swapchain again on the next frame, `window.mode borderless`, `borderlessfullscreen`, `fullscreen`
 or `windowed` sets how the window stands on its screen, `window.width` and `window.height` read or
 set its size as a window and as a borderless one and the size borderless fullscreen draws at,
-`window.scaling linear`, `nearest` or `integer` how that is scaled onto the screen,
+`window.scaling linear`, `nearest` or `sharp` how that is scaled onto the screen,
 `window.monitor 1` moves it to the second screen, and `window.state` says whether the window is
 shown or hidden, covered by others, focused, minimized or maximized, its mode where it covers its
 screen, and its size.

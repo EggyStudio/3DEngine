@@ -95,6 +95,8 @@ internal sealed class Renderer : IDisposable
         if (Context.Graphics is GraphicsDevice device)
         {
             device.InitializeSkinning(server.LoadSync<ShaderProgram>("shaders/skin.slang").Compute);
+            var scaled = server.LoadSync<ShaderProgram>("shaders/scaled.slang");
+            device.InitializeSharpScaling(scaled.Vertex, scaled.Fragment);
             device.InitializeMeshCounts(server.LoadSync<ShaderProgram>("shaders/mesh_counts.slang").Compute);
             device.InitializeCountedCorners(server.LoadSync<ShaderProgram>("shaders/field_counted.slang").Compute);
             ParticleStages.Of(device).InitializeParticles(server.LoadSync<ShaderProgram>("shaders/particle_step.slang").Compute);

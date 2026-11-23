@@ -136,14 +136,14 @@ internal sealed class SdlWindow
     /// Where the frames stand on the window in its pixels, the whole window while they are drawn
     /// at its size.
     /// </summary>
-    public (int X, int Y, int Width, int Height, bool Filtered) Placed
+    public (int X, int Y, int Width, int Height) Placed
     {
         get
         {
             var shown = Pixels;
-            if (Picture is null) return (0, 0, shown.Width, shown.Height, false);
+            if (Picture is null) return (0, 0, shown.Width, shown.Height);
             var frame = FramePixels;
-            return Placement.Of(frame.Width, frame.Height, shown.Width, shown.Height, Scaling);
+            return Placement.Of(frame.Width, frame.Height, shown.Width, shown.Height);
         }
     }
 

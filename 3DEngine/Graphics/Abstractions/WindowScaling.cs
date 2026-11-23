@@ -18,31 +18,30 @@ internal enum WindowScaling
     Nearest,
 
     /// <summary>
-    /// The largest whole multiple of the frame that fits, each of its pixels a square of the same
-    /// size, centered with black round it, and as <see cref="Linear"/> where the frame is larger
-    /// than the screen.
+    /// Each pixel of the screen inside a pixel of the frame from it whole and one across an edge a
+    /// blend of the two, so every pixel of the frame is a block of one width that holds still at
+    /// any ratio, equal to <see cref="Nearest"/> at a whole ratio, as large as fits with its shape
+    /// kept and black round it, and as <see cref="Linear"/> where the frame is larger than the
+    /// screen.
     /// </summary>
-    Integer,
+    Sharp,
 }
 
 /// <summary>Where a frame of its own size stands on the window it is scaled onto.</summary>
 internal static class Placement
 {
     /// <summary>
-    /// The rectangle of the window's pixels a frame of <paramref name="frameWidth"/> by
-    /// <paramref name="frameHeight"/> pixels is drawn into, centered, and whether it is filtered.
+    /// The rectangle of the window's pixels a frame of <paramref name="frameWidth"/> by <paramref
+    /// name="frameHeight"/> pixels is drawn into, as large as fits with its shape kept and
+    /// centered, the same for every scaling.
     /// </summary>
-    internal static (int X, int Y, int Width, int Height, bool Filtered) Of(int frameWidth, int frameHeight,
-        int windowWidth, int windowHeight, WindowScaling scaling)
+    internal static (int X, int Y, int Width, int Height) Of(int frameWidth, int frameHeight, int windowWidth, int windowHeight)
     {
         frameWidth = Math.Max(1, frameWidth);
         frameHeight = Math.Max(1, frameHeight);
         var fit = Math.Min((double)windowWidth / frameWidth, (double)windowHeight / frameHeight);
-        var whole = scaling == WindowScaling.Integer && fit >= 1;
-        if (whole) fit = Math.Floor(fit);
         var width = Math.Clamp((int)Math.Round(frameWidth * fit), 1, Math.Max(1, windowWidth));
         var height = Math.Clamp((int)Math.Round(frameHeight * fit), 1, Math.Max(1, windowHeight));
-        return ((windowWidth - width) / 2, (windowHeight - height) / 2, width, height,
-            scaling == WindowScaling.Linear || (scaling == WindowScaling.Integer && !whole));
+        return ((windowWidth - width) / 2, (windowHeight - height) / 2, width, height);
     }
 }
