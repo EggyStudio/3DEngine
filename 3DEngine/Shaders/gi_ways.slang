@@ -19,10 +19,12 @@ public float4 hemisphere(float2 uv)
 }
 
 // A way of the hemisphere around +z for the texel at id, as likely as the cosine of its angle to
-// +z. Each four by four block of texels holds the sixteen strata of the square once, in the order
-// the probes' places take (TracePlaces), so a blend over the block takes the ways a probe's sixteen
-// rays would, each texel at a place in its stratum spread over the block (interleaved gradient
-// noise), the same from frame to frame, so a still view holds still with no history.
+// +z. Each four by four block of texels holds the sixteen strata of the square once, so a blend
+// over the block takes the ways a probe's sixteen rays would, each texel at a place in its stratum,
+// the same from frame to frame, so a still view holds still with no history. The order the block's
+// texels take the strata in and each place are drawn from the block's and the texel's own bits
+// (scattered), so the texels that take one way lie apart across the picture with no line among
+// them.
 public float3 cosineWay(uint2 id)
 {
     return cosineOf(strataPoint(id));
@@ -36,13 +38,35 @@ float3 cosineOf(float2 square)
     return float3(r * cos(turn), r * sin(turn), sqrt(max(1.0 - square.x, 0.0)));
 }
 
-// The point of the square the texel at id draws its way from, in its stratum (cosineWay).
+// Two numbers whose every bit hangs on every bit of the two given, each taken through a
+// multiply and add twice with the other mixed in and its high half folded onto its low, so texels
+// side by side draw nothing alike.
+uint2 scattered(uint2 v)
+{
+    v = v * 1664525u + 1013904223u;
+    v.x += v.y * 1664525u;
+    v.y += v.x * 1664525u;
+    v ^= v >> 16u;
+    v.x += v.y * 1664525u;
+    v.y += v.x * 1664525u;
+    v ^= v >> 16u;
+    return v;
+}
+
+// A place in a stratum, each of its two numbers from 0 to under 1, from the bits of the texel.
+float2 placeIn(uint2 id)
+{
+    return float2(scattered(id) >> 8u) / 16777216.0;
+}
+
+// The point of the square the texel at id draws its way from, in its stratum (cosineWay). The
+// block's own bits turn the order its texels take the strata in, each texel's index in the block
+// flipped by them alike, so the block still holds each stratum once.
 public float2 strataPoint(uint2 id)
 {
-    uint stratum = TracePlaces[(id.x & 3u) + 4u * (id.y & 3u)];
-    float2 at = float2(id);
-    float2 spread = frac(52.9829189 * frac(float2(dot(at, float2(0.06711056, 0.00583715)), dot(at.yx, float2(0.06711056, 0.00583715)))));
-    return (float2(stratum & 3u, stratum >> 2u) + spread) / 4.0;
+    uint flip = scattered((id >> 2u) ^ uint2(0x68E31DA4u, 0xB5297A4Du)).x & 15u;
+    uint stratum = TracePlaces[((id.x & 3u) + 4u * (id.y & 3u)) ^ flip];
+    return (float2(stratum & 3u, stratum >> 2u) + placeIn(id)) / 4.0;
 }
 
 // The strata of the square two across and four up in the order the eight texels of a four by four
@@ -55,10 +79,9 @@ static const uint GuidePlaces[8] = { 0, 5, 3, 6, 4, 1, 7, 2 };
 // the sixteen strata of strataPoint split by the checkerboard leave each color two rows of them.
 float2 guidePoint(uint2 id)
 {
-    uint stratum = GuidePlaces[((id.x & 3u) >> 1u) + 2u * (id.y & 3u)];
-    float2 at = float2(id);
-    float2 spread = frac(52.9829189 * frac(float2(dot(at, float2(0.06711056, 0.00583715)), dot(at.yx, float2(0.06711056, 0.00583715)))));
-    return (float2(stratum & 1u, stratum >> 1u) + spread) / float2(2.0, 4.0);
+    uint flip = (scattered((id >> 2u) ^ uint2(0x68E31DA4u, 0xB5297A4Du)).y >> (3u * ((id.x + id.y) & 1u))) & 7u;
+    uint stratum = GuidePlaces[(((id.x & 3u) >> 1u) + 2u * (id.y & 3u)) ^ flip];
+    return (float2(stratum & 1u, stratum >> 1u) + placeIn(id)) / float2(2.0, 4.0);
 }
 
 // The gather by pixel's way at id where the guide's table holds light, drawn by the cosine at every

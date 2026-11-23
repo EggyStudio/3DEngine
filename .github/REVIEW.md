@@ -998,3 +998,48 @@ at the door with the screen probes, 8.40 through the field at full and 10.29 thr
 5.19 and 5.68 at half, and in the atrium 5.92, 10.20 and 10.05, and 6.13 and 6.05.
 
 The suite's 2565 tests pass with it.
+
+Item 311, the gather's lattice.
+
+The bright texels on diagonals are the gather's own at full and the same in every frame. In the
+last frame at full through the rays 9555 pixels read over 8 times the median of the five by five
+around them, 64 times it at the median, and every one of them was as bright in the frame before, so
+the mean of 16 frames is the one frame. One place of the four by four block held 3.07 times an even
+share of them, the block's first column on its middle rows, and a pair of them lay along a diagonal
+0.79 times as often as along a row or a column. Through the field it reads alike, 12316 at 72
+times. With the guide it reads 3800 at 32 times and at half 632 at 26 times, 1.46 and 1.57 times an
+even share in one place, so the lattice stands with the guide off and the guide and the half grid
+thin the same rays. Every block took the sixteen strata in the same order, and each texel's place in
+its stratum came from interleaved gradient noise, which runs along diagonals. So the few ways that
+meet a small sunlit patch through the door left from the same place in every block and lined up
+along the diagonals, and a still view kept them.
+
+The order a block takes the strata in is now turned by the block's own bits and each texel's place
+drawn from its own (`scattered` in `gi_ways.slang`), each block still holding each stratum once, and
+the guide's draw alike. At full through the rays 10256 pixels read bright at 64 times, the most in
+one place of the block 1.07 times an even share and a pair along a diagonal 0.40 times as often as
+along a row or a column, the same rays scattered with no line among them. The grain stands. A single
+ray a texel meets the sunlit patch rarely and then reads tens of times its neighbors, and the
+filter's five by five spreads each into a patch of a few pixels. The parts read as below over the
+reference of one bounce with every face's gloss.
+
+| Part | Field, full | Rays, full | Field, half | Rays, half | Field, full, guided | Rays, full, guided |
+|---|---|---|---|---|---|---|
+| Whole wall | 1.42 | 0.95 | 1.42 | 1.01 | 1.30 | 0.92 |
+| Top left | 1.14 | 1.03 | 1.20 | 1.17 | 1.18 | 1.11 |
+| Top middle | 1.17 | 0.85 | 1.74 | 1.23 | 0.98 | 0.83 |
+| Top right | 1.08 | 1.07 | 3.97 | 3.88 | 3.53 | 1.12 |
+| Bottom left | 1.12 | 0.72 | 0.52 | 0.53 | 0.98 | 0.65 |
+| Bottom middle | 3.97 | 1.28 | 3.55 | 0.57 | 3.02 | 0.82 |
+| Bottom right | 36.63 | 1.34 | 0.35 | 0.13 | 36.63 | 1.34 |
+
+The parts moved with nothing changed but the draw, the rays at half from 0.63 to 1.01 on the whole
+wall, the rays at full on the bottom middle from 0.59 to 1.28 and the field at full on the bottom
+right from 61.2 to 36.6. At a single ray a texel in a still view each figure hangs on which ways
+were drawn as much as on the light, and no count of frames averages it out, so the parts' figures
+are read with that spread in them. Over the reference with the copies' colors the rays read 0.99 at
+full and 1.06 at half. `2026-11-23-item-311-door-rays-scattered.webp` is the sheet made again from
+this run, the earlier one kept as the record of the lattice. The GI's milliseconds read within 0.06
+of the earlier ones at every size in both views.
+
+The suite's 2565 tests pass with it.

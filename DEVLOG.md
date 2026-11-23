@@ -32,6 +32,18 @@ with each screen pixel drawn as two by two, all three filling the screen, Linear
 Nearest even at 2 and uneven at 1.5, and Sharp the same as Nearest to the bit at 2 and at 1.5 each
 frame pixel a block of one width with a screen pixel across its edge a blend of the two.
 
+![](.github/assets/readings/2026-11-23-item-311-door-rays.webp)
+scenes_sponza offscreen at 800 by 450 at High at 12:00 at the door, on white under its title, the
+indirect light of one bounce as the mean of the last 16 frames with gi.again off, the columns named
+over the pictures as the reference traced at 256 paths a pixel with every face's specular share, the
+left wall's box drawn on it cut in thirds across and halves up, the gather by pixel at full through
+the field and through the device's rays, its light at zero held in a lattice of bright texels along
+diagonals, and under each gather its light over the reference's in stops over the fifteen by fifteen
+pixels around each pixel, red to the full at two stops lighter and blue at two stops darker, and
+under them each part's light over the reference's at full and half through the field and the rays,
+1.46 and 0.89 on the whole wall at full, the rays' over the reference traced with the copies' colors
+as well, and the GI's milliseconds at the door and in the atrium under the exclusive lock.
+
 ## 2026-11-22
 
 ![](.github/assets/readings/2026-11-22-item-302-console-overlay.webp)

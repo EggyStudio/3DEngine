@@ -1546,7 +1546,11 @@ dark wall, and the wall across the room from the floor at Sponza's door took lig
 reference does not give it. The ray's way is drawn by its cosine to the normal (`cosineWay` in
 `gi_ways.slang`), each four by four texels holding the sixteen strata of the hemisphere's square
 once as a probe's sixteen rays do, at a place in its stratum the same from frame to frame, so a
-still view holds still with nothing kept from the frame before. With `gi.gather_guide cascades`
+still view holds still with nothing kept from the frame before. The order a block's texels take the
+strata in and each texel's place are drawn from the block's and the texel's own bits (`scattered`),
+since blocks that took the strata alike, each at a place from interleaved gradient noise, which
+runs along diagonals, would send the rays that meet a small sunlit patch from texels in lines, and
+a still view would draw those lines across the whole picture. With `gi.gather_guide cascades`
 every other texel draws its way from a table of eight by eight cells of the hemisphere's square in
 place, each cell weighed by the brightness of the light the nearest probe of the finest cascade
 holds along its middle's way times that way's cosine and the share of the hemisphere it spans
