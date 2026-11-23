@@ -607,8 +607,8 @@ one crop at a whole ratio and at a ratio of one and a half.
 
 ## Verdicts
 
-Verdict 133 is settled at 07:05 on 2026-11-23, the build on `f74cc932` green, the 160 bytes the
-load's debug line once the file log has begun and the test reading in pairs.
+Verdict 134 is open, the build on `1c9704cf` red on `LiveFilesTests`' wait of 10 s in the Windows
+job, suspected of the runner's late file notice.
 
 131. **The reflections' reference frame recorded again for item 299 differs on the runners.** In run
     44943683933 on `31c089de`, read at 22:56 on 2026-11-21, the reference frame test of
@@ -631,6 +631,15 @@ load's debug line once the file log has begun and the test reading in pairs.
     the test hold on what it means, the least of several takes on each side or a bound in place of
     equal bytes, and says in its Reply how often it failed in twenty local runs before and after.
     The verdict settles on a green run with the mend.
+
+134. **08:39, the build on `1c9704cf` red in the Windows job's second part.** `LiveFilesTests` at
+    line 125 waited 10 s and 13 ms for a saved file to be loaded again against a bound of 10 s, so
+    the wait ran to its end and the load did not come within it. The commit's diff touches the
+    window and its settings and no file watching, and the seven other test jobs pass, so the
+    suspicion lies on the runner's file notices arriving late and not on the code. The sibling test
+    in `LiveReloadTests` bounds the same wait at 20 s. The mend reads whether the wait polls or only
+    listens, makes it pass on a late notice where the load itself is sound, and says in the Reply
+    which it was. `0ee0408e` is pushed over this red.
 
 ## Decisions
 
@@ -1041,3 +1050,9 @@ right parts, whose reference light is small enough that their ratios run from 2 
 the size.
 
 The suite's 2563 tests pass with it, the gather's test at each size among them.
+
+Verdict 134, the live files' wait on a notice that came late.
+
+The test's wait polls the reloads and the watch only listens, compares no stamp, and is armed before
+`Watch` returns, so neither a write before it listens nor a shared stamp hides a save. The notice
+came late, and the mend bounds it at a minute and the watch's own reload at the quiet and 5 s after.

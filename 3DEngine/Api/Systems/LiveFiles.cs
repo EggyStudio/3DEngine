@@ -75,6 +75,9 @@ internal sealed class LiveFiles : IDisposable
     /// <summary>Whether the files are watched and loaded again.</summary>
     internal bool On { get; private set; }
 
+    /// <summary>Whether a notice has marked a file changed that is not yet loaded again.</summary>
+    internal bool Marked => !_changed.IsEmpty;
+
     /// <summary>The files, in the order they were loaded.</summary>
     internal IReadOnlyList<Entry> Entries
     {

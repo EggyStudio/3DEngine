@@ -114,15 +114,22 @@ public sealed class LiveFilesTests : IDisposable
         lines.Should().Contain($"scene 5 {Path.GetFullPath(_folder.File("level.json"))}", "a file not loaded again since says no reload");
     }
 
-    // Runs the frame's reloads until the condition holds, a few seconds at most, as a watch's
-    // events reach a test after the write that made them.
+    // Runs the frame's reloads until the condition holds. The system's notice of a write reaches
+    // the watch on a thread of its own, which a busy machine may hold back for seconds, so the wait
+    // for it is bounded at a minute, and the reload, which is the watch's own, comes within a few
+    // seconds of the first notice.
     private static void RunUntil(LiveFiles live, Func<bool> done)
     {
         var watch = Stopwatch.StartNew();
+        TimeSpan? marked = null;
         ulong frame = 0;
         while (!done())
         {
-            watch.Elapsed.Should().BeLessThan(TimeSpan.FromSeconds(10), "a saved file is loaded again within moments");
+            if (marked is null && live.Marked) marked = watch.Elapsed;
+            if (marked is { } at)
+                (watch.Elapsed - at).Should().BeLessThan(LiveFiles.Quiet + TimeSpan.FromSeconds(5), "a file marked changed is loaded again once it has been quiet");
+            else
+                watch.Elapsed.Should().BeLessThan(TimeSpan.FromMinutes(1), "the system tells the watch of a saved file, late on a busy machine but within a minute");
             live.Run(++frame);
             Thread.Sleep(20);
         }
