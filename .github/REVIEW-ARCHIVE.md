@@ -23294,3 +23294,287 @@ After the mend, three flights flown after those above, the load 1.5 to 1.7:
 - With the finder alone mended and nothing compiled optimized, three flights in turn with the
   three before, the finder took 25 to 46 ms over a flight, and a step still compiled for 11.3 ms
   in one flight and the first coming for 5.9 in two.
+
+Item 292, the ray scene's corners grown and packed again without waiting for the queue.
+
+The kernels read the corners as one buffer. `meshrays.slang` and `lights.slang` take
+`rayCorners`, a `StructuredBuffer<float4>`, at the copy's first corner and the triangle's three
+after it, the path-traced and the occlusion references bind the same buffer, and a mesh's build
+reads its corners by the buffer's address. Buffers of a fixed size would have each of those reads
+choose its buffer by the corner's index, through an array of bindings or an address carried a mesh,
+so the one buffer stays, and the growth and the packing are copies recorded with the frame's own
+commands, a barrier from the copy's writes to every read after it, the buffers left let go with the
+frame's other leavings once no frame in flight reads them. The CPU writes corners through mapped
+memory, which a later copy would write over, so while a copy is in flight it writes nothing under
+the corners copied. A mesh's colors written anew there wait for the frame after the copy is done,
+and no run given back is taken until then.
+
+- The buffer grows to twice its room as often as a mesh that comes does not fit, where it grew to
+  twice the next power of two of the corners needed. Past 16,777,216 corners it holds 512 MiB and
+  its texture coordinates 256, with the 256 and 128 it leaves held for the frames still reading
+  them, where it took 1,024 and 512.
+- A mesh that leaves gives its corners back, joined to the runs either side, and the next mesh that
+  fits takes the first run that holds it. A run that ends the buffer lowers its count. The memory
+  test's 24 rounds of a sphere coming and going hold 3.1 MB after the first.
+- `ReserveRayCorners` and `GetReservedRayCorners` make room ahead, rounded up by the same doubling,
+  and the room packed again keeps it. The global illumination guide gives the 24 bytes a corner,
+  the doubling and the room 20 million reserve, 768 MiB.
+- Global illumination makes its scene with its top level left for the frame's record to build, so
+  the frame `High` turns on in waits for nothing. The empty scene the model pass binds where no
+  rays are traced keeps the top level it builds once as it is made.
+
+`The_Ray_Scenes_Corners_Grow_And_Are_Packed_Again_Without_The_Frame_Waiting_For_The_Device` brings
+a sphere of 24,576 corners a frame past five doublings, 65,536 to 1,048,576 corners. The frames
+that grew the buffer took 1.68 to 2.78 ms of the CPU in global illumination, the frames beside them
+1.43 to 1.94 at the median. It counts the device's single submits, each of which waits, and finds
+none in a frame that meets nothing new, none in the frame that grows the buffer to a room
+reserved, and none in the frames that pack it again without 39 spheres that left.
+`A_Mesh_That_Leaves_The_Ray_Scene_Gives_Its_Corners_To_The_Next_That_Fits_In_Them` has a sphere
+take the corners another left, the buffer's count as it was.
+
+Item 304, the still glow scene read pass by pass on the branch.
+
+`Rendering 6` ran thirty times on the branch's tree with the held cells' probe part off, each pass's
+output hashed and its largest difference read over the last frames of every still case, and thirty
+times on main's tree before it. On the branch 4 of 117 still cases fail, all at `Low`. On main none
+of the thirty runs fails a still case or the ceiling.
+
+| Case | Change | First differing | Largest, frames 2 to 3 | Largest, frames 1 to 2 | Ray lights carried, frames 1 to 2 |
+|---|---|---|---|---|---|
+| `Low` 1280 by 720 | 0.365 | trace 0's radiance | 0.0076 | 0.032 | 0.091 |
+| `Low` 2560 by 1440 | 1.410 | trace 0's radiance | 0.0143 | 0.061 | 0.126 |
+| `Low` 1280 by 720 | 1.014 | trace 0's radiance | 0.0897 | 0.050 | 0.085 |
+| `Low` 1280 by 720 | 2.311 | trace 0's radiance | 1.000 | 1.000 | 0.098 |
+
+- In all four the first pass whose output differs between the last two frames is trace 0's
+  radiance, and every pass written before it in the frame, the lights and the glow faces among
+  them, is equal frame to frame.
+- What the trace reads from the frame before differs in all four, trace 0's ray lights by the
+  figures above. The fourth case differs in its carried distances too, 8 of them by up to 2.04,
+  and in its ray ends, 32 by up to 2.64.
+- Main's tree hashes no pass, so its thirty runs give the count alone.
+- A hit's light is shaded on main and on the branch alike from the probes' light and the faces'
+  light as the frame before's gather left them, so the branch's ray lights carry its probes' own
+  light round frame over frame, and no fix is tried on the branch before the module runs each
+  merge to a steady state.
+
+Item 306, the open console or settings panel holding all input from the program.
+
+Diagnostics is pinned at bcb4513, whose open panels tell whether one that takes input is open
+(`HoldsInput`), the console and the settings panel joining as ones that do and the overlay as one
+that does not. After the panels' keys are taken in PreUpdate, the engine's input reads that answer,
+and again as the frame's events are applied and as the frame ends, so a panel opened or closed
+anywhere in the frame holds or frees the input from the next read on.
+
+- While it holds, every read the program makes sees no input. That covers a key, a mouse button,
+  the pointer, the wheel, typed text, touches, and a pad's buttons, sticks, triggers, gyro and
+  touchpad, through the flat API and the input resource the systems and behaviors read alike. The
+  pointer reads where it stood as the panel opened.
+- The engine's own readers read the input as it stands, so they still act. These are the panels'
+  keys, the screenshot key, the pad given to ImGui, and the automation's and the synthetic input's
+  releases.
+- A key, a button or a stick held as the panel closes stays unseen until it is let go, and a stick
+  until it comes back within a quarter of the middle. Its release is hidden too, so the program
+  never sees a key come up it did not see go down.
+- `HeldInputTests` holds the overlay alone leaving all live, the panel open holding all with the
+  raw key and the raw pad still read, F5 closing it, and a key, a stick and a button held as it
+  closes. The input and window guides say it.
+
+Item 304, the cold start of the door view read frame by frame on the branch and on main.
+
+Sponza's door view at High, the sun at noon, screen probes off, settled 240 frames, then the
+gather's two images of the probes' light, `bounced` and `bouncedAtSurface`, cleared to zero
+and the next ten frames read. The traced and merged light and the held shares were not cleared.
+The left wall is gray block 8's +z face, 65,897 pixels, against the same 256 path reference.
+
+| Frame | 42ed4e13 probe | 42ed4e13 wall | Gain | df4d0559 probe | df4d0559 wall |
+|---|---|---|---|---|---|
+| Before | 0.00807 | 2.046 | | 0.00388 | 1.075 |
+| 1 | 0.00675 | 1.482 | | 0.00371 | 0.834 |
+| 2 | 0.00746 | 1.603 | | 0.00356 | 0.807 |
+| 3 | 0.00749 | 1.867 | 2.17 | 0.00372 | 1.027 |
+| 4 | 0.00795 | 1.977 | 0.42 | 0.00385 | 1.054 |
+| 5 | 0.00796 | 2.018 | 0.37 | 0.00386 | 1.071 |
+| 6 | 0.00804 | 2.035 | 0.41 | 0.00387 | 1.073 |
+| 7 | 0.00805 | 2.042 | 0.42 | 0.00387 | 1.073 |
+| 8 | 0.00806 | 2.044 | 0.35 | 0.00388 | 1.074 |
+| 9 | 0.00806 | 2.045 | 0.40 | 0.00388 | 1.075 |
+| 10 | 0.00806 | 2.045 | 0.30 | 0.00388 | 1.075 |
+
+- The probe is (3,4,2) of cascade 1, the mean of its +z face's three channels. The gain is the
+  wall's change of frame n over that of frame n − 1.
+- On the branch the first frame holds 84% of the probe's light and the wall reads 1.48, 1.78 times
+  main's first frame. Main's first frame holds 96% of its probe's light.
+- The branch's wall settles at a gain near 0.40 a frame. Main's changes after frame 3 are under
+  0.03 and their ratios scatter from −8 to 5, so no gain is read there.
+- On the branch the probe's face moves in large steps on even frames and small ones on odd frames,
+  so its own gain a frame is not read.
+- At the left wall's hits `lights.counts.z` is 1 on both trees, the default gain with the frame
+  before's light not turned off. The probe's held share reads −1 every frame on both, so `kept` is
+  taken from its neighbours.
+- The wall's copy has roughness 0.631 and metallic 0.071 on both. glossyHit's `share` there is
+  0.086 at an nv of 0.25, 0.051 at 0.5 and 0.037 at 1, beside a diffuse share past it of 0.21 to
+  0.25.
+
+Item 308, not reproduced, waiting for the example and settings it was seen with.
+
+The occlusion at full size was read beside the half size's, the full one brought to the half's
+size by the mean of each two by two block. It was compared as drawn and mirrored across x and
+across y, the mean difference in 255ths. In every case it lay nearest the half as drawn.
+
+- The occlusion tests' cube in the corner of two walls, 320 by 240 offscreen, both methods, the
+  camera held at −20, 0 and 20 degrees and turned into each a degree a frame. As drawn 0.5 to 3.3,
+  mirrored 7.5 to 24.
+- Sponza at main, offscreen and in a hidden window, the field settled, both methods, held and
+  mid-turn. At 800 by 450, as drawn 5.7 to 12.4, mirrored 9.0 to 21. With the window resized
+  by `window.size` to 1366 by 768 and to 1920 by 1080, as drawn 7.1 to 20.6, mirrored 12.5 to 35.
+  The gap as drawn is the texture's detail the full size resolves.
+- The occlusion's own pictures, through `ao.save` raw, filtered, bent and final, with the circular
+  occluders, held, mid-turn and moved to the door view. As drawn 4.7 to 18.4, mirrored 11.7 to 77.
+- The same four pictures in a hidden window at 1366 by 768 and again after `window.size` made it
+  1100 by 700, held and mid-turn. As drawn 9.7 to 25.1, mirrored 17.4 to 71.
+- The frames at the two sizes keep within 1.7% of each other in brightness once the field is built.
+  Before the field is built they darken over time at either size, which reads like a change of
+  size where the two are drawn in turn.
+- The engine has no view of the occlusion alone and no render scale, so neither was tried.
+
+Item 309, the field's cascades held ahead along the look in Sponza and the Bistro.
+
+The view draws each cascade where it lies. The cascades stood off the camera because the two
+examples gave the field the point half the way to what each view first looked at, kept as the
+camera turned or walked, so after a turn the finer cascades lay behind the camera and the view
+showed them in one small place to its side, the same whichever way it looked. Each cascade's corner
+as `field.state` read it lay about that point and not about the camera. Both examples give
+`SetSceneFieldAhead(0.75f)` in its place, the point three quarters of the finest cascade's width
+ahead along the look, 6 units in Sponza and 12 m in the Bistro, and default programs keep the field
+about the camera.
+
+Each view against a path-traced reference of 256 samples a pixel at 12:00, the frame's mean over the
+reference's and the mean of each pixel's difference over the reference's mean, with the point the
+examples gave, with the field about the camera, and ahead.
+
+| View | Point half the way | About the camera | Ahead 0.75 |
+|---|---|---|---|
+| Sponza atrium | 1.09, 15.0% | 1.15, 21.1% | 1.11, 16.7% |
+| Sponza gallery | 1.13, 28.5% | 1.32, 43.0% | 1.14, 29.3% |
+| Sponza lion | 1.12, 29.3% | 1.20, 37.2% | 1.11, 28.6% |
+| Sponza arcades | 0.99, 25.5% | 1.02, 27.6% | 0.99, 25.5% |
+| Sponza nave | 1.06, 10.4% | 1.07, 11.4% | 1.07, 10.7% |
+| Sponza balcony | 1.08, 22.3% | 1.15, 27.8% | 1.08, 21.9% |
+| Sponza door | 1.18, 58.6% | 1.17, 65.3% | 1.19, 61.6% |
+| Sponza lookup | 1.03, 19.0% | 1.07, 22.4% | 1.03, 19.0% |
+| Bistro above | 1.01, 0.9% | 1.01, 1.1% | 1.01, 1.1% |
+| Bistro corner | 1.27, 37.7% | 1.29, 39.3% | 1.27, 37.6% |
+| Bistro lane | 1.16, 20.7% | 1.17, 21.7% | 1.16, 20.9% |
+| Bistro square | 1.23, 29.8% | 1.24, 31.1% | 1.23, 29.9% |
+| Bistro street | 1.10, 16.2% | 1.13, 17.2% | 1.11, 16.4% |
+| Bistro terrace | 1.19, 25.0% | 1.21, 26.2% | 1.20, 25.1% |
+| Sponza atrium turned round | 5.59, 473.9% | | 1.06, 42.3% |
+
+- The slowest frame of a full turn of the atrium a degree a frame read 18.5 and 16.7 ms over two
+  turns with the point half the way, and 25.0 and 26.3 ms ahead, a cost left open. It is set by how
+  many cascades a frame of the turn builds. The point the field lies about stands 6 units ahead
+  and at a degree a frame moves about a tenth of a unit, so the finest cascade steps its 8 cells
+  about every tenth frame along each axis and each coarser one half as often, each step building
+  the slab of cells it brings in, and a frame where the steps of two or more cascades meet builds
+  their slabs together. With the point half the way a turn built none.
+- `GlobalIlluminationTests.FieldPlace.cs` holds each cascade's middle within 4 cells, half the
+  snap, of the eye with no share ahead and of the eye plus 0.75 of the finest cascade's width along
+  the look with it, at two places and two turns. A cascade's middle moves on its grid of 8 cells
+  with no hold, so one cell is not a bound it keeps. The same file holds the part of a floor the
+  field view draws for each of two cascades to the cascade's box, half a cell in from its sides,
+  reading every pixel whose point on the floor lies three cells or more from a side.
+- The gallery's 1.32 about the camera, the coarse cascade taking the sky's light indoors, is left
+  for its own item.
+- The sheet `.github/assets/readings/2026-11-22-item-309-field-view.webp` shows the atrium turned
+  round with fields 1 to 3 drawn, above with the point half the way and below ahead. The examples'
+  captures are taken again, and docs/global-illumination.md and RENDERING.md say the placement.
+
+Item 307, the window's settings in the panel.
+
+The `window` page holds `window.mode` with the choices `Windowed`, `Borderless` and `Fullscreen`,
+taken in any case, `window.resizable`, `window.width` and `window.height` as the window's size as a
+window, `window.monitor`, which takes the command's name, and `window.vsync`, beside
+`window.samples`, which only reads as before. Each acts at once on a shown window, so no row says
+"at the next start", since SDL sets each on a window that is shown. All but `samples` are saved,
+and the settings file's lines of the page are given to the window before it is shown, its size
+first and its mode last, so the first frame is shown as the player left it
+(`AppWindowPlugin.Opening`, which `DiagnosticsBinding.OpenWindow` fills).
+
+- Borderless asks SDL for fullscreen with no mode of its own, which covers the screen at the
+  screen's mode. Fullscreen takes the mode the screen lists closest to its own. A mode SDL refuses
+  answers its reason in the console and the mode before is asked for again, and one SDL took the
+  asking of but did not hold once the window synced answers "The system kept the window" and the
+  mode it kept.
+- `window.width` and `window.height` are kept while the window covers its screen and taken as it
+  leaves it, so a set while fullscreen leaves the screen as it is until then. Before the window is
+  shown the size read is the one asked for, since a system may take it only as the window shows.
+- `window.resizable` reads SDL's flag again after asking, since a driver with no edges of its own,
+  SDL's offscreen one, answers yes and leaves the window, and then answers "The system kept the
+  window resizable."
+- `window.monitor` moves the window centered onto the screen of that number, a fullscreen window
+  going borderless to move and back, and only reads where there is one screen, "There is one
+  screen, so the window stays on it."
+- With the window hidden the whole page only reads, its rows drawn so in the panel and a set or a
+  reset refused with "The window is hidden, as --hidden or E3D_HIDDEN asks, so its settings only
+  read." That is the module's new `Setting.Lock` (Diagnostics 8c79833), a reason the host gives as
+  the setting is read, where `ReadOnly` would have dropped the setting's line from the file. In a
+  run with no window the window's own settings answer "The program has no window and draws no
+  frames.", and in an offscreen run the size sets the images it draws into, as before.
+- `ToggleFullscreen`, `ToggleBorderlessWindowed`, `IsWindowFullscreen`, `SetWindowMonitor` and the
+  `BorderlessWindowedMode` flag go through the same code, so the flat API and the setting read one
+  mode and move alike, and `SetWindowFullscreenMode` with no mode takes the same screen mode.
+- BevyCSharp holds none of these yet. Its item 160 is the same text, so for its session the names
+  are `window.mode`, `window.resizable`, `window.width`, `window.height`, `window.monitor` and
+  `window.vsync`, the mode's choices `Windowed`, `Borderless` and `Fullscreen`, and the reasons
+  above.
+
+`WindowSettingsTests` opens windows on SDL's offscreen driver. One gives the file's mode, size,
+resizable and vsync lines to the window before it is shown, sets each by its name, and holds the
+file's lines as each is set and as the program ends. One holds the refusal, the offscreen screen
+listing no mode for a fullscreen window, so a file's fullscreen line and a set are both refused with
+the reason, the mode before kept and the refused line not written again. One holds the hidden
+page's locks. The offscreen driver gives a window no edges to fix, so `window.resizable` is held
+there through its refusal. `EngineSettingsTests` counts seven settings on the page, the saved set,
+`window.monitor` gone as a command and `window.mode` refused with no window, and the module's two
+new tests hold a lock's set, reset, panel row and file line.
+
+The suite passes 2,557 of 2,557 with the pack, the guides' blocks and the examples' table, and
+after `SetWindowMonitor` took the setting's move, the 502 tests of the flat API, the platform and
+the window again. The module passes 162 of 162.
+
+The sheet `.github/assets/readings/2026-11-22-item-307-window-page.webp` shows the page as F5 opens
+it and the three modes in a headless mutter with one screen of 1280 by 720, since SDL's offscreen
+driver neither covers a screen nor lists a mode. docs/window-and-frame.md gives the page's row, a
+paragraph for the page and the file's window lines, docs/command-line.md the settings beside the
+commands, and the cheatsheet takes `IsWindowFullscreen`'s summary.
+
+Item 304, the march's hit lit three ways on the branch against main.
+
+Sponza's door view at High, the sun at noon, screen probes off, the left wall over the same 256 path
+reference, with the frame before's light turned off (bounce at zero) and then with it on (settled),
+each the mean of the last 16 frames of 20 and of 46. On the branch the merge marches a ray past its
+interval and lights what it meets in one of three ways, each behind a scratch switch. In (a) the
+march's hit takes HeldCells' light, its cell's middle, as 42ed4e13 does. In (b) the hit is lit as
+the trace lights one, at its own place with the shadow map's answer there. In (c) nothing is
+marched past the interval, the ray handed at its end to the far probes about that end.
+
+| Bounce at zero | (a) held | (b) traced | (c) no march | df4d0559 |
+|---|---|---|---|---|
+| Left wall | 1.142 | 0.965 | 0.739 | 0.524 |
+| Top left | 1.172 | 0.913 | 0.912 | 0.589 |
+| Top middle | 0.955 | 0.839 | 1.186 | 0.683 |
+| Top right | 3.354 | 3.353 | 4.051 | 3.684 |
+| Bottom left | 0.883 | 0.753 | 0.271 | 0.222 |
+| Bottom middle | 1.546 | 1.428 | 0.175 | 0.401 |
+| Bottom right | 4.613 | 4.605 | 4.456 | 4.599 |
+
+| Settled | (a) held | (b) traced | (c) no march | df4d0559 |
+|---|---|---|---|---|
+| Left wall | 2.046 | 1.865 | 1.382 | 1.064 |
+| Top left | 2.125 | 1.844 | 1.554 | 1.121 |
+| Top middle | 1.872 | 1.749 | 1.856 | 1.234 |
+| Top right | 4.437 | 4.461 | 4.874 | 4.421 |
+| Bottom left | 1.570 | 1.445 | 0.776 | 0.654 |
+| Bottom middle | 2.592 | 2.503 | 0.961 | 1.078 |
+| Bottom right | 6.286 | 6.209 | 5.813 | 5.658 |

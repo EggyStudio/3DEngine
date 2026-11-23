@@ -83,10 +83,11 @@ public sealed class SceneLoadedTests : IDisposable
     [Fact]
     public void A_Load_No_One_Observes_Does_Nothing_More_And_An_Observer_Of_Something_Else_Changes_That_Not()
     {
-        var (world, ecs) = NewWorld();
-        // A read and the despawn of what it spawned, measured once the frames after have emptied the
-        // log of removals the despawn fills, so each read finds it as large as the one before.
-        long Read()
+        var (bare, bareEcs) = NewWorld();
+        var (watched, watchedEcs) = NewWorld();
+        // A read and the despawn of what it spawned, measured once the frames after have emptied
+        // the log of removals the despawn fills, so each read finds it as large as the one before.
+        static long Read(World world, EcsWorld ecs)
         {
             var before = GC.GetAllocatedBytesForCurrentThread();
             foreach (var entity in SceneFile.Read(world, Level)) ecs.Despawn(entity);
@@ -95,20 +96,27 @@ public sealed class SceneLoadedTests : IDisposable
             return allocated;
         }
 
-        // The least of several reads, since a test beside this one may register a codec, which the
-        // registry's next lookup builds its index again for, in the middle of one.
-        long Least() => Enumerable.Range(0, 5).Min(_ => Read());
-
-        Read();
-        var none = Least();
-        using var other = ecs.Observe<Ping>(_ => { });
-        Read();
-        var unrelated = Least();
+        // The two worlds read side by side in pairs, since what a read takes moves with what the
+        // process does beside this test. The load's debug line is written to the log file once an
+        // app a test opens has begun it, and not before that nor once the file is full, and a test
+        // beside this one may register a codec, which the registry's next lookup builds its index
+        // again for. Where all of one world was read and then all of the other, such a change
+        // between the two parted them by the line's bytes. It parts one pair at most, where an
+        // observer that made the load do more would part every pair.
+        using var other = watchedEcs.Observe<Ping>(_ => { });
+        Read(bare, bareEcs);
+        Read(watched, watchedEcs);
+        var apart = Enumerable.Range(0, 5).Select(_ =>
+        {
+            var none = Read(bare, bareEcs);
+            return Read(watched, watchedEcs) - none;
+        }).ToList();
         var told = 0;
-        using var transforms = ecs.Observe<Loaded<Transform>>(_ => told++);
-        Read();
+        using var transforms = watchedEcs.Observe<Loaded<Transform>>(_ => told++);
+        Read(watched, watchedEcs);
 
-        unrelated.Should().Be(none, "an observer of something else makes the load do no more than with none");
+        apart.Should().Contain(0,
+            $"an observer of something else makes the load do no more than with none, the pairs {string.Join(", ", apart)} bytes apart");
         told.Should().Be(3, "an observer of a load is told");
     }
 }

@@ -6,13 +6,13 @@
 // Kept, so a probe's light is the mean of its rays over the frames and a patch it met once is a
 // share of it. The probe's point is found from the window's depth, its place in the frame before
 // through that frame's camera, and the four probes of the frame before around it blended where each
-// stood on a like surface. A probe whose surface the frame before did not show starts from this
-// frame's light alone. The kept light is held first within the spread of this frame's light among
-// the like probes around, so where the light changed, a lamp carried or lit, the mean follows it,
-// and where it holds still the kept light lies inside that spread and keeps its calm. The second
-// pass blends each probe's kept light with five by five probes around it, each weighed by how near
-// it is and how alike its normal and its plane are to the probe's, so the tiles the window is cut
-// into do not show.
+// stood as far from the eye as the point. A probe whose surface the frame before did not show
+// starts from this frame's light alone. The kept light is held first within the spread of this
+// frame's light among the like probes around, so where the light changed, a lamp carried or lit,
+// the mean follows it, and where it holds still the kept light lies inside that spread and keeps
+// its calm. The second pass blends each probe's kept light with five by five probes around it,
+// each weighed by how near it is and how alike its normal and its plane are to the probe's, so the
+// tiles the window is cut into do not show.
 import gi;
 
 // The light each probe's rays summed and each probe's surface, as gi_screen.slang left them, in the
@@ -169,8 +169,8 @@ float4 spatial(uint2 id, uint across, uint down, float4 own, float4 surface, out
 }
 
 // The light the frame before kept at the probe's surface, with in a how much of the four probes
-// around its place then stood on a surface like it, or 0 where the frame before showed none of it,
-// and in frames how many frames that light held, blended alike.
+// around its place then stood as far from the eye as its point, or 0 where the frame before showed
+// none of it, and in frames how many frames that light held, blended alike.
 float4 earlier(uint2 id, uint across, uint down, float4 surface, out float frames)
 {
     return earlierIn(history, id, across, down, surface, frames);
@@ -212,8 +212,14 @@ float4 earlierIn(Texture2D<float4> source, uint2 id, uint across, uint down, flo
         int2 at = base + int2(corner & 1, corner >> 1);
         if (any(at < int2(0)) || at.x >= int(across) || at.y >= int(down))
             continue;
+        // A probe counts by its distance from the eye alone, whichever way its surface faced. On
+        // carved stone or a fluted column the probes a tile apart can face as far apart as the two
+        // sides of a corner, and as the view turns the point's place falls among them, so refused
+        // by the way they faced the probe would start again from this frame's rays and show their
+        // noise. The kept light taken from them is held within the spread of this frame's like
+        // probes (computeMain).
         float4 before = lastGeometry.Load(int3(at, 0));
-        if (before.w < 0.0 || dot(before.xyz, surface.xyz) < 0.9 || abs(before.w - expected) > 0.03 * expected + 0.05)
+        if (before.w < 0.0 || abs(before.w - expected) > 0.03 * expected + 0.05)
             continue;
         float4 was = source.Load(int3(at, 0));
         if (!lightHeld(was.rgb) || was.a < 0.5)
