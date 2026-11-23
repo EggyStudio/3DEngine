@@ -78,6 +78,15 @@ internal static class Illumination
         renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: false } settings && ScreenProbesAt(settings.Quality);
 
     /// <summary>
+    /// The size of the gather by pixel's grid where the views gather by pixel this frame, in place
+    /// of the light of the screen's probes, which stand beside it for the glow lights alone, or 0
+    /// where they take the probes' light or have none (<see
+    /// cref="GlobalIlluminationSettings.Gather"/>).
+    /// </summary>
+    internal static int GatherAt(RenderWorld renderWorld) =>
+        ScreenProbesOn(renderWorld) && renderWorld.TryGet<GlobalIlluminationSettings>() is { Gather: ScreenGather.Pixels } settings ? (int)settings.GatherSize : 0;
+
+    /// <summary>
     /// The pixels along each side of the tile a screen probe stands in, at a quality, for a window
     /// <paramref name="height"/> pixels high, the same up to 1080 and growing with the height past
     /// it, so a probe stands for about the same share of the picture on any screen.

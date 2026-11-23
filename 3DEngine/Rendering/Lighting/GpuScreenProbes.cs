@@ -99,6 +99,12 @@ internal sealed partial class GpuScreenProbes : IDisposable
     /// <summary>Each probe's light over the cycle of its rays' sixteen places, the one being gathered and the last whole one.</summary>
     public ScreenCycle Cycle { get; init; } = null!;
 
+    /// <summary>
+    /// The gather by pixel's images where the views gather so, the model pass reading its light in
+    /// place of the probes', which stand for the glow lights alone then, or none.
+    /// </summary>
+    public PixelGather? Gathered { get; init; }
+
     /// <summary>A sampler that reads a texel as it is.</summary>
     public ISampler Sampler { get; }
 
@@ -145,6 +151,22 @@ internal sealed record ScreenGlow(IImage Light, IImageView LightView, IImage Las
 
     /// <summary>The views, in the order of <see cref="Images"/>.</summary>
     public IImageView[] Views => [LightView, LastLightView, StateView, LastStateView, NormalView, FarView, LastFarView];
+}
+
+/// <summary>
+/// The gather by pixel's grid, a texel each <c>Size</c> pixels a side, the light its one
+/// ray brought, the surface it stands on, that light blended with the texels' around it within the
+/// frame, which the model pass reads, and the view the grid was laid through, as the probes' own
+/// with the grid's size in place of their tile.
+/// </summary>
+internal sealed record PixelGather(int Size, int Across, int Down, IImage Light, IImageView LightView, IImage Geometry, IImageView GeometryView,
+    IImage Blended, IImageView BlendedView, IBuffer View)
+{
+    /// <summary>The images, in the order the views are made of them.</summary>
+    public IImage[] Images => [Light, Geometry, Blended];
+
+    /// <summary>The views, in the order of <see cref="Images"/>.</summary>
+    public IImageView[] Views => [LightView, GeometryView, BlendedView];
 }
 
 /// <summary>

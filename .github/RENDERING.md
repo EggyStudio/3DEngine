@@ -1534,6 +1534,17 @@ through the field (`bouncedSeen`, as the thin room's corner reads them), and put
 place of the diffuse light from all around, the environment map's, the ambient lights' and the
 reflection probes', which reaches a surface only through the rays that meet nothing.
 
+Where `gi.gather pixels` is set, the screen's probes stand for the glow lights alone and the light
+comes by one ray from each texel of a grid of the window's pixels, at full, half, quarter or eighth
+size (`gi.gather_size`, half unless set), traced as a probe's ray is through the depth and the
+field, a hit taking its light from the cascades with nothing traced past it and a miss the cascades'
+light along the ray. The ray's way is drawn by its cosine to the normal (`cosineWay` in
+`gi_screen.slang`), each four by four texels holding the sixteen strata of the hemisphere's square
+once as a probe's sixteen rays do, at a place in its stratum the same from frame to frame, so a
+still view holds still with nothing kept from the frame before. The texels are blended with the five
+by five around them within the frame by the filter's second pass with no cycle standing in, and the
+model pass reads them as it reads the probes, the grid's texel in place of the tile.
+
 A glossy surface traces its reflection in the model pass (`tracedReflection` in
 `lights.slang`), where it has its own normal, its normal map's included, and its roughness, so
 only a fragment under a roughness of 0.5 traces and a scene of rough surfaces pays nothing. The

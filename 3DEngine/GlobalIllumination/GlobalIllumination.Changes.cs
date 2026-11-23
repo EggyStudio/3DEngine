@@ -26,7 +26,7 @@ internal sealed partial class GlobalIlluminationRenderer
     // The switches global illumination was drawn with the frame before, and whether this frame's
     // differ, which begins every cycle again as a change of the lights does, so a part left out or
     // put back shows at once where the cycles would ease into it over two of theirs.
-    private (bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, int, float)? _switchesBefore;
+    private (bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, int, float, ScreenGather, GatherSize)? _switchesBefore;
     private bool _switchesChanged;
 
     // Whether the carried probes' rays moved the frame before, or null before the first frame.
@@ -60,7 +60,7 @@ internal sealed partial class GlobalIlluminationRenderer
     private void NoteSwitches(GlobalIlluminationSettings s)
     {
         var now = (s.MergeOff, s.AgainOff, s.FollowOff, s.GlowOff, s.AlbedoOff, s.SpecularOff, s.NormalMapsOff, s.ThroughOff, s.HistoryOff,
-            s.FilterOff, s.ScreenOff, s.MeshesTraced, s.Alone, s.BounceGain);
+            s.FilterOff, s.ScreenOff, s.MeshesTraced, s.Alone, s.BounceGain, s.Gather, s.GatherSize);
         _switchesChanged = _switchesBefore is { } before && before != now;
         _switchesBefore = now;
     }

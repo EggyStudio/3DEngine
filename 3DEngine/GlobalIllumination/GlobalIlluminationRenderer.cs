@@ -295,11 +295,12 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         {
             var (width, height, tile) = (swapchain.Extent.Width, swapchain.Extent.Height, TileAt(quality, swapchain.Extent.Height));
             var glowTexel = GpuScreenProbes.GlowTexelAt(height);
+            var gather = glowOnly ? 0 : GatherAt(renderWorld);
             if (_screen is null || _screen.Tile != tile || _screen.Across != (width + tile - 1) / tile || _screen.Down != (height + tile - 1) / tile
-                || _screenGlowOnly != glowOnly || _screen.GlowTexel != glowTexel)
+                || _screenGlowOnly != glowOnly || _screen.GlowTexel != glowTexel || (_screen.Gathered?.Size ?? 0) != gather)
             {
                 if (_screen is not null) _retired.Add((_frame, _screen));
-                _screen = GpuScreenProbes.Create(device, width, height, tile, glowTexel);
+                _screen = GpuScreenProbes.Create(device, width, height, tile, glowTexel, gather);
                 _screenGlowOnly = glowOnly;
                 _lastScreen = null;
             }
@@ -353,11 +354,13 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         var tile = TileAt(settings.Quality, renderWorld.TryGet<SwapchainTarget>()?.Extent.Height ?? size.Height);
         // A target's glow texels the window's, as its tile is, since the model pass reads one ratio.
         var glowTexel = GpuScreenProbes.GlowTexelAt(renderWorld.TryGet<SwapchainTarget>()?.Extent.Height ?? size.Height);
+        var gather = glowOnly ? 0 : GatherAt(renderWorld);
         if (!_targets.TryGetValue(id, out var state) || state.Screen.Tile != tile || state.GlowOnly != glowOnly || state.Screen.GlowTexel != glowTexel
-            || state.Screen.Across != (size.Width + tile - 1) / tile || state.Screen.Down != (size.Height + tile - 1) / tile)
+            || state.Screen.Across != (size.Width + tile - 1) / tile || state.Screen.Down != (size.Height + tile - 1) / tile
+            || (state.Screen.Gathered?.Size ?? 0) != gather)
         {
             if (state is not null) _retired.Add((_frame, state));
-            state = _targets[id] = new TargetScreen(GpuScreenProbes.Create(device, size.Width, size.Height, tile, glowTexel)) { GlowOnly = glowOnly };
+            state = _targets[id] = new TargetScreen(GpuScreenProbes.Create(device, size.Width, size.Height, tile, glowTexel, gather)) { GlowOnly = glowOnly };
         }
         state.Drawn = _frame;
         // The eye the frame noted the camera with, or the middle of its near plane.

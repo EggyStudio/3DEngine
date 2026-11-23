@@ -222,8 +222,10 @@ internal sealed partial class ModelRenderer
     private void BindBounced(GraphicsDevice device, IDescriptorSet set, IlluminationBinding? bounced, GpuSceneField? built)
     {
         var screen = bounced?.Screen ?? (_noScreen ??= GpuScreenProbes.Create(device, 1, 1, 1));
-        device.UpdateDescriptorSet(set, null, Lit(screen.BlendedView, screen.Sampler, ScreenLightBinding));
-        device.UpdateDescriptorSet(set, null, Lit(screen.GeometryView, screen.Sampler, ScreenSurfacesBinding));
+        // The gather by pixel's light and surfaces where the views gather so, the probes beside it
+        // giving the glow lights' light alone.
+        device.UpdateDescriptorSet(set, null, Lit(screen.Gathered?.BlendedView ?? screen.BlendedView, screen.Sampler, ScreenLightBinding));
+        device.UpdateDescriptorSet(set, null, Lit(screen.Gathered?.GeometryView ?? screen.GeometryView, screen.Sampler, ScreenSurfacesBinding));
         device.UpdateDescriptorSet(set, null, Lit(screen.Glow.LightView, screen.Sampler, ScreenGlowBinding));
         device.UpdateDescriptorSet(set, null, Lit(screen.Glow.NormalView, screen.Sampler, ScreenGlowNormalBinding));
         device.UpdateDescriptorSet(set, null, Lit(screen.Glow.FarView, screen.Sampler, ScreenGlowFarBinding));

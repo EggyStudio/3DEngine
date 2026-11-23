@@ -151,8 +151,9 @@ window, `tiles`, `light`, `filtered` and `history` the screen's probes, `rays`, 
 the cascade `gi.show_cascade` names, and `none` the window again, and `gi.difference ref.png` draws
 the frame against a reference. The setting `gi.merge off` leaves the merge of the cascades out, as
 `gi.history off` and `gi.filter off` do their parts, `gi.screen off` the screen's probes, neither
-made nor traced, so what they cost and give can be read, `gi.again off` the light past the first
-bounce from the frame before's probes, so light bounces once, `gi.follow off` the probes taking the
+made nor traced, so what they cost and give can be read, `gi.gather pixels` takes one ray from each
+texel of a grid of the window's pixels in their place at the size `gi.gather_size` sets,
+`gi.again off` the light past the first bounce from the frame before's probes, so light bounces once, `gi.follow off` the probes taking the
 indirect light at the share their own light kept, so the indirect light of a light switched off
 fades over the frames each bounce takes, `gi.glow off` the small emissive surfaces carried as
 lights, whose light the rays leave out all the same, so what they give can be seen and timed,

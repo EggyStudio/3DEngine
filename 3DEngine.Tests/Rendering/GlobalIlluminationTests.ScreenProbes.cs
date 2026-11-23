@@ -5,7 +5,8 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 // Global illumination with the screen's probes left out, at Low or for debugging, the cascades'
-// light read alone, and at Low the glow lights read from probes standing for them alone.
+// light read alone, at Low the glow lights read from probes standing for them alone, and the
+// gather by pixel in their place.
 public sealed partial class GlobalIlluminationTests
 {
     [NeedsVulkanFact]
@@ -259,5 +260,65 @@ public sealed partial class GlobalIlluminationTests
         var (front, back) = (Change(-0.8f), Change(0.8f));
         (back - 1).Should().BeApproximately(front - 1, 0.25f * MathF.Abs(front - 1) + 0.01f, $"the back of a wall takes the screen's probes as the front does, {back:0.000} against {front:0.000}");
         foreach (var model in new[] { slab, glow, wall }) UnloadModel(model);
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void The_Gather_By_Pixel_Brings_The_Walls_Light_To_The_Block_As_The_Screens_Probes_Do_At_Each_Size()
+    {
+        // The red wall's light on the block's side read through the screen's probes, through the
+        // gather by pixel at each size of its grid, and with no global illumination. One ray a
+        // texel blended within the frame brings about the light the probes' sixteen kept over the
+        // frames bring, and leaves no pixel black that they light.
+        Open();
+        SetGlobalIllumination(GlobalIllumination.Medium);
+        CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        void Draw()
+        {
+            DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(6, 0.3f, 6), Color.White);
+            DrawModelEx(slab, new Vector3(-1.6f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), new Color(220, 20, 20));
+            DrawModelEx(slab, new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 30, new Vector3(1, 1.5f, 1), Color.White);
+        }
+        static int Black(Image image)
+        {
+            var black = 0;
+            for (int y = 0; y < image.Height; y++)
+                for (int x = 0; x < image.Width; x++)
+                {
+                    var c = GetImageColor(image, x, y);
+                    if (Math.Max(c.R, Math.Max(c.G, c.B)) < 3) black++;
+                }
+            return black;
+        }
+        var gi = GetApp().World.Resource<GlobalIlluminationSettings>();
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        GlobalIlluminationRenderer Illumination() => renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!;
+        var probes = Capture(Draw);
+        Illumination().Screen!.Gathered.Should().BeNull("the screen's probes gather unless gi.gather says otherwise");
+        gi.Gather = ScreenGather.Pixels;
+        var gathered = new List<(GatherSize Size, Image Image)>();
+        foreach (var size in Enum.GetValues<GatherSize>())
+        {
+            gi.GatherSize = size;
+            gathered.Add((size, Capture(Draw)));
+            var grid = Illumination().Screen!.Gathered;
+            grid.Should().NotBeNull($"gi.gather pixels makes the grid at {size}");
+            (grid!.Size, grid.Across, grid.Down).Should().Be(((int)size, (160 + (int)size - 1) / (int)size, (96 + (int)size - 1) / (int)size));
+        }
+        gi.Gather = ScreenGather.Probes;
+        SetGlobalIllumination(GlobalIllumination.Off);
+        var dark = Capture(Draw);
+
+        var unlit = Mean(dark, 58, 48, 6, 10).X;
+        var bounce = Mean(probes, 58, 48, 6, 10).X - unlit;
+        bounce.Should().BeGreaterThan(20, $"the probes bring the wall's light to the block's side, {bounce:0.0}");
+        foreach (var (size, image) in gathered)
+        {
+            var gather = Mean(image, 58, 48, 6, 10).X - unlit;
+            gather.Should().BeApproximately(bounce, 0.35f * bounce, $"the gather at {size} brings the wall's light as the probes do, {gather:0.0} against {bounce:0.0}");
+            Black(image).Should().BeLessThanOrEqualTo(Black(probes) + 8, $"the gather at {size} leaves no pixel black the probes light");
+        }
+        UnloadModel(slab);
     }
 }

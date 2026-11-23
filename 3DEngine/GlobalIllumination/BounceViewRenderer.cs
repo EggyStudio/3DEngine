@@ -99,7 +99,10 @@ internal sealed class BounceViewRenderer : IProbesView, IDisposable
         var cascade = Math.Clamp(settings.ShownCascade, 0, probes.Cascades - 1);
         var slot = (int)(_frame % _sets.Length);
         var set = _sets[slot] ??= device.CreateDescriptorSet(_viewLayout);
-        var plane = screen is null ? decoded.ColorView : shown == BounceView.Light ? screen.IrradianceView : screen.BlendedView;
+        // The gather by pixel's texels where the views gather so, in place of the probes beside it.
+        var gathered = screen?.Gathered;
+        var plane = screen is null ? decoded.ColorView : shown == BounceView.Light ? gathered?.LightView ?? screen.IrradianceView
+            : gathered?.BlendedView ?? screen.BlendedView;
         device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(plane, _sampler, 0));
         GlobalIlluminationStages.Of(device).BindProbeVolume(set, 1, probes, cascade, merged: shown != BounceView.Rays);
         device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(decoded.ColorView, _sampler, 2));
@@ -108,7 +111,7 @@ internal sealed class BounceViewRenderer : IProbesView, IDisposable
         var push = new ViewPush
         {
             Mode = (uint)shown, Probes = (uint)probes.Probes, Texels = (uint)probes.Texels[cascade],
-            Grid = new Vector4(screen?.Tile ?? 1, 0, 0, 0), Window = new Vector4(active.Extent.Width, active.Extent.Height, 0, 0),
+            Grid = new Vector4(gathered?.Size ?? screen?.Tile ?? 1, 0, 0, 0), Window = new Vector4(active.Extent.Width, active.Extent.Height, 0, 0),
         };
         var pass = active.Pass;
         pass.SetViewport(0, 0, active.Extent.Width, active.Extent.Height, 0, 1);

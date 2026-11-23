@@ -93,6 +93,10 @@ internal static partial class EngineSettings
         yield return Part("gi.filter", "Whether each screen probe's light is blended with its neighbors'.", s => s.FilterOff, (s, off) => s.FilterOff = off);
         yield return Part("gi.screen", "Whether the screen's probes are traced and read, the cascades' light read alone without them.",
             s => s.ScreenOff, (s, off) => s.ScreenOff = off);
+        yield return Of("gi.gather", "How the cascades' light reaches the picture where the screen's probes stand, by those probes or by a ray from each texel of a grid of the window's pixels.",
+            ScreenGather.Probes, s => s.Gather, (s, v) => s.Gather = v);
+        yield return Of("gi.gather_size", "The size of the grid gi.gather pixels sends a ray from each texel of, full, half, quarter or eighth.",
+            GatherSize.Half, s => s.GatherSize, (s, v) => s.GatherSize = v);
         yield return Part("gi.merge", "Whether each cascade takes the light of the cascade above.", s => s.MergeOff, (s, off) => s.MergeOff = off);
         yield return Part("gi.again", "Whether the light past the first bounce comes from the frame before's probes.", s => s.AgainOff, (s, off) => s.AgainOff = off);
         yield return Part("gi.follow", "Whether the indirect light follows a light that goes out within the frames each bounce takes.",

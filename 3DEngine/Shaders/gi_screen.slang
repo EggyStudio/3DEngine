@@ -8,7 +8,9 @@
 // merged, blended between that cascade's probes around it. The rays are summed into the light
 // arriving at the probe's surface, which the model pass blends between the probes around each pixel
 // that stand on a surface like the pixel's. A probe on no surface, or outside the world's cascades,
-// holds nothing, and the model pass reads the world's probes there.
+// holds nothing, and the model pass reads the world's probes there. The gather by pixel runs the
+// same pass on a grid of the window's texels at full, half, quarter or eighth size, one ray each
+// and no glow light marked, the probes beside it standing for the glow lights alone.
 import gi;
 import probelight;
 import scenefield;
@@ -109,10 +111,11 @@ struct ScreenPush
     // where it has none. z: one more than the probe whose rays are written to rayLog, 0 for none.
     // w: 1 at Low, which leaves the screen's probes out, where they stand for the glow lights
     // alone, their surfaces and what they see of each light written and no ray traced, 2 where the
-    // probe z names writes a value that is not a number as its light, as a test feeds it, and 4
+    // probe z names writes a value that is not a number as its light, as a test feeds it, 4
     // where some surface lets light through this frame (lightThroughAt), whose check a frame of
-    // none skips, with the cascades the screen's probes stand in, those before the far cascade's,
-    // from bit 8.
+    // none skips, and 8 for the gather by pixel, a thread a texel of the window at the grid's size
+    // sending one ray, with the cascades the screen's probes stand in, those before the far
+    // cascade's, from bit 8.
     uint4 texels;
     // x, y, z: the third, fourth and fifth cascades' octahedrons' texels along each side, 0 where
     // it has none. w: how many cascades the light beyond the probes' rays is read from.
@@ -194,6 +197,21 @@ float4 hemisphere(float2 uv)
     float x = (a.x + a.y) * 0.5, y = (a.x - a.y) * 0.5;
     float3 d = float3(x, y, 1.0 - abs(x) - abs(y));
     return float4(normalize(d), length(d));
+}
+
+// A way of the hemisphere around +z for the texel at id, as likely as the cosine of its angle to
+// +z. Each four by four block of texels holds the sixteen strata of the square once, in the order
+// the probes' places take (TracePlaces), so a blend over the block takes the ways a probe's sixteen
+// rays would, each texel at a place in its stratum spread over the block (interleaved gradient
+// noise), the same from frame to frame, so a still view holds still with no history.
+float3 cosineWay(uint2 id)
+{
+    uint stratum = TracePlaces[(id.x & 3u) + 4u * (id.y & 3u)];
+    float2 at = float2(id);
+    float2 spread = frac(52.9829189 * frac(float2(dot(at, float2(0.06711056, 0.00583715)), dot(at.yx, float2(0.06711056, 0.00583715)))));
+    float2 square = (float2(stratum & 3u, stratum >> 2u) + spread) / 4.0;
+    float r = sqrt(square.x), turn = 2.0 * Pi * square.y;
+    return float3(r * cos(turn), r * sin(turn), sqrt(max(1.0 - square.x, 0.0)));
 }
 
 // The texels along each side of the world's cascade c's octahedron.
@@ -362,53 +380,30 @@ float3 beyond(float3 start, float3 normal, float3 way, float reached, uint aroun
     return weights > 1e-4 ? sum / weights : float3(0.0);
 }
 
-[shader("compute")]
-[numthreads(8, 8, 1)]
-void computeMain(uint3 id : SV_DispatchThreadID)
+// How much of each glow light in reach the surface sees, a uint of four lights at a time, each
+// put in the buffer as it is made, since lavapipe keeps an array indexed by the light in memory
+// of its own and crashes on one the uints are gathered in. Each light is first marched to at
+// its middle, as a ray's hit is, its byte kept in the buffer and its light by what the march
+// sees summed with the others'. A light that gives the surface an eighth of that sum or more is
+// then marched to by the halves of its faces, and its byte says how much of it the surface
+// sees. A fainter one's light by its middle's march is added to the fainter ones' at the probe
+// and its byte left none, so the model pass reads the light of at most eight at a probe. Summed
+// of the lights' light unhidden, a stronger light past a wall raises the sum and sends a lamp
+// the surface sees whole to the fainter ones, and the floor beside the lamp takes little more
+// than half its light. With every light marched to by its faces and read at each pixel, global
+// illumination and the model pass in a room of many lamps are far slower, and with a sixteenth
+// in place of the eighth global illumination is slower too. A light falls to the probes' sum at
+// one probe and not the next where it is far from being the brightest, where its light changes
+// little from probe to probe. Split by the light's distance from the probe instead, the floor
+// beside a lamp darkens where the split falls, a probe's own light standing in for the pixel's
+// on the far side alone. The glow lights take the surface's normal from its way along each axis
+// of the depth, which holds at a wall's foot where the nearer texel's does not. Tilted up the
+// wall, a probe's normal on the floor beside it sees a lamp past the wall that the floor does
+// not. Global illumination keeps the nearer texel's.
+void seeGlowLights(uint probe, float2 pixel, float2 uv, float3 fromEye, float3 p, bool fed)
 {
-    if (id.x >= uint(view.grid.y) || id.y >= uint(view.grid.z))
-        return;
-    // The middle of the depth's texel under the middle of the tile, since a point between two
-    // texels is read as either by one device or another.
-    float2 pixel = min((float2(id.xy) + 0.5) * view.grid.x, view.sizes.zw - 0.5);
-    float2 uv = (floor(pixel / view.sizes.zw * view.sizes.xy) + 0.5) / view.sizes.xy;
-    float d = depth.SampleLevel(uv, 0).r;
-    uint probe = id.y * uint(view.grid.y) + id.x;
     int glows = min(int(lights.glowCounts.x), MostGlowLights);
-    if (d >= 1.0)
-    {
-        for (int packed = 0; packed < GlowSeenUints; packed++)
-            glowSeen[probe * uint(GlowSeenUints) + uint(packed)] = 0u;
-        irradiance[id.xy] = float4(0.0);
-        geometry[id.xy] = float4(0.0, 0.0, 0.0, -1.0);
-        return;
-    }
-
-    float3 fromEye = fromEyeAt(uv, d);
-    float3 p = worldAt(uv, d);
     float2 texel = 1.0 / view.sizes.xy;
-    float3 n = depthNormal(uv, fromEye);
-    geometry[id.xy] = float4(n, length(fromEye));
-    // How much of each glow light in reach the surface sees, a uint of four lights at a time, each
-    // put in the buffer as it is made, since lavapipe keeps an array indexed by the light in memory
-    // of its own and crashes on one the uints are gathered in. Each light is first marched to at
-    // its middle, as a ray's hit is, its byte kept in the buffer and its light by what the march
-    // sees summed with the others'. A light that gives the surface an eighth of that sum or more is
-    // then marched to by the halves of its faces, and its byte says how much of it the surface
-    // sees. A fainter one's light by its middle's march is added to the fainter ones' at the probe
-    // and its byte left none, so the model pass reads the light of at most eight at a probe. Summed
-    // of the lights' light unhidden, a stronger light past a wall raises the sum and sends a lamp
-    // the surface sees whole to the fainter ones, and the floor beside the lamp takes little more
-    // than half its light. With every light marched to by its faces and read at each pixel, global
-    // illumination and the model pass in a room of many lamps are far slower, and with a sixteenth
-    // in place of the eighth global illumination is slower too. A light falls to the probes' sum at
-    // one probe and not the next where it is far from being the brightest, where its light changes
-    // little from probe to probe. Split by the light's distance from the probe instead, the floor
-    // beside a lamp darkens where the split falls, a probe's own light standing in for the pixel's
-    // on the far side alone. The glow lights take the surface's normal from its way along each axis
-    // of the depth, which holds at a wall's foot where the nearer texel's does not. Tilted up the
-    // wall, a probe's normal on the floor beside it sees a lamp past the wall that the floor does
-    // not. Global illumination keeps the nearer texel's.
     float3 gn = surfaceNormal(cross(wayAlong(uv, fromEye, float2(texel.x, 0.0)), wayAlong(uv, fromEye, float2(0.0, texel.y))), -fromEye);
     if (dot(gn, -fromEye) < 0.0)
         gn = -gn;
@@ -474,12 +469,45 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     }
     // A probe a test feeds a value that is not a number writes one as its fainter lights' light
     // and as its own (ScreenPush's w).
-    bool fed = (push.texels.w & 2u) != 0u && push.texels.z == probe + 1u;
     if (fed)
         faint = asfloat(0x7FC00000u).xxx;
     glowSeen[first + uint(GlowSeenLevels)] = asuint(faint.r);
     glowSeen[first + uint(GlowSeenLevels) + 1u] = asuint(faint.g);
     glowSeen[first + uint(GlowSeenLevels) + 2u] = asuint(faint.b);
+}
+
+[shader("compute")]
+[numthreads(8, 8, 1)]
+void computeMain(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= uint(view.grid.y) || id.y >= uint(view.grid.z))
+        return;
+    // The middle of the depth's texel under the middle of the tile, since a point between two
+    // texels is read as either by one device or another.
+    float2 pixel = min((float2(id.xy) + 0.5) * view.grid.x, view.sizes.zw - 0.5);
+    float2 uv = (floor(pixel / view.sizes.zw * view.sizes.xy) + 0.5) / view.sizes.xy;
+    float d = depth.SampleLevel(uv, 0).r;
+    uint probe = id.y * uint(view.grid.y) + id.x;
+    // The gather by pixel's threads, the window's texels at the grid's size, mark no glow light,
+    // the probes beside them marking it for the window (ScreenPush's w).
+    bool pixels = (push.texels.w & 8u) != 0u;
+    if (d >= 1.0)
+    {
+        if (!pixels)
+            for (int packed = 0; packed < GlowSeenUints; packed++)
+                glowSeen[probe * uint(GlowSeenUints) + uint(packed)] = 0u;
+        irradiance[id.xy] = float4(0.0);
+        geometry[id.xy] = float4(0.0, 0.0, 0.0, -1.0);
+        return;
+    }
+
+    float3 fromEye = fromEyeAt(uv, d);
+    float3 p = worldAt(uv, d);
+    float3 n = depthNormal(uv, fromEye);
+    geometry[id.xy] = float4(n, length(fromEye));
+    bool fed = (push.texels.w & 2u) != 0u && push.texels.z == probe + 1u;
+    if (!pixels)
+        seeGlowLights(probe, pixel, uv, fromEye, p, fed);
     if ((push.texels.w & 1u) != 0u)
     {
         irradiance[id.xy] = float4(0.0);
@@ -540,10 +568,13 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     // that stands still.
     uint place = TracePlaces[((id.x & 3u) + 4u * (id.y & 3u) + uint(view.jitter.z + 0.5)) & 15u];
     float2 within = (float2(place & 3u, place >> 2u) + 0.5) / 4.0;
-    for (uint v = 0u; v < Rays; v++)
-        for (uint u = 0u; u < Rays; u++)
+    // The gather by pixel sends one ray a texel, drawn by the cosine of its angle to the normal, so
+    // its light times pi is the texel's irradiance whatever weight it is given (cosineWay).
+    uint rays = pixels ? 1u : Rays;
+    for (uint v = 0u; v < rays; v++)
+        for (uint u = 0u; u < rays; u++)
         {
-            float4 local = hemisphere((float2(u, v) + within) / float(Rays));
+            float4 local = pixels ? float4(cosineWay(id.xy), 1.0) : hemisphere((float2(u, v) + within) / float(Rays));
             float3 way = normalize(side * local.x + along * local.y + n * local.z);
             // How squarely the ray falls on the surface times the share of the hemisphere its
             // texel spans, one over the cube of its octahedron point's distance, as the gather of

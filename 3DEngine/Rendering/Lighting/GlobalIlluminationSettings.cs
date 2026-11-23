@@ -79,6 +79,15 @@ internal sealed class GlobalIlluminationSettings
     /// </remarks>
     public bool ScreenOff { get; set; }
 
+    /// <summary>
+    /// How the light reaches the picture where the screen's probes stand, by those probes or by the
+    /// gather by pixel, as <c>gi.gather</c> sets it.
+    /// </summary>
+    public ScreenGather Gather { get; set; }
+
+    /// <summary>The size of the gather by pixel's grid, as <c>gi.gather_size</c> sets it.</summary>
+    public GatherSize GatherSize { get; set; } = GatherSize.Half;
+
     /// <summary>The window's screen probe whose rays are written for <c>gi.screenprobe</c> to read, by its index, or -1 for none.</summary>
     public int LoggedScreenProbe { get; set; } = -1;
 

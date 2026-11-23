@@ -90,7 +90,11 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             // z: 1 at Low, where the screen's probes stand for the glow lights alone, whose texels are read.
             var glowOnly = renderWorld.TryGet<IIlluminationPasses>()?.GlowOnly(renderWorld) == true;
             var tall = renderWorld.TryGet<SwapchainTarget>()?.Extent.Height ?? 1080;
-            windowUbo.Screen = new System.Numerics.Vector4(Illumination.TileAt(quality, tall),
+            // The pixels along each side of the texel the model pass reads the screen's light from
+            // first, the gather by pixel's grid's where it gathers so and the probes' tile
+            // otherwise.
+            var gather = Illumination.GatherAt(renderWorld);
+            windowUbo.Screen = new System.Numerics.Vector4(gather > 0 ? gather : Illumination.TileAt(quality, tall),
                 Illumination.ScreenProbesOn(renderWorld) ? 1 : 0, glowOnly ? 1 : 0, (settings.AlbedoOff ? 1 : 0) + (settings.SpecularOff ? 2 : 0) + settings.Term * 256);
             windowUbo.ScreenGlow = new System.Numerics.Vector4(GpuScreenProbes.GlowTexelAt(tall), 0, 0, 0);
             // And a glossy surface's reflection traced through its depth and the field, looked up

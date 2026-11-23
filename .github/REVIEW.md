@@ -577,6 +577,21 @@ whole number that fits and stands the picture in the screen's middle with black 
 picture pixel a square block of screen pixels. The default is Linear. The sheet shows the three on
 one crop at a whole ratio and at a ratio of one and a half.
 
+313. **The surface gather reads the finest level up to half a spacing past its last probes.** In the
+    door view 99.0% of the left wall's pixels lie within one cell of level 0's side, so the surface
+    gather reads them from level 1 alone, whose nearest probes stand 0.88 in front of the wall and
+    see what the wall does not. The wall's figures of items 303 and 304 are therefore a reading of
+    this rim on main and on the branch alike, and say little of the merges. The module's README
+    gives the rule and its measure, a court's high wall falling from 2.37 to 1.24 of the trace with
+    it. Step one, on main, makes the gather take the finest level in full for a point up to half a
+    spacing past its last probes and fade to the level above only beyond that, then reads the six
+    parts of the wall over the reference at zero and settled, the GI tests and the time. Step two
+    reads the same on the branch with the merge at the ray's end and with the merge about the probe.
+    The Reply gives one table of the six parts for main before, main after, and the two branch
+    variants after. Nothing is committed on the branch from it, and step one is committed on main
+    only where the tests hold and the wall's parts stand nearer the reference, with a sheet of the
+    door view before and after beside the reference.
+
 310. **Rough reflections from the cascades, shown in a scene.** Reflection is the next large step
     after the branch, tried rough first and whole each frame with no history. The RadianceCascades
     module's item 10 writes the kernel that reads a reflection cone from the cascades and names the
@@ -592,8 +607,8 @@ one crop at a whole ratio and at a ratio of one and a half.
 
 ## Verdicts
 
-Verdict 133 is open, the build on `cf5aa498` red on `SceneLoadedTests`' byte count in the Windows
-job, suspected of the measure and not the code.
+Verdict 133 is settled at 07:05 on 2026-11-23, the build on `f74cc932` green, the 160 bytes the
+load's debug line once the file log has begun and the test reading in pairs.
 
 131. **The reflections' reference frame recorded again for item 299 differs on the runners.** In run
     44943683933 on `31c089de`, read at 22:56 on 2026-11-21, the reference frame test of
@@ -960,3 +975,69 @@ ratio of 2, and at 1280 by 720, a ratio of 1.5. At 2 Nearest and Integer are the
 Linear is soft, and at 1.5 Nearest's columns are uneven and Integer draws at 1. The run that made
 it reported no validation errors. The whole suite passes, 2,562 tests, the settings' test counting
 the window page's eighth setting and the file keeping it.
+
+Item 313, the surface gather reading the finest level up to half a spacing past its last probes.
+
+Nothing is committed from it. The rule takes level 0 in full up to its side, half a spacing past
+its last probes, and fades to level 1 across the next half spacing. The left wall at the door with
+the screen probes off reads as below, over the reference of 256 paths with every bounce, each the
+mean of the last 16 frames, with the bounce at zero and then settled.
+
+| Part | Main before | Main after | Branch, merge at the ray's end | Branch, merge about the probe |
+|---|---|---|---|---|
+| Whole wall | 0.53, 1.12 | 0.83, 1.51 | 0.58, 1.32 | 0.35, 0.90 |
+| Top left | 0.59, 1.16 | 0.87, 1.56 | 0.80, 1.57 | 0.53, 1.19 |
+| Top middle | 0.68, 1.26 | 0.91, 1.52 | 0.80, 1.60 | 0.28, 0.69 |
+| Top right | 4.06, 4.91 | 0.71, 1.31 | 0.19, 0.95 | 0.01, 0.38 |
+| Bottom left | 0.23, 0.71 | 0.63, 1.27 | 0.35, 0.92 | 0.24, 0.68 |
+| Bottom middle | 0.41, 1.18 | 0.90, 1.69 | 0.07, 0.90 | 0.14, 0.78 |
+| Bottom right | 5.50, 6.73 | 1.40, 2.39 | 0.40, 1.74 | 0.28, 0.98 |
+
+On main the right parts fall from 4.91 and 6.73 settled to 1.31 and 2.39, while the left and
+middle rise from about 1.2 to about 1.55 and the whole wall from 1.12 to 1.51. Of Rendering's 827
+tests 3 fail with it on main, the open box at Low at 0.729, the corridor's light rising 7.84 times
+as the walk's slabs are built, and the floor at the two blocks' edge 7 levels off the trace. On the
+branch it leaves the open box, the roof slab and the lintel or the canopy failing as they did. The
+global illumination of Sponza and the Bistro takes 6.02 and 9.41 ms with it on main, against 6.02
+and 9.45 before.
+
+Against the reference of 256 paths with one bounce, which holds 0.42 of the other's light on the
+wall and 0.20 to 0.48 in its parts, the wall at zero stands at 1.26 before the rule and 1.98 after
+it, 1.39 on the branch merging at the ray's end and 0.82 merging about the probe. The surplus is the
+rule's first read, since the light past the first bounce adds 0.68 of the whole reference with it
+against the reference's own 0.58.
+
+Item 311, step two, the gather by pixel through the distance field.
+
+`gi.gather pixels` sends one ray from each texel of a grid of the window's pixels at full, half,
+quarter or eighth size (`gi.gather_size`, half unless set), traced and shaded as a screen probe's
+ray is, its way drawn by its cosine to the normal with each four by four texels holding the sixteen
+strata of the hemisphere's square once, at a place in its stratum that stays from frame to frame.
+The texels are blended with the five by five around them within the frame by the screen filter's
+second pass with no cycle standing in, nothing is kept from the frame before, and the screen's
+probes stand beside the grid for the glow lights alone. The setting stays `probes` until step
+three's sheet. The hardware scene's ray is not in it yet, since it needs a ray query build of
+`gi_screen.slang` with its bindings 17 to 20 moved off the ray scene's 18 to 20.
+
+The left wall at the door reads as below, each pair the bounce at zero over the reference of 256
+paths with one bounce and settled over the one with every bounce, the mean of the last 16 frames,
+main's row with the screen probes off as in item 313's table.
+
+| Part | Main, screen probes off | Screen probes | Gather, full | Half | Quarter | Eighth |
+|---|---|---|---|---|---|---|
+| Whole wall | 1.26, 1.12 | 2.22, 1.57 | 2.36, 1.65 | 2.32, 1.64 | 2.32, 1.62 | 2.52, 1.69 |
+| Top left | 1.22, 1.16 | 2.36, 1.70 | 2.65, 1.86 | 2.65, 1.86 | 2.67, 1.86 | 2.72, 1.87 |
+| Top middle | 1.52, 1.26 | 2.45, 1.70 | 2.21, 1.59 | 2.16, 1.57 | 2.25, 1.61 | 2.54, 1.74 |
+| Top right | 9.47, 4.91 | 9.77, 5.09 | 6.88, 3.96 | 4.06, 3.16 | 3.21, 2.00 | 11.61, 5.96 |
+| Bottom left | 0.57, 0.71 | 1.30, 1.10 | 1.46, 1.17 | 1.62, 1.25 | 1.58, 1.22 | 1.46, 1.14 |
+| Bottom middle | 1.61, 1.18 | 2.24, 1.52 | 2.60, 1.67 | 2.42, 1.61 | 2.25, 1.54 | 2.96, 1.69 |
+| Bottom right | 26.99, 6.73 | 35.06, 8.66 | 70.31, 15.89 | 20.36, 7.84 | 17.41, 4.71 | 24.48, 6.13 |
+
+The gather stands with the screen's probes and not with main's surface read, the whole wall at
+zero 2.32 at half against the probes' 2.22 and main's 1.26. A ray from the pixel brings what the
+probes' rays bring, so the first bounce's surplus on this wall lies in what a screen ray brings,
+its hit's shading or the cascades' light at its end, and not in where a probe stands. The two
+right parts, whose reference light is small enough that their ratios run from 2 to 70, swing with
+the size.
+
+The suite's 2563 tests pass with it, the gather's test at each size among them.

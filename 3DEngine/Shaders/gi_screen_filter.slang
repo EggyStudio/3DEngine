@@ -12,7 +12,8 @@
 // the mean follows it, and where it holds still the kept light lies inside that spread and keeps
 // its calm. The second pass blends each probe's kept light with five by five probes around it,
 // each weighed by how near it is and how alike its normal and its plane are to the probe's, so the
-// tiles the window is cut into do not show.
+// tiles the window is cut into do not show. The gather by pixel takes the second pass alone, its
+// texels blended with those around them within the one frame, with no light kept from another.
 import gi;
 
 // The light each probe's rays summed and each probe's surface, as gi_screen.slang left them, in the
@@ -67,8 +68,9 @@ Texture2D<float4> lastEased;
 [[vk::binding(12, 0)]] [format("rgba16f")]
 RWTexture2D<float4> easedNow;
 
-// x: 0 for the first pass, which keeps each probe's light over the frames, and 1 for the second,
-// which blends it with the probes' around.
+// x: 0 for the first pass, which keeps each probe's light over the frames, 1 for the second,
+// which blends it with the probes' around, and 2 for the gather by pixel's blend, the second with
+// no whole cycle standing in, since its texels keep none.
 struct FilterPush
 {
     uint4 pass;
@@ -263,7 +265,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     float3 spread, error;
     uint off = uint(view.grid.w + 0.5);
     float4 now = spatial(id.xy, across, down, own, surface, spread, error);
-    if (push.pass.x == 1u)
+    if (push.pass.x >= 1u)
     {
         // With the neighbors' light left out the probe keeps its own. Its alpha one more than the
         // share of its light the frames before gave, which a view of the history shows.

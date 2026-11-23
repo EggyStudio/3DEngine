@@ -8,8 +8,13 @@ namespace Engine;
 // does not bounce.
 internal sealed unsafe partial class GpuScreenProbes
 {
-    /// <summary>Makes the screen probes of a window <paramref name="width"/> by <paramref name="height"/> pixels, a probe every <paramref name="tile"/> pixels a side.</summary>
-    public static GpuScreenProbes Create(GraphicsDevice device, uint width, uint height, int tile, float glowTexel = 2)
+    /// <summary>
+    /// Makes the screen probes of a window <paramref name="width"/> by <paramref name="height"/>
+    /// pixels, a probe every <paramref name="tile"/> pixels a side, and where
+    /// <paramref name="gather"/> is above 0 the gather by pixel's grid beside them, a texel every
+    /// <paramref name="gather"/> pixels a side.
+    /// </summary>
+    public static GpuScreenProbes Create(GraphicsDevice device, uint width, uint height, int tile, float glowTexel = 2, int gather = 0)
     {
         var across = (int)((width + tile - 1) / tile);
         var down = (int)((height + tile - 1) / tile);
@@ -62,13 +67,26 @@ internal sealed unsafe partial class GpuScreenProbes
         device.Name(cycle.LastFull, "Screen probes' light over the last whole cycle of places, the frame before");
         device.Name(cycle.Eased, "Screen probes' light the last whole cycle eases from");
         device.Name(cycle.LastEased, "Screen probes' light the last whole cycle eases from, the frame before");
+        PixelGather? gathered = null;
+        if (gather > 0)
+        {
+            var (gatherAcross, gatherDown) = ((int)((width + gather - 1) / gather), (int)((height + gather - 1) / gather));
+            var gatherDesc = desc with { Extent = new Extent2D((uint)gatherAcross, (uint)gatherDown) };
+            IImage[] gatherImages = [.. Enumerable.Range(0, 3).Select(_ => device.CreateImage(gatherDesc))];
+            var gatherViews = gatherImages.Select(device.CreateImageView).ToArray();
+            gathered = new PixelGather(gather, gatherAcross, gatherDown, gatherImages[0], gatherViews[0], gatherImages[1], gatherViews[1], gatherImages[2], gatherViews[2],
+                device.CreateBuffer(new BufferDesc(GpuScreenProbes.ViewBytes, BufferUsage.Uniform | BufferUsage.TransferDst)));
+            device.Name(gathered.Light, "Gather by pixel's light");
+            device.Name(gathered.Geometry, "Gather by pixel's surfaces");
+            device.Name(gathered.Blended, "Gather by pixel's light, blended within the frame");
+        }
         var sampler = device.CreateSampler(new SamplerDesc(SamplerFilter.Nearest, SamplerFilter.Nearest,
             SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge, SamplerAddressMode.ClampToEdge));
 
         // Every image holds nothing, ready to be sampled, until the first frame places the probes.
         var cmd = device.BeginSingleTimeCommands();
         var whole = ColorLevels(0, 1);
-        IImage[] made = [irradiance, geometry, kept, blended, history, lastGeometry, .. glow.Images, .. cycle.Images];
+        IImage[] made = [irradiance, geometry, kept, blended, history, lastGeometry, .. glow.Images, .. cycle.Images, .. gathered?.Images ?? []];
         VkImage[] images = [.. made.Select(image => ((VulkanImage)image).Image)];
         device.PipelineBarrier(cmd, [.. images.Select(image => ImageBarrier(image, ColorLevels(0, 1), VkImageLayout.Undefined, VkImageLayout.General,
             VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite))]);
@@ -90,9 +108,10 @@ internal sealed unsafe partial class GpuScreenProbes
             view.Dispose();
             glowSeen.Dispose();
             rayLog.Dispose();
+            gathered?.View.Dispose();
             IDisposable[] all = [irradianceView, geometryView, keptView, blendedView, historyView, lastGeometryView, .. glow.Views, .. cycle.Views,
-                irradiance, geometry, kept, blended, history, lastGeometry, .. glow.Images, .. cycle.Images];
+                .. gathered?.Views ?? [], irradiance, geometry, kept, blended, history, lastGeometry, .. glow.Images, .. cycle.Images, .. gathered?.Images ?? []];
             foreach (var one in all) one.Dispose();
-        }, kept, keptView, blended, blendedView, history, historyView, lastGeometry, lastGeometryView, glowSeen, glow, rayLog) { GlowTexel = glowTexel, Cycle = cycle };
+        }, kept, keptView, blended, blendedView, history, historyView, lastGeometry, lastGeometryView, glowSeen, glow, rayLog) { GlowTexel = glowTexel, Cycle = cycle, Gathered = gathered };
     }
 }
