@@ -53,8 +53,11 @@ internal sealed class HdrSceneNode : INode
         }
     }
 
-    // The batch after the window's last one drawn with depth, or the first when it has none.
-    private static int Split(DrawList? drawList)
+    /// <summary>
+    /// The batch after the window's last one drawn with depth, or the first when it has none, which
+    /// the interface's batches start at.
+    /// </summary>
+    internal static int Split(DrawList? drawList)
     {
         if (drawList is null) return 0;
         var batches = drawList.Batches;

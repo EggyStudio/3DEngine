@@ -76,6 +76,7 @@ internal sealed class GlobalIlluminationPlugin : IPlugin
             // And what global illumination holds over the window, where a command or its window asks.
             graph.AddNode("bounce_view", new BounceViewNode());
             graph.AddNodeEdge("scene_field_view", "bounce_view");
+            graph.AddNodeEdge("bounce_view", "present");
         }
 
         public void Dispose()

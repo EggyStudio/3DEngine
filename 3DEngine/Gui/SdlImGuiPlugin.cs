@@ -131,10 +131,15 @@ internal sealed class SdlImGuiPlugin : IPlugin
                     ? (float)world.Resource<Time>().DeltaSeconds
                     : 1f / 60f;
             
-                // Set framebuffer scale for Vulkan mode (SDL renderer sets it in NewFrame).
+                // The text at interface.scale, with the sizes ImGui lays out by its text, the
+                // console's and the panel's among them.
+                io.FontGlobalScale = InterfaceScale.Over(appWindow.Sdl.DisplayScale);
+
+                // Set framebuffer scale for Vulkan mode (SDL renderer sets it in NewFrame), the
+                // window's pixels, which ImGui is drawn at over the picture.
                 if (isVulkan)
                 {
-                    var (pxW, pxH) = appWindow.Sdl.FramePixels;
+                    var (pxW, pxH) = appWindow.Sdl.Pixels;
                     if (w > 0 && h > 0)
                     {
                         io.DisplayFramebufferScale = new Vector2(pxW / (float)w, pxH / (float)h);

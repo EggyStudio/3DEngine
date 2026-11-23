@@ -885,161 +885,20 @@ numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
 
 ## Replies
 
-Item 311, the gloss in the reference, the door's thirds and the device's rays in the gather.
-
-The left wall at the door reads as below, the bounce at zero over the reference of one bounce
-with every face's gloss (`ReferenceGloss.Every`), the mean of the last 16 frames, with the gather
-by pixel's rays through the window's depth and the field and through the device's rays
-(`gi.gather_rays on`). Every reads 1.22 times First on the whole wall.
-
-| Part | Full | Full, rays | Full, guided | Full, guided, rays | Half | Half, rays | Half, guided | Half, guided, rays |
-|---|---|---|---|---|---|---|---|---|
-| Whole wall | 1.46 | 0.91 | 1.54 | 0.81 | 1.36 | 0.65 | 1.12 | 0.66 |
-| Top left | 1.00 | 0.84 | 0.91 | 0.76 | 1.28 | 0.83 | 0.70 | 0.63 |
-| Top middle | 1.34 | 1.05 | 1.44 | 1.09 | 0.33 | 0.26 | 0.95 | 0.82 |
-| Top right | 4.64 | 4.62 | 5.53 | 5.50 | 4.74 | 4.78 | 4.83 | 4.87 |
-| Bottom left | 1.30 | 0.90 | 1.29 | 0.61 | 1.16 | 0.68 | 0.74 | 0.42 |
-| Bottom middle | 3.91 | 0.59 | 4.92 | 0.49 | 4.30 | 0.28 | 4.06 | 0.61 |
-| Bottom right | 75.16 | 20.88 | 75.20 | 20.97 | 3.54 | 3.55 | 3.55 | 3.55 |
-
-Of the rays of each third at full, those whose hit in the field lies more than a cell past the face
-the same ray traced through the meshes meets are 3.7 and 5.5 percent of the left third's on top and
-below, carrying 1.1 and 2.2 percent of the light, 2.9 and 4.1 percent of the middle's, carrying 5.0
-and 3.5, and 4.0 and 4.2 percent of the right's, carrying none, so neither the door nor a thin wall
-brings the light in that way. The middle bottom's 10.1 is ten rays, 0.06 percent of its rays, that
-meet nothing in the field to 67 or further while the meshes meet a face 5 to 27 along, which carry
-71 percent of its light, the rest reading 2.61. They leave the wall's foot in the fourth cascade,
-whose cells are 1 wide, and a march of the field read back from 1.5 along them meets the floor at
-once or 5 to 9 along, so the gather's march loses the floor there. The rest of the excess is hits
-the field finds sunlit where the meshes shade them, 35 and 36 percent of the light on top in the
-left and middle thirds and 23 and 19 percent below. The field's march toward the sun starts a cell
-and a half off the hit, 0.75 in the third cascade and 1.5 in the fourth, past the faces that shade
-them, block undersides 0.5 to 0.6 above the hit and 0.03 to 0.09 thick, the gray ceiling 15.9
-above and 0.25 thick in cells 1 wide, and a block's underside 0.26 thick in the far cascade's cells
-2 wide.
-
-The right thirds' rays read 0.69 of the same rays traced on top, where the picture reads 5.11 of
-the reference's bounce in the diffuse term alone, since the light is the model pass's at the 452
-pixels on the wall's edge by the door, 0.50 of the 0.54 the top right holds against the
-reference's 0.06 there. At such a pixel the pass blends the gather's four texels around with the
-world probes' light by how far those texels stand on a surface like its own and how far the
-screen's probes hold there (`screenMatched`, `screenHoldPlaced`), and the world probes alone give
-those pixels 0.94 and the gather's texels alone 0.33, so both read high there. With the device's
-rays they read 0.50 again, the top right 4.62 and the bottom right 20.9.
-
-With `gi.gather_rays on`, at High on a device that traces rays, the screen pass's build with
-`RAY_QUERY` runs the gather by pixel, its ray meeting the window's meshes from its start to its
-reach (`meshHit`), the face it meets lit by its own normal, color and gloss with the sun reaching it
-through a ray of its own (`MeshSun`), the ray scene bound at 18 to 20 as for the probes' trace and
-the pass's bindings there moved past it. The bottom middle falls from 3.91 to 0.59 with it, and
-the whole wall reads under the reference at 0.91 at full and 0.65 at half. Started a
-hundredth of a unit off the surface in place of half a cell it reads 0.86 at full, so the start
-does not hold it under. The meshes' hits take each copy's color and its corners', as the probes'
-trace through the device's rays does, where the reference takes the materials' textures, which is
-not yet read apart. The half's top middle reads 0.33 through the field and 0.26 through the rays
-against 1.34 and 1.05 at full, so its shortfall is the half grid's and not the rays'.
-
-Sponza's times with the card held alone under the exclusive lock and nothing else on it read the
-probes at 6.03 with the first cascade's trace at 2.10, and the gather at 10.43 and 10.81 at full
-without the guide and with it, the screen pass 5.46 and 6.03, at 6.18 and 6.29 at half, 5.09 and
-5.15 at a quarter and 4.80 and 4.81 at an eighth. The 2.3 times of the earlier sessions was other
-work on the card, so the Sponza rows of the times in the guide's Reply read high by that.
-
-A descriptor pool leaves out a layout taken for no sets, since the screen pass's build with the
-rays, made on a device that traces rays and run only where the setting asks, otherwise put the ray
-scene's kind in the pool with a count of none. The suite's 2565 tests pass with it.
-
-Item 311, the gather's edges, the copies' colors and the sheet.
-
-With the gather by pixel the model pass reads a pixel's own texel at full size where that texel
-stands on a surface like the pixel's for at least a quarter, and otherwise the nearest of the eight
-around it that does. At the smaller sizes a pixel whose four texels stand on a like surface for
-under a quarter of their weight reads the nearest like texel the same way. The world's probes come
-in only where no texel around is like it (`screenNearest` in `modelpass.slang`, 16 among the
-lighting's switches saying the texels are the gather's). The 452 pixels on the wall's edge by the
-door, which the window draws at four samples a pixel, read 0.177 at full through the field and
-through the rays against the reference's 0.075, where they read 0.539, and 0.245 at half where they
-read 0.399. The parts read as below over the reference of one bounce with every face's gloss, the
-last two columns over the same reference traced with the copies' colors past the first face.
-
-| Part | Field, full | Rays, full | Field, half | Rays, half | Rays, full, copies' colors | Rays, half, copies' colors |
-|---|---|---|---|---|---|---|
-| Whole wall | 1.46 | 0.89 | 1.35 | 0.63 | 0.93 | 0.66 |
-| Top left | 1.01 | 0.84 | 1.28 | 0.83 | 0.89 | 0.87 |
-| Top middle | 1.34 | 1.05 | 0.33 | 0.25 | 1.10 | 0.27 |
-| Top right | 1.67 | 1.67 | 3.55 | 3.59 | 1.75 | 3.74 |
-| Bottom left | 1.36 | 0.92 | 1.17 | 0.67 | 0.97 | 0.70 |
-| Bottom middle | 4.01 | 0.59 | 4.31 | 0.28 | 0.61 | 0.29 |
-| Bottom right | 61.24 | 1.34 | 0.12 | 0.12 | 1.54 | 0.14 |
-
-The top right reads 1.67 at full through the field and through the rays, where it read 4.64 and
-4.62. The bottom right reads 1.34 through the rays where it read 20.9, and 61.2 through the field,
-whose own texels at the wall's foot read high as before. At half the top right reads 3.55 and 3.59
-where it read 4.74 and 4.78. The bottom right reads 0.12 through both where it read 3.54 and 3.55,
-since the nearest like texels at the wall's foot by the door hold next to no light through either,
-where the reference holds little, 0.0028 over the 164 pixels of its edge. The 93 pixels of the top
-right three or more from its edge read next to nothing in every run, before the change as well,
-against the reference's 0.017.
-
-The reference traced with each copy's own color times its corners' at the faces past the first, as
-the device's rays in the gather take them, reads 0.954 of the one with the materials' textures over
-the wall. The rays read 0.93 over it at full and 0.66 at half, so the 0.91 before the change would
-read 0.95, and the rest of the shortfall at full is not the colors. The reference bends the faces
-past the first by their normal maps as well, which the rays' hits do not, and that is not read
-apart.
-
-`2026-11-23-item-311-door-rays.webp` shows the reference, the gather through the field and through
-the device's rays at full, each one's difference from the reference and the figures above. The
-gather at full holds its light at zero in a lattice of bright texels along diagonals with dark
-between, the same before the change. A still view draws the same ways each frame, so the mean of 16
-frames keeps it, and the difference shows it as red patches over the fifteen by fifteen pixels it
-is read over. The GI's milliseconds under the exclusive lock with the card otherwise idle read 5.15
-at the door with the screen probes, 8.40 through the field at full and 10.29 through the rays, and
-5.19 and 5.68 at half, and in the atrium 5.92, 10.20 and 10.05, and 6.13 and 6.05.
-
-The suite's 2565 tests pass with it.
-
-Item 311, the gather's lattice.
-
-The bright texels on diagonals are the gather's own at full and the same in every frame. In the
-last frame at full through the rays 9555 pixels read over 8 times the median of the five by five
-around them, 64 times it at the median, and every one of them was as bright in the frame before, so
-the mean of 16 frames is the one frame. One place of the four by four block held 3.07 times an even
-share of them, the block's first column on its middle rows, and a pair of them lay along a diagonal
-0.79 times as often as along a row or a column. Through the field it reads alike, 12316 at 72
-times. With the guide it reads 3800 at 32 times and at half 632 at 26 times, 1.46 and 1.57 times an
-even share in one place, so the lattice stands with the guide off and the guide and the half grid
-thin the same rays. Every block took the sixteen strata in the same order, and each texel's place in
-its stratum came from interleaved gradient noise, which runs along diagonals. So the few ways that
-meet a small sunlit patch through the door left from the same place in every block and lined up
-along the diagonals, and a still view kept them.
-
-The order a block takes the strata in is now turned by the block's own bits and each texel's place
-drawn from its own (`scattered` in `gi_ways.slang`), each block still holding each stratum once, and
-the guide's draw alike. At full through the rays 10256 pixels read bright at 64 times, the most in
-one place of the block 1.07 times an even share and a pair along a diagonal 0.40 times as often as
-along a row or a column, the same rays scattered with no line among them. The grain stands. A single
-ray a texel meets the sunlit patch rarely and then reads tens of times its neighbors, and the
-filter's five by five spreads each into a patch of a few pixels. The parts read as below over the
-reference of one bounce with every face's gloss.
-
-| Part | Field, full | Rays, full | Field, half | Rays, half | Field, full, guided | Rays, full, guided |
-|---|---|---|---|---|---|---|
-| Whole wall | 1.42 | 0.95 | 1.42 | 1.01 | 1.30 | 0.92 |
-| Top left | 1.14 | 1.03 | 1.20 | 1.17 | 1.18 | 1.11 |
-| Top middle | 1.17 | 0.85 | 1.74 | 1.23 | 0.98 | 0.83 |
-| Top right | 1.08 | 1.07 | 3.97 | 3.88 | 3.53 | 1.12 |
-| Bottom left | 1.12 | 0.72 | 0.52 | 0.53 | 0.98 | 0.65 |
-| Bottom middle | 3.97 | 1.28 | 3.55 | 0.57 | 3.02 | 0.82 |
-| Bottom right | 36.63 | 1.34 | 0.35 | 0.13 | 36.63 | 1.34 |
-
-The parts moved with nothing changed but the draw, the rays at half from 0.63 to 1.01 on the whole
-wall, the rays at full on the bottom middle from 0.59 to 1.28 and the field at full on the bottom
-right from 61.2 to 36.6. At a single ray a texel in a still view each figure hangs on which ways
-were drawn as much as on the light, and no count of frames averages it out, so the parts' figures
-are read with that spread in them. Over the reference with the copies' colors the rays read 0.99 at
-full and 1.06 at half. `2026-11-23-item-311-door-rays-scattered.webp` is the sheet made again from
-this run, the earlier one kept as the record of the lattice. The GI's milliseconds read within 0.06
-of the earlier ones at every size in both views.
-
-The suite's 2565 tests pass with it.
+315. The picture and the window take sizes apart. `window.resolution` takes the place of
+`window.width`, `window.height` and `window.scaling`, and `render.scale`, `render.filter`,
+`render.aspect`, `render.fit`, `render.fps_limit` and `interface.scale` join it, each stored, each
+native or the window's own by default, the panel showing the window's page and the render page in
+the order the review gave. Where the picture's size differs from the window's, the scene is drawn
+into frame images of the device's own and a node after it brings the picture onto the window's
+image in a pass at the window's size, where the interface's batches, the overlay, the console, the
+panels and ImGui draw. The interface is the 2D drawn after the last shape drawn with depth. The
+cameras take the picture's shape, and the rays, `GetWorldToScreen` and the picking of mesh entities
+read the window's points through where the picture stands. `SetPicture` and `GetPicture` set and
+read the picture from code, an exact size among it, which holds the scale while the scale's row
+says why. `GetRenderWidth` and `GetRenderHeight` give the size in use and serve as the render
+size's one call, and `GetPictureArea` gives where the picture stands on the window. A program that
+draws only in 2D draws all of it as interface, so the scale leaves it as it is.
+The sheet `2026-11-23-item-315-picture-and-window.webp` shows a picture of 4:3 at Fit and at Stretch
+on a window of 16:9, the window at 67% with the settings panel over it and the panel's render and
+window pages, and the three filters over one part of the window.

@@ -28,15 +28,10 @@ internal sealed unsafe partial class GraphicsDevice
         var presentMode = ChoosePresentMode(support.PresentModes);
         var shown = _surfaceSource.GetShownSize();
         var extent = ChooseSwapExtent(support.Capabilities, Math.Max(1, shown.Width), Math.Max(1, shown.Height));
-        // Frames of a size of their own are drawn into images the device owns and copied onto the
-        // window's, which a surface that cannot be copied into leaves at the window's size.
+        // Frames of the picture's size of its own are drawn into images the device owns, which the
+        // window's pass reads as it draws the picture onto the window's.
         _scaled = (drawable.Width, drawable.Height) != (extent.width, extent.height);
-        if (_scaled && (support.Capabilities.supportedUsageFlags & VkImageUsageFlags.TransferDst) == 0)
-        {
-            Logger.Warn($"The window's surface cannot be copied into, so frames are drawn at its {extent.width}x{extent.height} rather than {drawable.Width}x{drawable.Height}.");
-            _scaled = false;
-        }
-        _finalLayout = _scaled ? VkImageLayout.TransferSrcOptimal : VkImageLayout.PresentSrcKHR;
+        _finalLayout = _scaled ? VkImageLayout.ShaderReadOnlyOptimal : VkImageLayout.PresentSrcKHR;
         Logger.Debug($"Chosen surface format: {surfaceFormat.format}, color space: {surfaceFormat.colorSpace}");
         // Said at Info, since how a window presents decides whether presenting waits.
         Logger.Info($"Present mode {presentMode}, of {string.Join(", ", support.PresentModes)}, with vsync {(Vsync ? "on" : "off")}.");
@@ -57,11 +52,9 @@ internal sealed unsafe partial class GraphicsDevice
             imageColorSpace = surfaceFormat.colorSpace,
             imageExtent = extent,
             imageArrayLayers = 1,
-            // Copyable where the surface allows it, so a frame can be captured (RequestCapture),
-            // and copied into where the frames are drawn at a size of their own.
+            // Copyable where the surface allows it, so a frame can be captured (RequestCapture).
             imageUsage = VkImageUsageFlags.ColorAttachment
-                         | (_swapchainCopyable ? VkImageUsageFlags.TransferSrc : 0)
-                         | (_scaled ? VkImageUsageFlags.TransferDst : 0),
+                         | (_swapchainCopyable ? VkImageUsageFlags.TransferSrc : 0),
             preTransform = support.Capabilities.currentTransform,
             compositeAlpha = ChooseCompositeAlpha(support.Capabilities.supportedCompositeAlpha),
             presentMode = presentMode,
@@ -95,14 +88,14 @@ internal sealed unsafe partial class GraphicsDevice
         if (_scaled)
         {
             // One frame image to each of the window's, drawn into as the window's would be and
-            // copied onto it as it is presented.
+            // drawn onto it by the window's pass.
             _shownImages = _swapchainImages;
             _shownExtent = extent;
             _shownCopyable = _swapchainCopyable;
             _swapchainExtent = new VkExtent2D(drawable.Width, drawable.Height);
             _swapchainCopyable = true;
             CreateOwnImages(drawable.Width, drawable.Height, _shownImages.Length);
-            Logger.Info($"Frames drawn at {drawable.Width}x{drawable.Height} and scaled onto the window's {extent.width}x{extent.height}.");
+            Logger.Info($"Frames drawn at {drawable.Width}x{drawable.Height} and brought onto the window's {extent.width}x{extent.height}.");
         }
 
         CreateFrameResources();
@@ -117,6 +110,7 @@ internal sealed unsafe partial class GraphicsDevice
         Logger.Debug("Creating depth buffer resources (D32_Sfloat)...");
         CreateDepthResources();
         CreateFramebuffers();
+        CreateShownResources();
         Logger.Debug("Creating command pool and allocating command buffers...");
         CreateCommandPoolAndBuffers();
         CreatePresentSemaphores();
@@ -167,6 +161,7 @@ internal sealed unsafe partial class GraphicsDevice
             _deviceApi.vkFreeMemory(_msaaColorMemory);
         }
         DestroySharpFrames();
+        DestroyShownResources();
         if (_swapchain.Handle != 0)
             _deviceApi.vkDestroySwapchainKHR(_swapchain);
         _shownImages = [];
@@ -244,7 +239,7 @@ internal sealed unsafe partial class GraphicsDevice
                 arrayLayers = 1,
                 samples = VkSampleCountFlags.Count1,
                 tiling = VkImageTiling.Optimal,
-                // Read by the sharp scaling's pass (GraphicsDevice.Sharp).
+                // Read by the window's pass as it draws the picture (GraphicsDevice.Picture).
                 usage = VkImageUsageFlags.ColorAttachment | VkImageUsageFlags.TransferSrc | VkImageUsageFlags.Sampled,
                 sharingMode = VkSharingMode.Exclusive,
                 initialLayout = VkImageLayout.Undefined,

@@ -14,18 +14,19 @@ internal static partial class EngineSettings
     private const string Offscreen = "The program draws into images of its own with no window, as --offscreen asks.";
 
     /// <summary>
-    /// The settings of the window's page a start gives a window from the settings file before it is
-    /// shown, its size first, so a mode that covers the screen keeps the size to leave it at, and
-    /// its mode last, on the screen it was given (<see cref="DiagnosticsBinding.OpenWindow"/>).
+    /// The settings of the window's and the render's pages a start gives a window from the settings
+    /// file before it is shown, its resolution first, so a mode that covers the screen keeps the
+    /// size to leave it at, the picture before the first frame, and its mode last, on the screen it
+    /// was given (<see cref="DiagnosticsBinding.OpenWindow"/>).
     /// </summary>
-    internal static IReadOnlyList<string> WindowStart { get; } = ["window.width", "window.height", "window.resizable", "window.monitor", "window.scaling", "window.mode"];
+    internal static IReadOnlyList<string> WindowStart { get; } =
+        ["window.resolution", "window.resizable", "window.monitor", "render.scale", "render.aspect", "render.fit", "render.filter", "window.mode"];
 
-    // The window's page, its mode, whether it is resizable, its size as a window, its screen and
-    // its vsync, each acting at once and kept by the settings file, and ImGui's viewports. The page
+    // The window's page, its mode, its resolution, whether it is resizable, its screen and its
+    // vsync, each acting at once and kept by the settings file, and ImGui's viewports. The page
     // only reads while the window is hidden, and the settings of the window itself while the run
-    // has none.
-    // Makes the window resizable or not, or says why the system kept it as it was, since a driver
-    // with no edges of its own (SDL's offscreen one) answers yes and leaves the window.
+    // has none. Makes the window resizable or not, or says why the system kept it as it was, since
+    // a driver with no edges of its own (SDL's offscreen one) answers yes and leaves the window.
     private static string? Resizable(IntPtr window, bool on)
     {
         var asked = SDL.SetWindowResizable(window, on);
@@ -43,29 +44,34 @@ internal static partial class EngineSettings
         static string? Windowless() => Hidden() ?? (At() is not { } world || Shown() is not null ? null
             : world.TryGetResource<OffscreenSurface>(out _) ? Offscreen : Undrawn);
 
-        yield return new Setting<WindowMode>("window.mode", "How the window stands on its screen, as a window with its frame, borderless with no frame at window.width by window.height in the middle of the screen and covering it at the screen's size or larger, borderless fullscreen covering the screen with no frame, drawing at window.width by window.height scaled to it as window.scaling says, or fullscreen taking the screen's mode.",
+        yield return new Setting<WindowMode>("window.mode", "How the window stands on its screen, as a window with its frame, borderless with no frame at window.resolution in the middle of the screen and covering it at the screen's size or larger, borderless fullscreen covering the screen with no frame, or fullscreen taking the screen's mode of window.resolution.",
             WindowMode.Windowed, () => Shown() is { } window ? WindowModes.Of(window) : WindowMode.Windowed,
             apply: mode => Shown() is { } window ? WindowModes.Set(window, mode) : Undrawn)
-        { Saved = true, Lock = Windowless };
-        yield return new Setting<WindowScaling>("window.scaling", "How borderless fullscreen scales the frames it draws at window.width by window.height onto the screen, as large as fits with black round them, linear filtered and soft, nearest sharp, even at a whole ratio and uneven otherwise, or sharp, each frame pixel a block of one width with one blended screen pixel at most on its edges.",
-            WindowScaling.Linear, () => Shown() is { } window ? window.Sdl.Scaling : WindowScaling.Linear,
-            apply: scaling => { if (Shown() is not { } window) return Undrawn; WindowModes.SetScaling(window, scaling); return null; })
-        { Saved = true, Lock = Windowless };
+        { Saved = true, Lock = Windowless, Order = 1 };
+
+        // An offscreen run has no screen, so native is the size it was started at.
+        static (int Width, int Height) Started() => At()?.TryGetResource<Config>(out var config) == true
+            ? (config.WindowData.Width, config.WindowData.Height) : (600, 400);
+        yield return new Setting<string>("window.resolution", "The window's size as a window and as a borderless one, any up to its screen's, and its mode in fullscreen, one the screen lists, or native for the size the program makes the window at and the screen's own mode, and borderless fullscreen always at the screen's size. The scene is drawn at it times render.scale, and an offscreen run's images are drawn at it.",
+            Native, () => At() is not { } world ? Native
+                : Shown() is { } window ? SizeText(WindowModes.ResolutionOf(window))
+                : WindowCommands.Windowed(world) is { } size && size != Started() ? SizeText(size) : Native,
+            apply: text =>
+            {
+                var (size, refused) = ParseSize(text);
+                if (refused is not null) return refused;
+                if (Shown() is { } window) return WindowModes.SetResolution(window, size);
+                var (width, height) = size ?? Started();
+                return At() is { } world && WindowCommands.Resize(world, width, height) ? null : Undrawn;
+            })
+        {
+            Saved = true, Lock = Hidden, Order = 2,
+            Offer = () => [Native, .. (Shown() is { } window ? WindowModes.ListedSizes(window.Sdl.Window) : []).Select(size => SizeText(size))],
+        };
         yield return new Setting<bool>("window.resizable", "Whether the window's edges can be dragged to resize it.", true,
             () => Shown() is { } window ? (SDL.GetWindowFlags(window.Sdl.Window) & SDL.WindowFlags.Resizable) != 0 : true,
             apply: on => Shown() is { } window ? Resizable(window.Sdl.Window, on) : Undrawn)
         { Saved = true, Lock = Windowless };
-
-        // The size reads the window's as a window, kept while it covers its screen, or what an
-        // offscreen run draws at, and with neither the default.
-        static (int Width, int Height) Sized() => At() is { } world && WindowCommands.Windowed(world) is { } size ? size : (600, 400);
-        static string? Resize(int width, int height) => At() is { } world && WindowCommands.Resize(world, width, height) ? null : Undrawn;
-        yield return new Setting<int>("window.width", "The width of the window as a window and as a borderless one, and of the frames borderless fullscreen draws, which the window takes on leaving fullscreen, or of the images an offscreen run draws into, which window.size sets with the height.",
-            600, () => Sized().Width, apply: width => Resize(width, Sized().Height))
-        { Low = 0, High = 16384, Step = 16, Saved = true, Lock = Hidden };
-        yield return new Setting<int>("window.height", "The height of the window as a window and as a borderless one, and of the frames borderless fullscreen draws, which the window takes on leaving fullscreen, or of the images an offscreen run draws into, which window.size sets with the width.",
-            400, () => Sized().Height, apply: height => Resize(Sized().Width, height))
-        { Low = 0, High = 16384, Step = 16, Saved = true, Lock = Hidden };
 
         // The screen only reads where there is one, since the window has nowhere to go.
         static string? OneScreen() => Windowless() ?? (WindowModes.Screens().Length > 1 ? null

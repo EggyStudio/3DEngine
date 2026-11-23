@@ -78,23 +78,19 @@ internal sealed class AppWindowPlugin : IPlugin
             if (FromAnotherWindow(e, window)) return;
             switch ((SDL.EventType)e.Type)
             {
-                // A finger's place comes as a fraction of the window, scaled here to its pixels,
-                // and a place on the window as the place on the frames under it where they are
-                // drawn at a size of their own.
+                // A finger's place comes as a fraction of the window, scaled here to its units, as
+                // a place on the window comes.
                 case SDL.EventType.FingerDown:
                 case SDL.EventType.FingerMotion:
-                    var fingerAt = window.Sdl.TouchToFrame(e.TFinger.X, e.TFinger.Y);
-                    input.SetTouch((long)e.TFinger.FingerID, fingerAt.X, fingerAt.Y, down: true);
+                    input.SetTouch((long)e.TFinger.FingerID, e.TFinger.X * window.Sdl.Width, e.TFinger.Y * window.Sdl.Height, down: true);
                     break;
                 case SDL.EventType.FingerUp:
                 case SDL.EventType.FingerCanceled:
                     input.SetTouch((long)e.TFinger.FingerID, 0, 0, down: false);
                     break;
                 case SDL.EventType.MouseMotion:
-                    var pointerAt = window.Sdl.ToFrame(e.Motion.X, e.Motion.Y);
-                    var pointerMoved = window.Sdl.ToFrameDistance(e.Motion.XRel, e.Motion.YRel);
-                    input.SetMousePosition((int)pointerAt.X, (int)pointerAt.Y);
-                    input.AddMouseDelta((int)pointerMoved.X, (int)pointerMoved.Y);
+                    input.SetMousePosition((int)e.Motion.X, (int)e.Motion.Y);
+                    input.AddMouseDelta((int)e.Motion.XRel, (int)e.Motion.YRel);
                     break;
                 case SDL.EventType.MouseButtonDown:
                 case SDL.EventType.MouseButtonUp:

@@ -138,11 +138,10 @@ internal sealed class PointerPicking
     {
         Casts++;
         var camera = ecs.GetReadOnly<Camera>(cameraEntity);
-        var (width, height) = WindowSize(world);
+        var (share, aspect) = OnPicture(world, pointer);
         Matrix4x4.Decompose(TransformPropagation.WorldMatrix(ecs, cameraEntity), out _, out var rotation, out var origin);
         var tan = MathF.Tan(camera.FovY / 2);
-        var aspect = (float)width / height;
-        var through = new Vector3((2 * pointer.X / width - 1) * tan * aspect, (1 - 2 * pointer.Y / height) * tan, -1);
+        var through = new Vector3((2 * share.X - 1) * tan * aspect, (1 - 2 * share.Y) * tan, -1);
         var direction = Vector3.Normalize(Vector3.Transform(through, rotation));
 
         var best = float.MaxValue;
@@ -206,13 +205,20 @@ internal sealed class PointerPicking
         return new Bounds(min, max);
     }
 
-    // The size the mouse's place is read against, the window's, as the renderer sizes its camera.
-    private static (float Width, float Height) WindowSize(World world)
+    // The pointer's place as a share of the picture's width and height, read through where the
+    // window places the picture, and the picture's shape, as the renderer sizes its camera.
+    private static (Vector2 Share, float Aspect) OnPicture(World world, Vector2 pointer)
     {
-        var (width, height) = world.TryGetResource<AppWindow>(out var window) ? (window.Sdl.Width, window.Sdl.Height)
-            : world.TryGetResource<OffscreenSurface>(out var surface) ? ((int)surface.Size.Width, (int)surface.Size.Height)
+        if (world.TryGetResource<AppWindow>(out var window))
+        {
+            var (x, y) = window.Sdl.ToPicture(pointer.X, pointer.Y);
+            var (pictureWidth, pictureHeight) = window.Sdl.FramePixels;
+            return (new Vector2(x, y), (float)Math.Max(1, pictureWidth) / Math.Max(1, pictureHeight));
+        }
+        var (width, height) = world.TryGetResource<OffscreenSurface>(out var surface) ? ((int)surface.Size.Width, (int)surface.Size.Height)
             : world.TryGetResource<Config>(out var config) ? (config.WindowData.Width, config.WindowData.Height) : (1, 1);
-        return (Math.Max(1, width), Math.Max(1, height));
+        (width, height) = (Math.Max(1, width), Math.Max(1, height));
+        return (pointer / new Vector2(width, height), (float)width / height);
     }
 
     // Whether a ray of length one comes within radius of center nearer than best.

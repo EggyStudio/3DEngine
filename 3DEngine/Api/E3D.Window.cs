@@ -326,25 +326,13 @@ public static partial class E3D
         _shouldClose = true;
     }
 
-    // Sleeps through most of what is left of the frame and spins through the last millisecond,
-    // because a sleep on most systems overshoots by up to a millisecond.
+    // Waits through what is left of the frame at the target, held to render.fps_limit where it is
+    // set (FramePace).
     private static void WaitForTargetFrame()
     {
         // A headless run with no target set is paced at Config.HeadlessFps, so it does not spin a core.
         var config = Res<Config>();
         var fps = _targetFps ?? (config.Headless ? config.HeadlessFps : 0);
-        if (fps > 0)
-        {
-            var deadline = _lastFrameEnd + (long)(Stopwatch.Frequency / fps);
-            while (true)
-            {
-                var remaining = (deadline - Stopwatch.GetTimestamp()) * 1000.0 / Stopwatch.Frequency;
-                if (remaining <= 0) break;
-                if (remaining > 2) Thread.Sleep((int)(remaining - 1));
-                else Thread.SpinWait(64);
-            }
-        }
-
-        _lastFrameEnd = Stopwatch.GetTimestamp();
+        _lastFrameEnd = FramePace.Wait(_lastFrameEnd, FramePace.Of(fps));
     }
 }

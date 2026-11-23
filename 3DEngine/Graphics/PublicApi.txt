@@ -19,6 +19,26 @@ readonly struct Engine.ModelVertex : IEquatable<ModelVertex>
   static bool op_Equality(ModelVertex left, ModelVertex right)
   static bool op_Inequality(ModelVertex left, ModelVertex right)
   void Deconstruct(out Vector3 Position, out Vector3 Normal, out Vector2 Uv)
+readonly struct Engine.Picture : IEquatable<Picture>
+  (int, int)? Aspect { get; init; }
+  (int, int)? Size { get; init; }
+  Picture()
+  PictureFilter Filter { get; init; }
+  PictureFit Fit { get; init; }
+  bool Equals(Picture other)
+  float Scale { get; init; }
+  override bool Equals(object obj)
+  override int GetHashCode()
+  override string ToString()
+  static bool op_Equality(Picture left, Picture right)
+  static bool op_Inequality(Picture left, Picture right)
+enum Engine.PictureFilter : int
+  Linear = 0
+  Nearest = 1
+  Sharp = 2
+enum Engine.PictureFit : int
+  Fit = 0
+  Stretch = 1
 enum Engine.PixelFormat : int
   CompressedAstc4x4Rgba = 23
   CompressedAstc8x8Rgba = 24

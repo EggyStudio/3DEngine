@@ -78,8 +78,11 @@ void SetWindowMonitor(int monitor);                      // Moves the window to 
 
 void SetWindowOpacity(float opacity);                    // Sets how opaque the window is, from 0 (clear) to 1, where the desktop allows it
 void SetWindowFocused();                                 // Raises the window and asks for the keyboard focus, which the desktop may refuse
-int GetRenderWidth();                                    // The width in pixels the window's content is drawn at, which on a doubled monitor is twice GetScreenWidth
-int GetRenderHeight();                                   // The height in pixels the window's content is drawn at
+int GetRenderWidth();                                    // The width in pixels the scene is drawn at, the picture's (SetPicture), which at the default picture on a doubled monitor is twice GetScreenWidth
+int GetRenderHeight();                                   // The height in pixels the scene is drawn at, the picture's
+void SetPicture(Picture picture);                        // Sets the picture the scene is drawn as and how it stands on the window, its scale, its shape, its fit and its filter as the render settings hold them, and a size in pixels it is drawn at whatever the window's, which the scale then waits behind until a picture with none is set
+Picture GetPicture();                                    // The picture the scene is drawn as, the default one where there is no window
+Rectangle GetPictureArea();                              // Where the picture stands on the window, in the window's units as the mouse, the shapes and GetScreenWidth take them, so an interface of the program's own can keep to it where the window shows black beside the picture
 Vector2 GetMonitorPosition(int monitor);                 // A monitor's top left corner on the desktop, or zero when there is no such monitor
 void ToggleBorderlessWindowed();                         // Switches between a window and a borderless one as large as the monitor, which covers it at its desktop mode, changing no display mode and so switching at once, and gives the window back the size it had
 Vector2 GetWindowScaleDPI();                             // How many pixels the window's content has for each unit of its size, 1 on most monitors and 2 on a doubled one
@@ -1231,7 +1234,7 @@ IReadOnlyList<ContactStarted> GetPhysicsContacts();      // The pairs of bodies 
 IReadOnlyList<ContactEnded> GetPhysicsContactsEnded();   // The pairs of bodies that stopped touching in this frame's steps, as a body leaving a trigger
 bool IsPhysicsBodyHit(PhysicsBody body);                 // Whether a body started touching anything in this frame's steps
 
-Ray GetScreenToWorldRay(Vector2 position, Camera3D camera);  // The ray from a camera through a point of the window, as a mouse click points into the scene
+Ray GetScreenToWorldRay(Vector2 position, Camera3D camera);  // The ray from a camera through a point of the window, as a mouse click points into the scene, through the picture where it stands on the window
 Ray GetScreenToWorldRayEx(Vector2 position, Camera3D camera, int width, int height);  // The ray from a camera through a point of a view width by height pixels
 ```
 
@@ -1475,14 +1478,14 @@ bool QuaternionEquals(Quaternion p, Quaternion q);       // Whether two rotation
 
 Every `ImGui.*` call works between `BeginDrawing` and `EndDrawing`, and is not wrapped here. ImGui
 is drawn over everything else. The keyboard moves through its widgets, and the first gamepad too
-once `SetImGuiGamepadNavigation(true)` is called.
-F1 hides the interface a program draws inside `BeginUi`, F2 writes a screenshot and F3 shows the
-engine's debug overlay, keys `SetUiHiddenKey`, `SetScreenshotKey` and `SetDebugOverlayKey` move. F4
-opens the Diagnostics module's console and F5 its settings panel, drawn in ImGui over the frame in
-the debug overlay's look whatever the program's ImGui theme, and each of the five keys is a setting,
-as `keys.console`, taken as it is let go alone. Every value of the engine's a console line or an
-environment variable sets is a setting the panel shows on the page of its name's first word, as
-`ao.method`, `gi.merge`, `window.vsync` and `run.frames`, read by its name alone and set by its
-name and a value. A program whose window is shown keeps the keys, `window.vsync` and
-`imgui.viewports` in `settings.txt` in a folder of its name in the player's folder of
-applications' data, `~/.config/<program>` on Linux, read as it starts and written as one changes.
+once `SetImGuiGamepadNavigation(true)` is called. F1 hides the interface a program draws inside
+`BeginUi`, F2 writes a screenshot and F3 shows the engine's debug overlay, keys `SetUiHiddenKey`,
+`SetScreenshotKey` and `SetDebugOverlayKey` move. F4 opens the Diagnostics module's console and F5
+its settings panel, drawn in ImGui over the frame in the debug overlay's look whatever the program's
+ImGui theme, and each of the five keys is a setting, as `keys.console`, taken as it is let go alone.
+Every value of the engine's a console line or an environment variable sets is a setting the panel
+shows on the page of its name's first word, as `ao.method`, `gi.merge`, `window.vsync` and
+`run.frames`, read by its name alone and set by its name and a value. A program whose window is
+shown keeps the keys, the `window`, `render` and `interface` pages and `imgui.viewports` in
+`settings.txt` in a folder of its name in the player's folder of applications' data,
+`~/.config/<program>` on Linux, read as it starts and written as one changes.

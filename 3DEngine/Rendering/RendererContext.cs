@@ -191,7 +191,12 @@ internal sealed class RendererContext : IDisposable
         var swapchainTarget = new SwapchainTarget(
             _graphics.SwapchainRenderPass,
             _graphics.GetSwapchainFramebuffer(imageIndex),
-            frame.Extent);
+            frame.Extent)
+        {
+            ImageIndex = imageIndex,
+            Shown = _graphics.GetShownFramebuffer(imageIndex),
+            ShownExtent = _graphics.GetShownFramebuffer(imageIndex) is null ? frame.Extent : _graphics.ShownExtent,
+        };
         world.Set(swapchainTarget);
         world.Set(clear);
 

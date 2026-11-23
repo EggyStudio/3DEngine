@@ -54,5 +54,8 @@ internal sealed class SdlSurfaceSource : ISurfaceSource
     }
 
     /// <inheritdoc />
-    public WindowScaling Scaling => _sdl.Scaling;
+    public PictureFilter Filter => _sdl.Picture.Filter;
+
+    /// <inheritdoc />
+    public bool Bars => PictureSize.Bars(_sdl.Picture);
 }

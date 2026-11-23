@@ -18,7 +18,7 @@ internal static class WindowCommands
     /// <summary>
     /// Resizes a world's window as a window, which one covering its screen takes on leaving it, or
     /// the images its offscreen run draws into, and says whether it has either, as
-    /// <c>window.size</c> and the <c>window.width</c> and <c>window.height</c> settings do.
+    /// <c>window.size</c> and the <c>window.resolution</c> setting do.
     /// </summary>
     internal static bool Resize(World world, int width, int height)
     {
@@ -43,8 +43,7 @@ internal static class WindowCommands
 
     /// <summary>
     /// The size a world's window has as a window, kept while it covers its screen, or the size its
-    /// offscreen run draws at, or none, as the <c>window.width</c> and <c>window.height</c>
-    /// settings read it.
+    /// offscreen run draws at, or none, as the <c>window.resolution</c> setting reads it.
     /// </summary>
     internal static (int Width, int Height)? Windowed(World world) =>
         world.TryGetResource<AppWindow>(out var window) ? WindowModes.WindowedSize(window) : Drawn(world);

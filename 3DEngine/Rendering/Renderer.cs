@@ -96,7 +96,7 @@ internal sealed class Renderer : IDisposable
         {
             device.InitializeSkinning(server.LoadSync<ShaderProgram>("shaders/skin.slang").Compute);
             var scaled = server.LoadSync<ShaderProgram>("shaders/scaled.slang");
-            device.InitializeSharpScaling(scaled.Vertex, scaled.Fragment);
+            device.InitializePictureShader(scaled.Vertex, scaled.Fragment);
             device.InitializeMeshCounts(server.LoadSync<ShaderProgram>("shaders/mesh_counts.slang").Compute);
             device.InitializeCountedCorners(server.LoadSync<ShaderProgram>("shaders/field_counted.slang").Compute);
             ParticleStages.Of(device).InitializeParticles(server.LoadSync<ShaderProgram>("shaders/particle_step.slang").Compute);
@@ -193,6 +193,12 @@ internal sealed class Renderer : IDisposable
         // A cascade of the scene's distance field drawn over the window, where a command asks.
         Graph.AddNode("scene_field_view", new SceneFieldViewNode());
         Graph.AddNodeEdge("immediate", "scene_field_view");
+        // The picture brought onto the window, and the interface drawn over it at the window's
+        // size.
+        Graph.AddNode("present", new PresentNode());
+        Graph.AddNodeEdge("scene_field_view", "present");
+        Graph.AddNode("interface", new InterfaceNode());
+        Graph.AddNodeEdge("present", "interface");
         foreach (var part in _parts)
             part.AddNodes(Graph);
         Logger.Debug("Default MainPassNode added to render graph.");

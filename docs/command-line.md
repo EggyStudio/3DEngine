@@ -71,15 +71,15 @@ Manor's walk held 27 textures of 128 by 128 at its most and 16 as it began.
 `window.size 1280 720`, `window.minimize`, `window.restore` and `window.position` resize and move
 the window while it draws, and in an offscreen run resize the images it draws into, as a window's
 swapchain is made again, or make it zero across, when no frame is drawn until it is restored.
-`build/storm.sh` puts a program through a run of them and of the setting `window.monitor` under
-the validation layer. The setting `window.vsync on` turns vsync on, and `off` off, which makes the
-swapchain again on the next frame, `window.mode borderless`, `borderlessfullscreen`, `fullscreen`
-or `windowed` sets how the window stands on its screen, `window.width` and `window.height` read or
-set its size as a window and as a borderless one and the size borderless fullscreen draws at,
-`window.scaling linear`, `nearest` or `sharp` how that is scaled onto the screen,
-`window.monitor 1` moves it to the second screen, and `window.state` says whether the window is
-shown or hidden, covered by others, focused, minimized or maximized, its mode where it covers its
-screen, and its size.
+`build/storm.sh` puts a program through a run of them and of the setting `window.monitor` under the
+validation layer. The setting `window.vsync on` turns vsync on, and `off` off, which makes the
+swapchain again on the next frame, `window.mode borderless`, `borderlessfullscreen`, `fullscreen` or
+`windowed` sets how the window stands on its screen, `window.resolution 1280x720` or `native` its
+size as a window and as a borderless one and its mode in fullscreen, `render.scale 67%` the share of
+that the scene is drawn at, `render.filter linear`, `nearest` or `sharp` how the picture is brought
+onto the window, `window.monitor 1` moves it to the second screen, and `window.state` says whether
+the window is shown or hidden, covered by others, focused, minimized or maximized, its mode where it
+covers its screen, and its size.
 
 The engine's values a line sets are settings, each read by its name alone, as `window.vsync`,
 answered with its value, its default where it differs and the variable that gives it, set by its
@@ -92,9 +92,10 @@ are listed.
 own, as a program does by setting `ImGuiConfigFlags.ViewportsEnable`, and `off` keeps them in.
 `imgui.windows` lists ImGui's viewports, where each is and its window and swapchain, and `imgui.shot
 1 viewport.png` writes the next frame of the first of them to a file, as `shot` does the program's
-window. `shot.shown screen.png` writes the frame as the window shows it, which in borderless
-fullscreen at a size of its own is the frame scaled onto the screen as `window.scaling` says, where
-`shot` writes it as it is drawn. A window of a hidden program's is never shown either.
+window. `shot.shown screen.png` writes the frame as the window shows it, which at a `render.scale`
+or a `render.aspect` of its own is the picture brought onto the window as `render.filter` and
+`render.fit` say with the interface over it, where `shot` writes the picture as it is drawn. A
+window of a hidden program's is never shown either.
 
 `profile` gives where a frame's time goes, averaged over about a second, and `profile.slowest` the
 slowest frame since it was last asked, every stage, system and render phase measured in it, so a

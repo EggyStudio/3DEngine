@@ -452,8 +452,9 @@ internal sealed class ImmediateUploadPrepare : IPrepareSystem
 }
 
 /// <summary>
-/// Render graph node that draws the window's share of the <see cref="DrawList"/> into the swapchain
-/// pass <see cref="MainPassNode"/> opened, after the meshes and before ImGui.
+/// Render graph node that draws the window's share of the <see cref="DrawList"/> the picture holds
+/// into the swapchain pass <see cref="MainPassNode"/> opened, after the meshes, up to the batches
+/// after the last one drawn with depth, which <see cref="InterfaceNode"/> draws.
 /// </summary>
 internal sealed class ImmediateNode : INode
 {
@@ -463,6 +464,24 @@ internal sealed class ImmediateNode : INode
         if (renderWorld.TryGet<ActiveSwapchainPass>() is not { } active || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain) return;
         // Where the window shows a scene, the batches up to the split were drawn into the HDR frame.
         var first = renderWorld.TryGet<BloomFrame>()?.Split ?? 0;
+        var end = HdrSceneNode.Split(renderWorld.TryGet<DrawList>());
+        if (end > first)
+            renderWorld.TryGet<ImmediateRenderer>()?.Draw(active.Pass, swapchain.RenderPass, renderContext, renderWorld, target: 0, first, end);
+    }
+}
+
+/// <summary>
+/// Render graph node that draws the window's batches of the <see cref="DrawList"/> after its last
+/// one drawn with depth, the interface's, into the window's pass at the window's size, after the
+/// picture and before ImGui.
+/// </summary>
+internal sealed class InterfaceNode : INode
+{
+    /// <inheritdoc />
+    public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
+    {
+        if (renderWorld.TryGet<ActiveSwapchainPass>() is not { } active || renderWorld.TryGet<SwapchainTarget>() is not { } swapchain) return;
+        var first = Math.Max(HdrSceneNode.Split(renderWorld.TryGet<DrawList>()), renderWorld.TryGet<BloomFrame>()?.Split ?? 0);
         renderWorld.TryGet<ImmediateRenderer>()?.Draw(active.Pass, swapchain.RenderPass, renderContext, renderWorld, target: 0, first);
     }
 }

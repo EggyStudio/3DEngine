@@ -44,7 +44,7 @@ internal sealed partial class MeshEntityDraws
     private static (Matrix4x4 ViewProjection, Vector3 Eye) Through(World world, EcsWorld ecs, int entity, in Camera camera)
     {
         var (width, height) = camera.Target.IsValid ? (camera.Target.Texture.Width, camera.Target.Texture.Height)
-            : world.TryGetResource<AppWindow>(out var appWindow) ? (appWindow.Sdl.Width, appWindow.Sdl.Height)
+            : world.TryGetResource<AppWindow>(out var appWindow) ? appWindow.Sdl.FramePixels
             : world.TryGetResource<OffscreenSurface>(out var surface) ? ((int)surface.Size.Width, (int)surface.Size.Height)
             : world.TryGetResource<Config>(out var config) ? (config.WindowData.Width, config.WindowData.Height) : (1, 1);
         var aspect = height > 0 ? (float)width / height : 1f;

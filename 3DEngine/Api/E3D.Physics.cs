@@ -593,9 +593,12 @@ public static partial class E3D
 
     // -- Rays from the screen
 
-    /// <summary>The ray from a camera through a point of the window, as a mouse click points into the scene.</summary>
+    /// <summary>
+    /// The ray from a camera through a point of the window, as a mouse click points into the scene,
+    /// through the picture where it stands on the window.
+    /// </summary>
     public static Ray GetScreenToWorldRay(Vector2 position, Camera3D camera) =>
-        GetScreenToWorldRayEx(position, camera, GetScreenWidth(), GetScreenHeight());
+        GetScreenToWorldRayEx(ToPicturePixels(position), camera, GetRenderWidth(), GetRenderHeight());
 
     /// <summary>The ray from a camera through a point of a view <paramref name="width"/> by <paramref name="height"/> pixels.</summary>
     public static Ray GetScreenToWorldRayEx(Vector2 position, Camera3D camera, int width, int height)

@@ -9,7 +9,7 @@ public static partial class E3D
 
     /// <summary>Where a world point appears in the window through a 3D camera, in pixels from the top left.</summary>
     public static Vector2 GetWorldToScreen(Vector3 position, Camera3D camera) =>
-        GetWorldToScreenEx(position, camera, GetScreenWidth(), GetScreenHeight());
+        FromPicturePixels(GetWorldToScreenEx(position, camera, GetRenderWidth(), GetRenderHeight()));
 
     /// <summary>Where a world point appears in a view <paramref name="width"/> by <paramref name="height"/> pixels through a 3D camera.</summary>
     /// <remarks>

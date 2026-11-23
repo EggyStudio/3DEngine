@@ -5,11 +5,12 @@ using SDL3;
 namespace Engine.Tests.Platform;
 
 /// <summary>
-/// The window's page of settings on a window of SDL's offscreen driver, each setting's round
-/// through the settings file, given to the window before it is shown and written back as it is
-/// set, a mode the system refuses answered with the reason and the mode before kept, a borderless
-/// window of the size set in the middle of its screen, borderless fullscreen drawing at the size
-/// set and scaling it onto its screen, and the page only reading while the window is hidden.
+/// The window's and the render's pages of settings on a window of SDL's offscreen driver, each
+/// setting's round through the settings file, given to the window before it is shown and written
+/// back as it is set, a mode or a resolution the system refuses answered with the reason and the
+/// one before kept, a borderless window of the resolution set in the middle of its screen, the
+/// picture drawn at its scale, shape and size and brought onto the window as its fit and filter
+/// say with the interface over it, and the pages only reading while the window is hidden.
 /// </summary>
 /// <remarks>
 /// A window of the offscreen driver draws through VK_EXT_headless_surface, and closing it quits
@@ -92,7 +93,7 @@ public sealed class WindowSettingsTests
     {
         using var folder = new TestFolder("window-settings-");
         var path = Path.Combine(folder.Path, "settings.txt");
-        File.WriteAllText(path, "window.mode borderlessfullscreen\nwindow.resizable off\nwindow.width 480\nwindow.height 272\nwindow.scaling nearest\nwindow.vsync on\n");
+        File.WriteAllText(path, "window.mode borderlessfullscreen\nwindow.resizable off\nwindow.resolution 480x272\nrender.filter nearest\nrender.scale 75%\nwindow.vsync on\n");
         var app = Open(path);
         try
         {
@@ -105,17 +106,18 @@ public sealed class WindowSettingsTests
             Run(app, "window.mode").Should().StartWith("window.mode is BorderlessFullscreen");
             Run(app, "window.resizable").Should().StartWith("window.resizable is on",
                 "SDL's offscreen driver gives a window no edges to fix, so the file's line is refused and leaves the file");
-            Run(app, "window.width").Should().StartWith("window.width is 480");
-            Run(app, "window.height").Should().StartWith("window.height is 272");
-            Run(app, "window.scaling").Should().StartWith("window.scaling is Nearest");
+            Run(app, "window.resolution").Should().StartWith("window.resolution is 480x272");
+            Run(app, "render.filter").Should().StartWith("render.filter is Nearest");
+            Run(app, "render.scale").Should().StartWith("render.scale is 75%");
+            window.Sdl.Picture.Should().Be(new Picture { Scale = 0.75f, Filter = PictureFilter.Nearest }, "the file's picture is given before the first frame");
             Run(app, "window.vsync").Should().StartWith("window.vsync is on");
 
             Run(app, "window.mode windowed").Should().Be("window.mode is Windowed.");
             Size(sdl).Should().Be((480, 272), "leaving the mode the window takes the size it has as a window");
             Run(app, "window.mode borderlessfullscreen").Should().Be("window.mode is BorderlessFullscreen.");
-            Run(app, "window.width 512").Should().Be("window.width is 512.", "the size as a window is set while the window covers its screen");
+            Run(app, "window.resolution 512x272").Should().Be("window.resolution is 512x272.", "the size as a window is set while the window covers its screen");
             WindowModes.WindowedSize(window).Should().Be((512, 272), "the size is kept for the window to take as it leaves the mode");
-            Run(app, "window.width").Should().StartWith("window.width is 512");
+            Run(app, "window.resolution").Should().StartWith("window.resolution is 512x272");
             Run(app, "window.mode windowed");
             Size(sdl).Should().Be((512, 272));
             Run(app, "window.resizable off").Should().Be("The system kept the window resizable.",
@@ -123,9 +125,10 @@ public sealed class WindowSettingsTests
             (SDL.GetWindowFlags(sdl) & SDL.WindowFlags.Resizable).Should().NotBe((SDL.WindowFlags)0);
             Run(app, "window.mode borderlessfullscreen");
 
-            File.ReadAllLines(path).Should().BeEquivalentTo(["window.mode BorderlessFullscreen", "window.width 512", "window.height 272", "window.scaling Nearest", "window.vsync on"],
+            File.ReadAllLines(path).Should().BeEquivalentTo(["window.mode BorderlessFullscreen", "window.resolution 512x272", "render.filter Nearest", "render.scale 75%", "window.vsync on"],
                 "each setting set is written, and one back at its default leaves the file");
-            Run(app, "window.scaling linear");
+            Run(app, "render.filter linear");
+            Run(app, "render.scale 100%");
             Run(app, "window.monitor 1").Should().Be("There is one screen, so the window stays on it.",
                 "the offscreen driver has one screen, so the window's screen only reads");
             Run(app, "window.monitor").Should().StartWith("window.monitor is 0");
@@ -135,7 +138,7 @@ public sealed class WindowSettingsTests
             Close(app);
         }
 
-        File.ReadAllLines(path).Should().BeEquivalentTo(["window.mode BorderlessFullscreen", "window.width 512", "window.height 272", "window.vsync on"],
+        File.ReadAllLines(path).Should().BeEquivalentTo(["window.mode BorderlessFullscreen", "window.resolution 512x272", "window.vsync on"],
             "the file written as the program ends holds what it held");
     }
 
@@ -180,9 +183,13 @@ public sealed class WindowSettingsTests
             Run(app, "window.mode borderless").Should().Be("window.mode is Borderless.");
             Standing(sdl).Should().Be(Stands(320, 240, false, Middle(320, 240), frameless: true),
                 "a size under the screen's is a window of that size with no frame in the screen's middle");
-            Run(app, "window.width 400").Should().Be("window.width is 400.");
+            Run(app, "window.resolution 400x240").Should().Be("window.resolution is 400x240.");
             Standing(sdl).Should().Be(Stands(400, 240, false, Middle(400, 240), frameless: true),
-                "setting the width resizes the borderless window at once and keeps it in the middle");
+                "setting the resolution resizes the borderless window at once and keeps it in the middle");
+            Run(app, $"window.resolution {screen.W + 1}x{screen.H}").Should().Be(
+                $"A window takes a size up to its screen's own {screen.W}x{screen.H}, not {screen.W + 1}x{screen.H}.", "a window larger than its screen is refused");
+            Run(app, "window.resolution large").Should().Be("A resolution is native or a width by a height in pixels, as 1280x720, not large.");
+            Standing(sdl).Should().Be(Stands(400, 240, false, Middle(400, 240), frameless: true), "a refused resolution keeps the one before");
 
             Run(app, $"window.size {screen.W} {screen.H}");
             Standing(sdl).Should().Be(Stands(screen.W, screen.H, true, (0, 0), frameless: true), "a size as large as the screen covers it");
@@ -192,12 +199,12 @@ public sealed class WindowSettingsTests
 
             Run(app, "window.mode borderlessfullscreen").Should().Be("window.mode is BorderlessFullscreen.");
             Standing(sdl).Should().Be(Stands(screen.W, screen.H, true, (0, 0), frameless: true), "borderless fullscreen covers the screen at any size set");
-            Run(app, "window.width").Should().StartWith("window.width is 320", "the size set is kept while the window covers its screen");
+            Run(app, "window.resolution").Should().StartWith("window.resolution is native", "the program's own size is kept while the window covers its screen");
             Run(app, "window.mode windowed").Should().Be("window.mode is Windowed.");
             Standing(sdl).Should().Be(asWindow, "the window takes its frame, its size and its place back");
-            // The width back at its default, which the settings of a later window in the process
+            // The resolution back at native, which the settings of a later window in the process
             // would otherwise write into its file.
-            Run(app, "window.width 600");
+            Run(app, "reset window.resolution");
         }
         finally
         {
@@ -206,10 +213,11 @@ public sealed class WindowSettingsTests
     }
 
     [NeedsHeadlessWindowFact]
-    public void Borderless_Fullscreen_Draws_At_The_Size_Set_And_Scales_It_Onto_Its_Screen_As_Window_Scaling_Says()
+    public void The_Scene_Is_Drawn_At_The_Render_Scale_And_Brought_Onto_The_Window_With_The_Interface_Over_It_At_The_Windows_Size()
     {
-        using var folder = new TestFolder("window-scaling-");
+        using var folder = new TestFolder("window-scale-");
         var app = Open(Path.Combine(folder.Path, "settings.txt"));
+        Scene(app);
         try
         {
             var window = app.World.Resource<AppWindow>();
@@ -217,47 +225,120 @@ public sealed class WindowSettingsTests
             // asked.
             Run(app, "time.frame 0.1");
             Frames(app, 1);
-            SDL.GetDisplayBounds(SDL.GetDisplayForWindow(window.Sdl.Window), out var screen);
-            Run(app, "window.size 300 200");
-            Run(app, "window.mode borderlessfullscreen").Should().Be("window.mode is BorderlessFullscreen.");
-            Frames(app, 3);
-            (window.Sdl.Width, window.Sdl.Height).Should().Be((300, 200), "the program is given the size the frames are drawn at");
+            Run(app, "render.scale").Should().StartWith("render.scale is 100%", "the scene is drawn at the window's size unless a scale is set");
+            Run(app, "render.aspect").Should().StartWith("render.aspect is native");
+            Run(app, "window.resolution").Should().StartWith("window.resolution is native");
+            Take(app, shown: false).Width.Should().Be(320, "at the native scale the frame is the window's");
+            var whole = Take(app, shown: true);
+            White(whole, 3, 3).Should().BeTrue("the interface is drawn over the scene, its pixel at 3,3 of the window, not {0}", Said(whole, 3, 3));
 
+            Run(app, "render.scale 50%").Should().Be("render.scale is 50%.");
+            Frames(app, 3);
+            window.Sdl.FramePixels.Should().Be((160, 120));
             var drawn = Take(app, shown: false);
-            (drawn.Width, drawn.Height).Should().Be((300, 200), "the frame is drawn at the size set");
-            Black(drawn, 0, 0).Should().BeFalse("the frame is the clear color to its corner");
+            (drawn.Width, drawn.Height).Should().Be((160, 120), "the frame is drawn at half the window's size");
+            Black(drawn, 159, 119).Should().BeFalse("the scene covers the frame to its corner");
+            var shown = Take(app, shown: true);
+            (shown.Width, shown.Height).Should().Be((320, 240), "the window shows the frame at its own size");
+            Black(shown, 0, 0).Should().BeFalse("the picture covers the window at the window's own shape");
+            White(shown, 3, 3).Should().BeTrue("the interface is drawn over the picture at the window's size, its pixel at 3,3 of the window, not {0} with {1} beside it",
+                Said(shown, 3, 3), Said(shown, 2, 3));
+            White(shown, 2, 3).Should().BeFalse("the interface's pixel is one of the window's, where one of the picture's covers four");
+            White(shown, 4, 3).Should().BeFalse("the interface's pixel is one of the window's, where one of the picture's covers four");
 
-            var fit = Math.Min(screen.W / 300.0, screen.H / 200.0);
-            var (width, height) = ((int)Math.Round(300 * fit), (int)Math.Round(200 * fit));
-            foreach (var scaling in new[] { "linear", "nearest", "sharp" })
-            {
-                Run(app, $"window.scaling {scaling}").Should().StartWith("window.scaling is");
-                var shown = Take(app, shown: true);
-                (shown.Width, shown.Height).Should().Be((screen.W, screen.H), "the window covers the screen as {0}", scaling);
-                var (x, y) = ((screen.W - width) / 2, (screen.H - height) / 2);
-                Black(shown, x, y).Should().BeFalse("the frame's corner is at {0},{1} as {2}", x, y, scaling);
-                Black(shown, x + width - 1, y + height - 1).Should().BeFalse("the frame's far corner is {0} by {1} on as {2}", width, height, scaling);
-                if (x > 0) Black(shown, x - 1, y).Should().BeTrue("the screen left of the frame is black as {0}", scaling);
-                if (y > 0) Black(shown, x, y - 1).Should().BeTrue("the screen over the frame is black as {0}", scaling);
-                if (x + width < screen.W) Black(shown, x + width, y).Should().BeTrue("the screen right of the frame is black as {0}", scaling);
-                if (y + height < screen.H) Black(shown, x, y + height).Should().BeTrue("the screen under the frame is black as {0}", scaling);
-                window.Sdl.ToFrame(x, y).Should().Be((0f, 0f), "the pointer at the frame's corner is at its first pixel as {0}", scaling);
-                window.Sdl.ToFrame(x + width / 2f, y + height / 2f).Should().Be((150f, 100f), "the pointer at the frame's middle is at its middle as {0}", scaling);
-            }
+            Run(app, "render.scale 300%").Should().Be("The scale goes from 50% to 200%, not 300%.");
+            Run(app, "render.scale half").Should().Be("A scale is a percent, as 67%, not half.");
+            Run(app, "render.scale").Should().StartWith("render.scale is 50%", "a refused scale keeps the one before");
 
-            Run(app, "window.mode windowed");
+            // A size of the program's own holds the scale while it is set.
+            WindowModes.SetPicture(window, window.Sdl.Picture with { Size = (200, 100) });
             Frames(app, 3);
-            window.Sdl.Picture.Should().BeNull("a window draws at its own size");
-            (window.Sdl.Width, window.Sdl.Height).Should().Be((300, 200));
-            Take(app, shown: true).Width.Should().Be(300, "the window shows its frames as they are drawn");
-            // The settings back at their defaults, which the settings of a later window in the
-            // process would otherwise write into its file.
-            Run(app, "reset window.scaling");
-            Run(app, "reset time.frame");
-            Run(app, "window.size 600 400");
+            window.Sdl.FramePixels.Should().Be((200, 100), "the program's size stands whatever the scale");
+            using (ConsoleHost.Lend(app.World, app))
+                ConsoleHost.Registry.FindSetting("render.scale")!.Locked.Should().Be(
+                    "The program draws the scene at 200x100 whatever the window's size, so the scale waits until it sets none.");
+            WindowModes.SetPicture(window, window.Sdl.Picture with { Size = null });
+            Frames(app, 3);
+            window.Sdl.FramePixels.Should().Be((160, 120), "the scale set is kept and stands again once the program sets no size");
         }
         finally
         {
+            Run(app, "reset render.scale");
+            Reset(app);
+            Close(app);
+        }
+    }
+
+    [NeedsHeadlessWindowFact]
+    public void A_Picture_Of_Four_To_Three_On_A_Window_Of_Sixteen_To_Nine_Fits_With_Black_Beside_It_Or_Is_Stretched_Over_It()
+    {
+        using var folder = new TestFolder("window-aspect-");
+        var app = Open(Path.Combine(folder.Path, "settings.txt"));
+        Scene(app);
+        try
+        {
+            var window = app.World.Resource<AppWindow>();
+            Run(app, "time.frame 0.1");
+            Frames(app, 1);
+            Run(app, "window.size 320 180");
+            Run(app, "render.aspect 4:3").Should().Be("render.aspect is 4:3.");
+            Run(app, "render.aspect wide").Should().Be("An aspect is native or a width to a height, as 16:9, not wide.");
+            Frames(app, 3);
+            window.Sdl.FramePixels.Should().Be((240, 180), "the largest of four to three inside the window");
+            var drawn = Take(app, shown: false);
+            (drawn.Width, drawn.Height).Should().Be((240, 180));
+
+            Run(app, "render.fit").Should().StartWith("render.fit is Fit");
+            var fit = Take(app, shown: true);
+            (fit.Width, fit.Height).Should().Be((320, 180));
+            Black(fit, 39, 90).Should().BeTrue("the window left of the picture is black");
+            Black(fit, 40, 90).Should().BeFalse("the picture starts 40 pixels in");
+            Black(fit, 279, 90).Should().BeFalse("the picture ends 40 pixels before the window's edge");
+            Black(fit, 280, 90).Should().BeTrue("the window right of the picture is black");
+            window.Sdl.ToPicture(40, 0).Should().Be((0f, 0f), "the pointer at the picture's corner is at its own corner");
+            window.Sdl.ToPicture(160, 90).Should().Be((0.5f, 0.5f), "the pointer at the window's middle is at the picture's");
+            window.Sdl.FromPicture(1, 1).Should().Be((280f, 180f));
+            window.Sdl.PictureArea.Should().Be((40f, 0f, 240f, 180f), "the picture stands 40 units in, 240 across");
+
+            Run(app, "render.fit stretch").Should().Be("render.fit is Stretch.");
+            var stretched = Take(app, shown: true);
+            Black(stretched, 0, 90).Should().BeFalse("the picture is stretched over the whole window");
+            Black(stretched, 319, 90).Should().BeFalse();
+            window.Sdl.ToPicture(0, 0).Should().Be((0f, 0f), "the pointer at the window's corner is at the picture's");
+            window.Sdl.ToPicture(160, 90).Should().Be((0.5f, 0.5f));
+            window.Sdl.PictureArea.Should().Be((0f, 0f, 320f, 180f), "the stretched picture covers the window");
+        }
+        finally
+        {
+            Run(app, "reset render.fit");
+            Run(app, "reset render.aspect");
+            Reset(app);
+            Close(app);
+        }
+    }
+
+    [NeedsHeadlessWindowFact]
+    public void The_Interface_Scale_Sizes_The_Panels_Over_The_Screens_Own_Factor()
+    {
+        using var folder = new TestFolder("window-interface-");
+        var app = Open(Path.Combine(folder.Path, "settings.txt"));
+        try
+        {
+            var window = app.World.Resource<AppWindow>();
+            Frames(app, 1);
+            Run(app, "interface.scale").Should().StartWith("interface.scale is native");
+            InterfaceScale.Over(window.Sdl.DisplayScale).Should().Be(1f, "native is the screen's own factor, which the window's units carry");
+            Run(app, "interface.scale 50%").Should().Be("interface.scale is 50%.");
+            InterfaceScale.Over(window.Sdl.DisplayScale).Should().BeApproximately(0.5f / window.Sdl.DisplayScale, 1e-6f,
+                "the interface at half the size of a screen of factor one");
+            Frames(app, 1);
+            if (ImGuiNET.ImGui.GetCurrentContext() != IntPtr.Zero)
+                ImGuiNET.ImGui.GetIO().FontGlobalScale.Should().BeApproximately(0.5f / window.Sdl.DisplayScale, 1e-6f, "ImGui's text follows it");
+            Run(app, "interface.scale 20%").Should().Be("An interface scale is native or a percent from 50% to 400%, as 125%, not 20%.");
+        }
+        finally
+        {
+            Run(app, "reset interface.scale");
             Close(app);
         }
     }
@@ -279,6 +360,34 @@ public sealed class WindowSettingsTests
         return frame.Pixels[i] + frame.Pixels[i + 1] + frame.Pixels[i + 2] == 0;
     }
 
+    private static string Said((byte[] Pixels, int Width, int Height) frame, int x, int y)
+    {
+        var i = (y * frame.Width + x) * 4;
+        return $"{frame.Pixels[i]},{frame.Pixels[i + 1]},{frame.Pixels[i + 2]}";
+    }
+
+    private static bool White((byte[] Pixels, int Width, int Height) frame, int x, int y)
+    {
+        var i = (y * frame.Width + x) * 4;
+        return frame.Pixels[i] == 255 && frame.Pixels[i + 1] == 255 && frame.Pixels[i + 2] == 255;
+    }
+
+    // Draws, each frame, the scene, a square of one color depth tested over the whole frame, and
+    // the interface over it, a white pixel at 3,3 of the window, both in the window's units from
+    // its top left.
+    private static void Scene(App app) => app.AddSystem(Stage.Update, world =>
+    {
+        var sdl = world.Resource<AppWindow>().Sdl;
+        var (width, height) = (sdl.Width, sdl.Height);
+        var list = world.Resource<DrawList>();
+        var flat = System.Numerics.Matrix4x4.CreateOrthographicOffCenter(0, width, 0, height, -1, 1);
+        list.SetCull(CullMode.None);
+        list.SetTransform(flat, true);
+        list.Quad(new(0, 0, 0), new(0, height, 0), new(width, height, 0), new(width, 0, 0), new Color(64, 96, 160));
+        list.SetTransform(flat, false);
+        list.Quad(new(3, 3, 0), new(3, 4, 0), new(4, 4, 0), new(4, 3, 0), new Color(255, 255, 255));
+    });
+
     // Draws, each frame, columns a pixel wide over the whole frame and rectangles of one to three
     // pixels over them, each of its own color and none black, so a pixel of the frame most often
     // differs from those beside it.
@@ -298,6 +407,10 @@ public sealed class WindowSettingsTests
             for (var x = 0; x < width; x++) Rectangle(list, x, 0, 1, height, columns[x % columns.Length]);
             foreach (var r in rectangles)
                 Rectangle(list, (int)(r.X * width), (int)(r.Y * height), r.Width, r.Height, r.Color);
+            // A shape tested against depth after them, with no area, so they are the scene's and
+            // not the interface's.
+            list.SetTransform(System.Numerics.Matrix4x4.CreateOrthographicOffCenter(0, width, height, 0, -1, 1), true);
+            list.Quad(default, default, default, default, Color.White);
         });
 
         static Color Hue(Random random) => new((byte)random.Next(32, 224), (byte)random.Next(32, 224), (byte)random.Next(32, 224));
@@ -305,18 +418,18 @@ public sealed class WindowSettingsTests
             list.Quad(new(x, y, 0), new(x, y + height, 0), new(x + width, y + height, 0), new(x + width, y, 0), color);
     }
 
-    // The app's window in borderless fullscreen drawing frames of the size the screen's size gives,
-    // and the screen.
+    // The app's window in borderless fullscreen drawing a picture of the size the screen's size
+    // gives, and the screen.
     private static (AppWindow Window, SDL.Rect Screen) Fullscreen(App app, Func<int, int> width, Func<int, int> height)
     {
         var window = app.World.Resource<AppWindow>();
         Run(app, "time.frame 0.1");
         Frames(app, 1);
         SDL.GetDisplayBounds(SDL.GetDisplayForWindow(window.Sdl.Window), out var screen);
-        Run(app, $"window.size {width(screen.W)} {height(screen.H)}");
         Run(app, "window.mode borderlessfullscreen").Should().Be("window.mode is BorderlessFullscreen.");
+        WindowModes.SetPicture(window, window.Sdl.Picture with { Size = (width(screen.W), height(screen.H)) });
         Frames(app, 3);
-        (window.Sdl.Width, window.Sdl.Height).Should().Be((width(screen.W), height(screen.H)));
+        window.Sdl.FramePixels.Should().Be((width(screen.W), height(screen.H)));
         return (window, screen);
     }
 
@@ -326,9 +439,8 @@ public sealed class WindowSettingsTests
     {
         Run(app, "window.mode windowed");
         Frames(app, 3);
-        Run(app, "reset window.scaling");
+        Run(app, "reset render.filter");
         Run(app, "reset time.frame");
-        Run(app, "window.size 600 400");
     }
 
     // A frame pixel and those round it, the nearest first.
@@ -373,7 +485,7 @@ public sealed class WindowSettingsTests
     }
 
     [NeedsHeadlessWindowFact]
-    public void Sharp_Scaling_At_A_Whole_Ratio_Is_Nearest_To_The_Bit()
+    public void The_Sharp_Filter_At_A_Whole_Ratio_Is_Nearest_To_The_Bit()
     {
         using var folder = new TestFolder("window-sharp-whole-");
         var app = Open(Path.Combine(folder.Path, "settings.txt"));
@@ -381,9 +493,9 @@ public sealed class WindowSettingsTests
         try
         {
             var (_, screen) = Fullscreen(app, width => width / 2, height => height / 2);
-            Run(app, "window.scaling nearest");
+            Run(app, "render.filter nearest");
             var nearest = Take(app, shown: true);
-            Run(app, "window.scaling sharp");
+            Run(app, "render.filter sharp");
             var sharp = Take(app, shown: true);
             (sharp.Width, sharp.Height).Should().Be((screen.W, screen.H));
             Black(sharp, screen.W / 2, screen.H / 2).Should().BeFalse("the frame is drawn onto the window");
@@ -397,7 +509,7 @@ public sealed class WindowSettingsTests
     }
 
     [NeedsHeadlessWindowFact]
-    public void Sharp_Scaling_At_One_And_A_Half_Covers_The_Screen_Within_A_Blend_Of_Nearest_And_Its_Neighbors()
+    public void The_Sharp_Filter_At_One_And_A_Half_Covers_The_Screen_Within_A_Blend_Of_Nearest_And_Its_Neighbors()
     {
         using var folder = new TestFolder("window-sharp-half-");
         var app = Open(Path.Combine(folder.Path, "settings.txt"));
@@ -406,9 +518,9 @@ public sealed class WindowSettingsTests
         {
             var (_, screen) = Fullscreen(app, width => width / 3 * 2, height => height / 3 * 2);
             var frame = Take(app, shown: false);
-            Run(app, "window.scaling nearest");
+            Run(app, "render.filter nearest");
             var nearest = Take(app, shown: true);
-            Run(app, "window.scaling sharp");
+            Run(app, "render.filter sharp");
             var sharp = Take(app, shown: true);
             var (x, y, width, height) = Placement.Of(frame.Width, frame.Height, screen.W, screen.H);
             (width == screen.W || height == screen.H).Should().BeTrue("the frame is as large as fits, {0} by {1} on a screen of {2} by {3}", width, height, screen.W, screen.H);
@@ -473,7 +585,7 @@ public sealed class WindowSettingsTests
         {
             Frames(app, 1);
             const string hidden = "The window is hidden, as --hidden or E3D_HIDDEN asks, so its settings only read.";
-            foreach (var name in new[] { "window.mode", "window.scaling", "window.resizable", "window.width", "window.height", "window.monitor", "window.vsync" })
+            foreach (var name in new[] { "window.mode", "window.resolution", "window.resizable", "window.monitor", "window.vsync", "render.scale", "render.filter", "render.aspect", "render.fit" })
             {
                 using (ConsoleHost.Lend(app.World, app)) ConsoleHost.Registry.FindSetting(name)!.Locked.Should().Be(hidden, "{0} only reads while the window is hidden", name);
                 Run(app, $"reset {name}").Should().Be(hidden);
@@ -492,23 +604,23 @@ public sealed class WindowSettingsTests
     {
         using var folder = new TestFolder("window-hidden-kept-");
         var path = Path.Combine(folder.Path, "settings.txt");
-        File.WriteAllText(path, "window.mode borderless\nwindow.width 480\n");
+        File.WriteAllText(path, "window.mode borderless\nwindow.resolution 480x320\n");
         var app = Open(path, hidden: true);
         try
         {
             Frames(app, 1);
             WindowModes.Of(app.World.Resource<AppWindow>()).Should().Be(WindowMode.Windowed, "the page only reads while the window is hidden, so the file's mode is not taken");
             Run(app, "keys.console F7");
-            File.ReadAllLines(path).Should().BeEquivalentTo(["keys.console F7", "window.mode borderless", "window.width 480"],
+            File.ReadAllLines(path).Should().BeEquivalentTo(["keys.console F7", "window.mode borderless", "window.resolution 480x320"],
                 "the file written as another setting is set keeps the lines of the page as they stand");
             Run(app, "reset keys.console");
-            File.ReadAllLines(path).Should().BeEquivalentTo(["window.mode borderless", "window.width 480"]);
+            File.ReadAllLines(path).Should().BeEquivalentTo(["window.mode borderless", "window.resolution 480x320"]);
         }
         finally
         {
             Close(app);
         }
 
-        File.ReadAllLines(path).Should().BeEquivalentTo(["window.mode borderless", "window.width 480"], "the file written as the program ends keeps them too");
+        File.ReadAllLines(path).Should().BeEquivalentTo(["window.mode borderless", "window.resolution 480x320"], "the file written as the program ends keeps them too");
     }
 }

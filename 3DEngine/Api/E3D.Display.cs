@@ -222,16 +222,71 @@ public static partial class E3D
         if (WindowHandle is not 0 and var w) SDL.RaiseWindow(w);
     }
 
-    /// <summary>The width in pixels the window's content is drawn at, which on a doubled monitor is twice <see cref="GetScreenWidth"/>.</summary>
+    /// <summary>
+    /// The width in pixels the scene is drawn at, the picture's (<see cref="SetPicture"/>), which
+    /// at the default picture on a doubled monitor is twice <see cref="GetScreenWidth"/>.
+    /// </summary>
     public static int GetRenderWidth() => RenderSize().Width;
 
-    /// <summary>The height in pixels the window's content is drawn at.</summary>
+    /// <summary>The height in pixels the scene is drawn at, the picture's.</summary>
     public static int GetRenderHeight() => RenderSize().Height;
 
     private static (int Width, int Height) RenderSize()
     {
         if (WindowHandle is not 0 && TryRes<AppWindow>(out var window)) return window.Sdl.FramePixels;
         return (GetScreenWidth(), GetScreenHeight());
+    }
+
+    /// <summary>
+    /// Sets the picture the scene is drawn as and how it stands on the window, its scale, its
+    /// shape, its fit and its filter as the render settings hold them, and a size in pixels it is
+    /// drawn at whatever the window's, which the scale then waits behind until a picture with none
+    /// is set.
+    /// </summary>
+    /// <remarks>
+    /// The interface, ImGui and the overlay are drawn at the window's own size over the picture
+    /// whatever it is. The frames after it are drawn at the new size.
+    /// </remarks>
+    public static void SetPicture(Picture picture)
+    {
+        if (WindowHandle is not 0 && TryRes<AppWindow>(out var window)) WindowModes.SetPicture(window, picture);
+    }
+
+    /// <summary>
+    /// The picture the scene is drawn as, the default one where there is no window.
+    /// </summary>
+    public static Picture GetPicture() =>
+        WindowHandle is not 0 && TryRes<AppWindow>(out var window) ? window.Sdl.Picture : new Picture();
+
+    /// <summary>
+    /// Where the picture stands on the window, in the window's units as the mouse, the shapes and
+    /// <see cref="GetScreenWidth"/> take them, so an interface of the program's own can keep to it
+    /// where the window shows black beside the picture. It is the whole window where the picture
+    /// covers it, and the size <see cref="GetScreenWidth"/> gives where there is no window.
+    /// </summary>
+    public static Rectangle GetPictureArea()
+    {
+        if (WindowHandle is 0 || !TryRes<AppWindow>(out var window)) return new Rectangle(0, 0, GetScreenWidth(), GetScreenHeight());
+        var (x, y, width, height) = window.Sdl.PictureArea;
+        return new Rectangle(x, y, width, height);
+    }
+
+    // A point of the window in its units as the point of the picture under it in the picture's
+    // pixels, and back, the same point where there is no window.
+    private static System.Numerics.Vector2 ToPicturePixels(System.Numerics.Vector2 at)
+    {
+        if (WindowHandle is 0 || !TryRes<AppWindow>(out var window)) return at;
+        var (x, y) = window.Sdl.ToPicture(at.X, at.Y);
+        var (width, height) = window.Sdl.FramePixels;
+        return new System.Numerics.Vector2(x * width, y * height);
+    }
+
+    private static System.Numerics.Vector2 FromPicturePixels(System.Numerics.Vector2 at)
+    {
+        if (WindowHandle is 0 || !TryRes<AppWindow>(out var window)) return at;
+        var (width, height) = window.Sdl.FramePixels;
+        var (x, y) = window.Sdl.FromPicture(at.X / width, at.Y / height);
+        return new System.Numerics.Vector2(x, y);
     }
 
     /// <summary>A monitor's top left corner on the desktop, or zero when there is no such monitor.</summary>

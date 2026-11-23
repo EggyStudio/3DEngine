@@ -226,8 +226,7 @@ public static partial class E3D
     {
         Input.SetMousePosition(x, y);
         if (!TryRes<AppWindow>(out var window)) return;
-        var (atX, atY) = window.Sdl.ToWindow(x, y);
-        SDL.WarpMouseInWindow(window.Sdl.Window, atX, atY);
+        SDL.WarpMouseInWindow(window.Sdl.Window, x, y);
     }
 
     /// <summary>The pointer's vertical position in the window.</summary>

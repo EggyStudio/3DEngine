@@ -47,8 +47,6 @@ internal static class SdlImGuiInput
                 // With viewports on, ImGui measures from the desktop, so a position in the window
                 // the event came from, the main one or a viewport's, is moved by where that window is.
                 var at = new Vector2(e.Motion.X, e.Motion.Y);
-                if (Window is { } main && e.Motion.WindowID == SDL.GetWindowID(main.Window))
-                    (at.X, at.Y) = main.ToFrame(at.X, at.Y);
                 if (SdlImGuiViewports.Enabled) at += SdlImGuiViewports.PositionOf(e.Motion.WindowID);
                 io.AddMousePosEvent(at.X, at.Y);
                 break;

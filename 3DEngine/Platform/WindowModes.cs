@@ -41,6 +41,8 @@ internal static class WindowModes
         public (int X, int Y)? Place;
         public bool Framed = true;
         public WindowMode Chosen;
+        // The size window.resolution set, none for native.
+        public (int Width, int Height)? Resolution;
     }
 
     /// <summary>How the window covers its screen, as SDL holds it and as it was chosen.</summary>
@@ -70,12 +72,7 @@ internal static class WindowModes
     /// own answer is read for it. A size given is set for the window first, as the flat API's
     /// borderless window takes its monitor's.
     /// </remarks>
-    internal static string? Set(AppWindow window, WindowMode mode, (int Width, int Height)? size = null)
-    {
-        var answer = Change(window, mode, size);
-        Picture(window);
-        return answer;
-    }
+    internal static string? Set(AppWindow window, WindowMode mode, (int Width, int Height)? size = null) => Change(window, mode, size);
 
     private static string? Change(AppWindow window, WindowMode mode, (int Width, int Height)? size)
     {
@@ -131,29 +128,91 @@ internal static class WindowModes
             case WindowMode.BorderlessFullscreen:
                 return SDL.SetWindowFullscreenMode(w, IntPtr.Zero) && SDL.SetWindowFullscreen(w, true) ? null : Refusal(mode);
             default:
-                // A mode the program chose for the window (E3D.SetWindowFullscreenMode) is kept.
+                // The mode of the size window.resolution set where the screen lists it, and
+                // otherwise a mode the program chose for the window (E3D.SetWindowFullscreenMode).
+                if (box.Resolution is { } resolution && ListedMode(w, resolution) is { } listed)
+                    return SDL.SetWindowFullscreenMode(w, listed) && SDL.SetWindowFullscreen(w, true) ? null : Refusal(mode);
                 if (SDL.GetWindowFullscreenMode(w) is not null) return SDL.SetWindowFullscreen(w, true) ? null : Refusal(mode);
                 if (FullscreenMode(w) is not { } screen) return $"The system refused the fullscreen window, the screen offering no mode for it. {SDL.GetError()}".TrimEnd();
                 return SDL.SetWindowFullscreenMode(w, screen) && SDL.SetWindowFullscreen(w, true) ? null : Refusal(mode);
         }
     }
 
-    // The frames drawn at the size set while the window is borderless fullscreen, and at the
-    // window's own size otherwise or where the size set is the screen's.
-    private static void Picture(AppWindow window)
+    /// <summary>
+    /// The sizes of the fullscreen modes the window's screen lists, largest first, each once.
+    /// </summary>
+    internal static (int Width, int Height)[] ListedSizes(IntPtr w) =>
+        SDL.GetFullscreenDisplayModes(SDL.GetDisplayForWindow(w), out _) is { } modes ? modes.Select(m => (m.W, m.H)).Distinct().ToArray() : [];
+
+    // The fullscreen mode of the size closest to the screen's own rate, or none where the screen
+    // lists no mode of it.
+    private static SDL.DisplayMode? ListedMode(IntPtr w, (int Width, int Height) size)
     {
-        (int Width, int Height)? picture = null;
-        if (Of(window) == WindowMode.BorderlessFullscreen
-            && WindowedSize(window) is var size && size.Width > 0 && size.Height > 0
-            && !(SDL.GetDisplayBounds(SDL.GetDisplayForWindow(window.Sdl.Window), out var screen) && (screen.W, screen.H) == size))
-            picture = size;
-        if (window.Sdl.Picture == picture) return;
+        var display = SDL.GetDisplayForWindow(w);
+        var rate = SDL.GetDesktopDisplayMode(display) is { } screen ? screen.RefreshRate : 0f;
+        return SDL.GetClosestFullscreenDisplayMode(display, size.Width, size.Height, rate, true, out var closest)
+            && (closest.W, closest.H) == size ? closest : null;
+    }
+
+    /// <summary>
+    /// The window's resolution, the size of its mode in fullscreen and its size as a window
+    /// otherwise, or none for native, the screen's own mode and the size the program made the
+    /// window at.
+    /// </summary>
+    internal static (int Width, int Height)? ResolutionOf(AppWindow window)
+    {
+        if (Of(window) == WindowMode.Fullscreen)
+            return Kept.TryGetValue(window, out var box) ? box.Resolution : null;
+        var size = WindowedSize(window);
+        return size == window.Sdl.Made ? null : size;
+    }
+
+    /// <summary>
+    /// Sets the picture the scene is drawn as, and has the frames drawn again at its size.
+    /// </summary>
+    internal static void SetPicture(AppWindow window, Picture picture)
+    {
         window.Sdl.Picture = picture;
         window.Repicture();
     }
 
-    /// <summary>Sets how frames drawn at a size of their own are scaled onto the window.</summary>
-    internal static void SetScaling(AppWindow window, WindowScaling scaling) => window.Sdl.Scaling = scaling;
+    /// <summary>
+    /// Sets the window's size as a window and as a borderless one, and its mode's in fullscreen, or
+    /// for none the size the program made it at and the screen's own mode, or says why it cannot,
+    /// the size before kept. A window takes any size up to its screen's, and fullscreen only a mode
+    /// the screen lists.
+    /// </summary>
+    internal static string? SetResolution(AppWindow window, (int Width, int Height)? size)
+    {
+        var w = window.Sdl.Window;
+        var mode = Of(window);
+        if (size is { } asked)
+        {
+            if (mode == WindowMode.Fullscreen && ListedMode(w, asked) is null)
+                return $"The screen lists no {asked.Width}x{asked.Height} mode for fullscreen, its modes being {string.Join(", ", ListedSizes(w).Select(s => $"{s.Width}x{s.Height}"))}.";
+            if (mode != WindowMode.Fullscreen && SDL.GetDisplayBounds(SDL.GetDisplayForWindow(w), out var screen)
+                && (asked.Width > screen.W || asked.Height > screen.H))
+                return $"A window takes a size up to its screen's own {screen.W}x{screen.H}, not {asked.Width}x{asked.Height}.";
+        }
+        var box = Kept.GetOrCreateValue(window);
+        var before = box.Resolution;
+        box.Resolution = size;
+        if (mode == WindowMode.Fullscreen)
+        {
+            // The window takes the size as a window too on leaving the mode.
+            if (Request(window, mode, mode) is not { } refused)
+            {
+                box.Size = size ?? window.Sdl.Made;
+                return null;
+            }
+            box.Resolution = before;
+            Request(window, mode, mode);
+            return refused;
+        }
+        var (width, height) = size ?? window.Sdl.Made;
+        SetWindowedSize(window, width, height);
+        return null;
+    }
 
     private static string Refusal(WindowMode mode) => $"The system refused the {Said(mode)} window. {SDL.GetError()}".TrimEnd();
 
@@ -207,7 +266,6 @@ internal static class WindowModes
         // A fullscreen window takes the other screen's mode, and a borderless one covers it or not
         // by the other screen's size.
         if (mode is WindowMode.Fullscreen or WindowMode.Borderless) Request(window, mode, mode);
-        Picture(window);
         if (moved && ((SDL.GetWindowFlags(w) & SDL.WindowFlags.Hidden) != 0 || ScreenOf(w) == screen)) return null;
         return $"The system kept the window on screen {ScreenOf(w)}, placing windows itself. {SDL.GetError()}".TrimEnd();
     }
@@ -223,8 +281,7 @@ internal static class WindowModes
     }
 
     /// <summary>Sets the size set for the window, which a window takes at once, a borderless one
-    /// at once in the middle of its screen, a borderless fullscreen one draws at, and a fullscreen
-    /// one on leaving it.</summary>
+    /// at once in the middle of its screen, and one covering its screen on leaving it.</summary>
     internal static void SetWindowedSize(AppWindow window, int width, int height)
     {
         Kept.GetOrCreateValue(window).Size = (width, height);
@@ -235,9 +292,6 @@ internal static class WindowModes
                 break;
             case WindowMode.Borderless:
                 Set(window, WindowMode.Borderless);
-                break;
-            case WindowMode.BorderlessFullscreen:
-                Picture(window);
                 break;
         }
     }

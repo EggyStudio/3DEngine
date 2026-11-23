@@ -131,11 +131,11 @@ setting goes, so `IsWindowFullscreen` and the setting read the same mode.
 
 `GetScreenWidth` and `GetScreenHeight` give the window's size, which a program reads each frame
 rather than keeping, since a resizable window changes it. On a monitor that doubles its pixels, with
-`ConfigFlags.WindowHighdpi` asked, the content is drawn at `GetRenderWidth` by `GetRenderHeight`,
-twice as many, which `GetWindowScaleDPI` says, while shapes, text and the mouse keep the window's
-units. Without it, on Wayland and macOS, the window is drawn at its size and the desktop scales the
-picture up, as raylib's is. `core_highdpi_demo` sets the two grids side by side.
-`ConfigFlags.WindowTransparent` lets the desktop show through where the frame is cleared to
+`ConfigFlags.WindowHighdpi` asked, the scene is drawn at `GetRenderWidth` by `GetRenderHeight`,
+twice as many at a `render.scale` of 100%, which `GetWindowScaleDPI` says, while shapes, text and
+the mouse keep the window's units. Without it, on Wayland and macOS, the window is drawn at its size
+and the desktop scales the picture up, as raylib's is. `core_highdpi_demo` sets the two grids side
+by side. `ConfigFlags.WindowTransparent` lets the desktop show through where the frame is cleared to
 `Color.Blank`, where the desktop composites windows, and `ConfigFlags.WindowUnfocused` leaves the
 keyboard focus where it is as the window is shown. A minimized window draws nothing, and the
 program's loop goes on as it was, with `ConfigFlags.WindowAlwaysRun` or without it, where raylib's
@@ -357,7 +357,9 @@ it, a page of them for each first word of their names.
 | `ao` | `method` (`Horizons` or `Circular`), `samples`, `filter`, `slope`, `backface`, `boost`, `screen`, `size` (`Half` or `Full`) |
 | `gi` | `rays`, `passes`, the parts a reading leaves out, `history`, `filter`, `screen`, `merge`, `again`, `follow`, `glow`, `through`, `albedo`, `specular`, `normals`, `spread`, `points`, with `meshes`, `cascade`, and the view `show` with `show_cascade` |
 | `field` | `show`, the cascade of the scene's distance field drawn over the window |
-| `window` | `mode` (`Windowed`, `Borderless`, `BorderlessFullscreen` or `Fullscreen`), `scaling` (`Linear`, `Nearest` or `Sharp`), `resizable`, `width` and `height` as a window, `monitor`, `vsync`, and `samples`, which only reads |
+| `window` | `mode` (`Windowed`, `Borderless`, `BorderlessFullscreen` or `Fullscreen`), `resolution` (`native` or a width by a height, as `1280x720`), `resizable`, `monitor`, `vsync`, and `samples`, which only reads |
+| `render` | `scale` (50% to 200%), `filter` (`Linear`, `Nearest` or `Sharp`), `aspect` (`native` or a width to a height, as `4:3`), `fit` (`Fit` or `Stretch`), `fps_limit` (`off` or frames a second) |
+| `interface` | `scale`, `native` or a percent |
 | `imgui` | `viewports` |
 | `time` | `frame`, the seconds a frame moves time by, `E3D_FRAME_TIME` |
 | `live` | `reload`, `E3D_LIVE` |
@@ -379,47 +381,65 @@ flag or its variable. `run.seed` reads the seed the window gave the random gener
 with no window or `imgui.viewports` where SDL's driver places no window on the desktop, is refused
 with the reason, and the value stays as it was.
 
-The `window` page acts on the window at once. `window.mode borderless` makes a window with no frame
-of `window.width` by `window.height` in the middle of the screen it is on, with the desktop round
-it, and a size as large as the screen or larger covers the screen, so a player on a large screen
-sets a smaller size and has a window of exactly that size, one pixel to one pixel. Setting the width
-or the height while it is borderless resizes it at once and keeps it in the middle. `window.mode
-borderlessfullscreen` always covers the screen with no frame and no change of the screen's own mode,
-and draws at `window.width` by `window.height`, copied onto the screen at the end of each frame, so
-a player on a large screen draws fewer pixels and still fills it. `window.scaling` says how,
-`linear` filtered and soft at any size, `nearest` sharp, even at a whole ratio and uneven otherwise,
-and `sharp` with each pixel of the frame a block of one width, a screen pixel across its edge a
-blend of the two it covers, so nothing crawls as the picture moves at any ratio, and the same as
-`nearest` at a whole one. Each keeps the frame's shape, as large as fits in the middle with black
-round it. The program is given
-the size drawn at, so `GetScreenWidth`, the cameras and the pointer are in the frame's pixels, and
-the interface is drawn into the frame with the rest and scaled with it. At the screen's own size the
-frames are drawn at it with no copy. `window.mode fullscreen` takes the screen's mode, and
-`window.mode windowed` gives the window back its frame, its size and its place as a window. A mode
-the system refuses answers with its reason in the console and keeps the mode before. `window.width`
-and `window.height` are that size, kept while the window covers its screen and taken as it leaves
-it, so a player sets the size of the window while it is fullscreen. On Wayland the system places
-each window itself, so a borderless window stands where it puts it. `window.resizable` says whether
-its edges can be dragged, and `window.monitor` moves it, centered, to another screen by its number
-from 0, a fullscreen window staying fullscreen there, and only reads where there is one screen.
-While the window is hidden, as `--hidden` asks, the whole page only reads and the settings file
-keeps the page's lines as they stand, and in a run with no window the window's own settings are
-refused with the reason.
+The `window` page acts on the window at once. `window.resolution` is the window's size as a window
+and as a borderless one, any size up to its screen's, and the mode fullscreen takes, one of those
+the screen lists, which the panel offers in turn. `native` is the size the program opens the window
+at and the screen's own mode. A size larger than the screen, or one the screen lists no fullscreen
+mode of, is refused with the reason, and a line of one in the settings file starts the window at
+native. `window.mode borderless` makes a window with no frame of that size in the middle of the
+screen it is on, with the desktop round it, and a size as large as the screen or larger covers the
+screen, so a player on a large screen sets a smaller size and has a window of exactly that size, one
+pixel to one pixel. Setting the resolution while it is borderless resizes it at once and keeps it in
+the middle. `window.mode borderlessfullscreen` always covers the screen with no frame and no change
+of the screen's own mode, at the screen's size whatever the resolution, `window.mode fullscreen`
+takes the screen's mode of the resolution, and `window.mode windowed` gives the window back its
+frame, its size and its place as a window. A mode the system refuses answers with its reason in the
+console and keeps the mode before. The resolution is kept while the window covers its screen and
+taken as it leaves it, so a player sets the size of the window while it is fullscreen. On Wayland
+the system places each window itself, so a borderless window stands where it puts it.
+`window.resizable` says whether its edges can be dragged, and `window.monitor` moves it, centered,
+to another screen by its number from 0, a fullscreen window staying fullscreen there, and only reads
+where there is one screen. While the window is hidden, as `--hidden` asks, the whole page only reads
+and the settings file keeps the page's lines as they stand, and in a run with no window the window's
+own settings are refused with the reason.
+
+The `render` page is the picture, the scene as it is drawn, which the window shows with the
+interface over it. `render.scale` draws the scene at a share of the window's size, from 50% to 200%,
+so a player on a large screen draws fewer pixels and still fills it, or more for smoother edges.
+`render.aspect` gives the picture a shape of its own, the largest of it inside that size, and
+`render.fit` says how a picture of a shape other than the window's stands on it, `Fit` as large as
+fits in the middle with black round it and `Stretch` over the whole window. `render.filter` says how
+the picture is brought onto the window at a size other than its own, `Linear` filtered and soft at
+any size, `Nearest` sharp, even at a whole ratio and uneven otherwise, and `Sharp` with each pixel
+of the picture a block of one width, a window pixel across its edge a blend of the two it covers, so
+nothing crawls as the picture moves at any ratio, and the same as `Nearest` at a whole one. A
+picture brought down is filtered linearly whatever the filter says. The interface is drawn at the
+window's own size over the picture, the 2D drawn after the last shape drawn with depth, the overlay,
+the console, the panels and ImGui, so its text stays sharp at any scale. `GetScreenWidth` is the
+window's size and `GetRenderWidth` the picture's, and the cameras, `GetScreenToWorldRay`,
+`GetWorldToScreen` and the picking of mesh entities read the window's points through where the
+picture stands on it, and `GetPictureArea` is where that is in the window's units, so an interface
+of the program's own can keep to the picture. `SetPicture` sets the same from code, with a size in
+pixels of the program's own that holds the scale, whose row in the panel then says why it only
+reads. `render.fps_limit` holds the frames a second to a number, beside `window.vsync` and
+`SetTargetFPS`, the fewer of the two where both are set. `interface.scale` sizes the console, the
+panels and the overlay as a share of their size on a screen of scale factor one, `native` taking the
+screen's own factor.
 
 A program whose window is shown keeps the settings a player chooses for the machine, the five keys,
-the `window` page but `samples`, and `imgui.viewports`, in one file, `settings.txt` in a folder of
-the program's name under the system's folder of applications' data,
-`~/.config/<program>/settings.txt` on Linux and `%APPDATA%\<program>\settings.txt` on Windows, the
-program named as its assembly is. It is read as
-the program starts and written as one of them changes and as the program ends. The `window` page's
-lines are given to the window before it is shown, its size first and its mode last, so the first
-frame is shown in the mode and at the size the player left. It keeps what a player set, through the
-console, the panel or the file, and never a value the program set itself, as the vsync or the size
-a window is opened with, and a setting a part of the program adds later takes its line
-then and is written as it is set. A line is a setting's name, a space and its value as a console
-line holds it, as `window.vsync on`, one for each whose value differs from its default, with the
-lines of names this run does not know kept as they stood. A run with no window or a window never
-shown, as a tool or a test drives, reads and writes no file.
+the `window` page but `samples`, the `render` and `interface` pages, and `imgui.viewports`, in one
+file, `settings.txt` in a folder of the program's name under the system's folder of applications'
+data, `~/.config/<program>/settings.txt` on Linux and `%APPDATA%\<program>\settings.txt` on Windows,
+the program named as its assembly is. It is read as the program starts and written as one of them
+changes and as the program ends. The `window` and `render` pages' lines are given to the window
+before it is shown, its resolution first, the picture next and its mode last, so the first frame is
+shown in the mode and at the size the player left. It keeps what a player set, through the console,
+the panel or the file, and never a value the program set itself, as the vsync or the size a window
+is opened with, and a setting a part of the program adds later takes its line then and is written as
+it is set. A line is a setting's name, a space and its value as a console line holds it, as
+`window.vsync on`, one for each whose value differs from its default, with the lines of names this
+run does not know kept as they stood. A run with no window or a window never shown, as a tool or a
+test drives, reads and writes no file.
 
 ## The app underneath
 

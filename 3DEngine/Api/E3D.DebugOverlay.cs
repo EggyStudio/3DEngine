@@ -156,7 +156,10 @@ public static partial class E3D
         DrawList.SetBlend(BlendMode.Alpha);
         DrawList.SetCull(CullMode.None);
         DrawList.SetModel(Matrix4x4.Identity);
-        var (width, height) = (GetScreenWidth(), GetScreenHeight());
+        // Laid out in the window's units over interface.scale, so the whole overlay is drawn larger
+        // or smaller by it.
+        var scale = TryRes<AppWindow>(out var window) ? InterfaceScale.Over(window.Sdl.DisplayScale) : 1f;
+        var (width, height) = ((int)(GetScreenWidth() / scale), (int)(GetScreenHeight() / scale));
         DrawList.SetTransform(Matrix4x4.CreateOrthographicOffCenter(0, width, 0, height, -1, 1), depthTest: false);
 
         var (lines, strip) = LayOutOverlay(overlay, width);

@@ -97,10 +97,13 @@ internal sealed class AppWindow
     /// </remarks>
     public void Looping(params Delegate[] onFrame)
     {
+        var last = System.Diagnostics.Stopwatch.GetTimestamp();
         while (PollEvents())
         {
             foreach (var frame in onFrame)
                 frame?.DynamicInvoke();
+            // Held to render.fps_limit where it is set.
+            last = FramePace.Wait(last, FramePace.Limit);
         }
     }
 
@@ -154,7 +157,7 @@ internal sealed class AppWindow
                 && Minimized)
             {
                 Minimized = false;
-                (coalescedW, coalescedH) = Sdl.Picture ?? WindowSize();
+                (coalescedW, coalescedH) = WindowSize();
                 resizedThisBatch = true;
             }
             if (evtType == SDL.EventType.WindowResized
@@ -168,7 +171,7 @@ internal sealed class AppWindow
                 // GetWindowSize returns logical coordinates on native Wayland,
                 // macOS and iOS, and physical pixels on Windows, X11 (XWayland),
                 // and Android.
-                var (rawW, rawH) = Sdl.Picture ?? WindowSize();
+                var (rawW, rawH) = WindowSize();
                 if (Sdl.NeedsManualHiDpiScaling && resizeScale > 1.001f)
                 {
                     coalescedW = (int)(rawW / resizeScale);
@@ -203,13 +206,12 @@ internal sealed class AppWindow
     }
 
     /// <summary>
-    /// Gives the program the size the frames are drawn at, and has them drawn at it, as the
-    /// frames' own size is set or let go or the way they are scaled changes, which no event of
-    /// the window's says.
+    /// Has the frames drawn again at the picture's size and brought onto the window as it says, as
+    /// the picture changes, which no event of the window's says.
     /// </summary>
     internal void Repicture()
     {
-        var (width, height) = Sdl.Picture ?? WindowSize();
+        var (width, height) = WindowSize();
         if (Sdl.NeedsManualHiDpiScaling && Sdl.DisplayScale > 1.001f)
             (width, height) = ((int)(width / Sdl.DisplayScale), (int)(height / Sdl.DisplayScale));
         if (width <= 0 || height <= 0) return;

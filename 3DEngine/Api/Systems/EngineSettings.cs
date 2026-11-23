@@ -27,7 +27,7 @@ namespace Engine;
 internal static partial class EngineSettings
 {
     /// <summary>Every setting of the engine's, by name.</summary>
-    internal static IReadOnlyList<Setting> All { get; } = [.. Occlusion(), .. Illumination(), .. Window(), .. Running(), .. Run()];
+    internal static IReadOnlyList<Setting> All { get; } = [.. Occlusion(), .. Illumination(), .. Window(), .. Picture(), .. Running(), .. Run()];
 
     // Adds the settings as the engine's assembly loads, as its commands are added, so a line names
     // them in a program that has not drawn yet.

@@ -52,6 +52,24 @@ internal interface IGraphicsDevice : IDisposable
     /// <returns>The framebuffer for the specified swapchain image.</returns>
     IFramebuffer GetSwapchainFramebuffer(uint imageIndex);
 
+    /// <summary>
+    /// The window's own image's framebuffer for the given image index, drawn into by the window's
+    /// pass in <see cref="SwapchainRenderPass"/>'s formats at <see cref="ShownExtent"/>, where the
+    /// frames are drawn at the picture's size of its own, and null where they are drawn at the
+    /// window's.
+    /// </summary>
+    IFramebuffer? GetShownFramebuffer(uint imageIndex) => null;
+
+    /// <summary>The size of the window's own images in pixels, the interface's.</summary>
+    Extent2D ShownExtent => default;
+
+    /// <summary>
+    /// Draws the frame image of the given index onto the window's pass begun on
+    /// <see cref="GetShownFramebuffer"/>, where the window places the picture and filtered as it
+    /// says, and leaves the viewport and scissor over the whole window.
+    /// </summary>
+    void DrawPicture(ICommandBuffer commandBuffer, uint imageIndex) { }
+
     // -- Buffer API
 
     /// <summary>Creates a GPU buffer with the specified descriptor.</summary>

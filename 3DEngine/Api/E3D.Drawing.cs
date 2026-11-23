@@ -230,11 +230,11 @@ public static partial class E3D
 
     // A rectangle of the window's units or a render texture's pixels as the framebuffer's pixels.
     // The window's units are those of mouse positions, which a display with more pixels than that,
-    // as a scaled one has, multiplies into the framebuffer's.
+    // as a scaled one has, multiplies into the window's pixels the interface is drawn at.
     private static ScissorRect PixelsOf(int x, int y, int width, int height)
     {
         var (scaleX, scaleY) = (1f, 1f);
-        if (!_target.IsValid && TryRes<AppWindow>(out var window) && window.Sdl.FramePixels is var (pixelsWide, pixelsHigh)
+        if (!_target.IsValid && TryRes<AppWindow>(out var window) && window.Sdl.Pixels is var (pixelsWide, pixelsHigh)
             && GetScreenWidth() > 0 && GetScreenHeight() > 0)
             (scaleX, scaleY) = ((float)pixelsWide / GetScreenWidth(), (float)pixelsHigh / GetScreenHeight());
         return new ScissorRect((int)(x * scaleX), (int)(y * scaleY), (int)(width * scaleX), (int)(height * scaleY));
@@ -252,7 +252,9 @@ public static partial class E3D
     /// </remarks>
     public static void BeginMode3D(Camera3D camera)
     {
-        var (width, height) = DrawingSize();
+        // The window's camera takes the picture's shape, which its aspect may make other than the
+        // window's.
+        var (width, height) = _target.IsValid ? DrawingSize() : RenderSize();
         var aspect = (float)width / Math.Max(1, height);
         var projection = camera.ProjectionMatrix(aspect);
         // The window's camera, outside a stereo view, moved by its part of a pixel this frame

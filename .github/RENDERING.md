@@ -33,7 +33,14 @@ needs an offline toolchain beyond `slangc`.
   2. **Prepare** uploads what changed (`GpuMeshesPrepare`, `GpuTexturesPrepare`,
      `LightingUboPrepare`) and fills per-frame buffers through `DynamicBufferAllocator`.
   3. **Graph** runs the render graph's nodes in topological order. `MainPassNode` begins and
-     clears the swapchain pass, and the model, immediate and ImGui nodes draw into it. Once the
+     clears the swapchain pass at the picture's size, and the model and immediate nodes draw the
+     scene into it. Where the picture's size is other than the window's, by `render.scale`,
+     `render.aspect` or `SetPicture`, the frames are drawn into images of the device's own, and
+     `PresentNode` ends that pass, begins the window's pass on the window's own image at its size,
+     cleared black, and draws the picture onto it where the window places it (`scaled.slang`, a
+     blend of four loads, the nearest pixel or sharp blocks, by `render.filter`). The interface
+     node and ImGui draw into that pass at the window's size, and where the two sizes are the same
+     `PresentNode` does nothing and they draw on in the one pass. Once the
      pass has ended, a node drawing into windows of its own does so in `AfterWindowPass`, as ImGui's
      does for its viewports, each window's swapchain image acquired as it is drawn, waited on and
      signaled by the frame's one submit and presented by its one present beside the main window's
@@ -168,8 +175,10 @@ growing array of 24-byte vertices (position, texture coordinate and color) and a
 four vertices and six indices. A batch is a run of consecutive shapes with the same topology (lines
 or triangles), transform, depth mode, texture, blend mode and scissor, so a scene of shapes drawn
 through one camera is two batches. Untextured shapes sample a white pixel, so one shader draws
-both. `ImmediateNode` runs after `main_pass` and before ImGui. It writes the frame's vertices and
-indices into the dynamic buffer arena in one copy each and issues one indexed draw per batch with
+both. `ImmediateNode` runs after `main_pass` and draws the batches up to the one after the last
+drawn with depth, the scene's, into the picture, and `InterfaceNode` the rest, the interface's,
+after `present` at the window's size and before ImGui. The vertices and indices are written into
+the dynamic buffer arena in one copy each, and each batch is one indexed draw with
 `immediate.slang`, the batch's transform a push constant. The list is cleared in `First`.
 
 A batch also carries a shader id and four `float4` values. Inside `BeginShaderMode`, the batch draws
@@ -5065,7 +5074,7 @@ read as it is, with the first level added at the intensity over the number of le
 encoded (`composite.slang`). The engine's curve gives way to a clamp in a frame where no light past
 white comes about, with no light, sky, probe, global illumination, particle, bloom or exposure, so a
 world drawn as raylib draws one keeps a color near white as it is (`BloomRenderer.Bends`). The
-models node draws nothing more, and the immediate node draws the batches after the split over it, so
+models node draws nothing more, and the interface node draws the batches after the split over it, so
 a game's interface is never bloomed or tonemapped and keeps raylib's colors, and ImGui after it as
 before. The targets are made the first frame the window shows a scene and again when the window's
 size changes, and those they replace are destroyed four frames later, as are all of them the first

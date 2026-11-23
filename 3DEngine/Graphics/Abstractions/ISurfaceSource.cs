@@ -16,20 +16,27 @@ internal interface ISurfaceSource
     /// <returns>The created <c>VkSurfaceKHR</c> handle as a native integer.</returns>
     nint CreateSurfaceHandle(nint instanceHandle);
 
-    /// <summary>Returns the size in pixels the frames are drawn at.</summary>
+    /// <summary>Returns the size in pixels the frames are drawn at, the picture's.</summary>
     /// <returns>A tuple of (Width, Height) in pixels.</returns>
     (uint Width, uint Height) GetDrawableSize();
 
     /// <summary>
-    /// The size in pixels of the window's own images, which the frames are scaled onto as
-    /// <see cref="Scaling"/> says where it is not <see cref="GetDrawableSize"/>.
+    /// The size in pixels of the window's own images, which the picture is brought onto as <see
+    /// cref="Filter"/> says where it is not <see cref="GetDrawableSize"/>, and the interface is
+    /// drawn at after it.
     /// </summary>
     (uint Width, uint Height) GetShownSize() => GetDrawableSize();
 
     /// <summary>
-    /// How the frames are scaled onto the window's images where the two sizes differ.
+    /// How the picture is brought up onto the window's images where they are larger.
     /// </summary>
-    WindowScaling Scaling => WindowScaling.Linear;
+    PictureFilter Filter => PictureFilter.Linear;
+
+    /// <summary>
+    /// Whether the picture keeps its shape on the window's images with black round it, and
+    /// otherwise covers them whole (<see cref="PictureSize.Bars"/>).
+    /// </summary>
+    bool Bars => false;
 
     /// <summary>
     /// Whether there is no window at all, so the device draws into images of its own and

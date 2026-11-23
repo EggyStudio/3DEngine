@@ -15,8 +15,23 @@ internal sealed class SwapchainTarget
     /// <summary>The framebuffer for the current swapchain image.</summary>
     public IFramebuffer Framebuffer { get; }
 
-    /// <summary>The swapchain extent in pixels.</summary>
+    /// <summary>The swapchain extent in pixels, the picture's size the scene is drawn at.</summary>
     public Extent2D Extent { get; }
+
+    /// <summary>
+    /// The index of the frame's image, which the window's pass draws the picture from.
+    /// </summary>
+    public uint ImageIndex { get; init; }
+
+    /// <summary>
+    /// The framebuffer of the window's own image, which <see cref="PresentNode"/> begins the
+    /// window's pass on, or null where the frames are drawn at the window's size.
+    /// </summary>
+    public IFramebuffer? Shown { get; init; }
+
+    /// <summary>The size of the window's own image in pixels, which the interface is drawn
+    /// at.</summary>
+    public Extent2D ShownExtent { get; init; }
 
     /// <summary>Creates a new swapchain target for the current frame.</summary>
     /// <param name="renderPass">The window's pass.</param>

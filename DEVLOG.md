@@ -44,6 +44,15 @@ under them each part's light over the reference's at full and half through the f
 1.46 and 0.89 on the whole wall at full, the rays' over the reference traced with the copies' colors
 as well, and the GI's milliseconds at the door and in the atrium under the exclusive lock.
 
+![](.github/assets/readings/2026-11-23-item-311-door-rays-scattered.webp)
+scenes_sponza offscreen at 800 by 450 at High at 12:00 at the door, on white under its title, laid
+out as the sheet before it, with each block of the gather's texels taking the strata in its own
+order and each texel its own place in its stratum, the bright texels of the gather at full lying
+apart with no line among them, under each gather its light over the reference's in stops, and under
+them each part's light over the reference's at full and half through the field and the rays, 1.42
+and 0.95 on the whole wall at full, the rays' over the reference traced with the copies' colors as
+well, and the GI's milliseconds at the door and in the atrium under the exclusive lock.
+
 ## 2026-11-22
 
 ![](.github/assets/readings/2026-11-22-item-302-console-overlay.webp)
