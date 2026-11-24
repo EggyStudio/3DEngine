@@ -176,4 +176,48 @@ public sealed class WindowResizeTests : IDisposable
         four.Should().BeGreaterThan(0);
         GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty();
     }
+
+    [NeedsVulkanFact]
+    public void The_Probes_Faces_Are_Made_Again_At_The_Samples_Set_And_Each_Probe_Captured_At_Them()
+    {
+        // A probe in a lit room drawn as a model, captured at the 4 samples the window opened with,
+        // both its passes, and left. Set to 1, its faces are made again at 1 and it is captured
+        // again, where a probe that is never refreshed is otherwise captured no more.
+        Open();
+        CreatePointLight(new Vector3(0, 2, 2), Color.White, 20);
+        var room = LoadModelFromMesh(GenMeshCube(8, 6, 8));
+        room.Materials[0].DoubleSided = true; // seen from inside, where a single-sided cube shows nothing
+        var camera = new Camera3D(new Vector3(0, 0, 3), Vector3.Zero, Vector3.UnitY, 60);
+        void Frames(int count)
+        {
+            for (int frame = 0; frame < count; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawModel(room, Vector3.Zero, 1, new Color(220, 40, 40));
+                EndMode3D();
+                EndDrawing();
+            }
+        }
+        var handle = CreateReflectionProbe(Vector3.Zero, new Vector3(8, 6, 8));
+        Frames(1);
+        var probe = GetApp().World.Resource<ReflectionProbes>().ByEntity.Values.Single();
+        for (int frame = 0; frame < 120 && probe.Passes < ReflectionProbes.Passes; frame++) Frames(1);
+        probe.Passes.Should().BeGreaterThanOrEqualTo(ReflectionProbes.Passes, "the probe is captured twice within a few frames");
+        Frames(30);
+        var models = GetApp().World.Resource<Engine.Renderer>().RenderWorld.Get<ModelRenderer>();
+        models.ProbeFacesSamples.Should().Be(4);
+        var captured = probe.CapturedAt;
+
+        Command("window.samples 1");
+        // The frame that makes the swapchain again, and a capture of six faces, a face a frame.
+        Frames(30);
+        models.ProbeFacesSamples.Should().Be(1, "the faces are made again at the count set");
+        probe.CapturedAt.Should().BeGreaterThan(captured, "the probe is captured again at the count set");
+        IsReflectionProbeReady(handle).Should().BeTrue();
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty();
+        UnloadReflectionProbe(handle);
+        UnloadModel(room);
+    }
 }

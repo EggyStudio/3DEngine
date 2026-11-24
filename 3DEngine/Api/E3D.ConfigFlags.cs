@@ -17,7 +17,7 @@ public static partial class E3D
 
     /// <summary>
     /// How many samples a pixel of the next window is drawn with, 1 for none or 2, 4 or 8, rounded
-    /// down to what the device can do. The engine draws with 4 unless asked.
+    /// down to what the device can do. The engine draws with 2 unless asked.
     /// </summary>
     public static void SetConfigSamples(int samples) => _configSamples = Math.Clamp(samples, 1, 8);
 

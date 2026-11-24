@@ -84,7 +84,7 @@ internal static partial class EngineSettings
         static SurfaceResize? Swapchain() => At()?.TryGetResource<SurfaceResize>(out var held) == true ? held : null;
         yield return Held("window.vsync", "Whether a frame waits for the display, the swapchain made again on the next frame.", false,
             Swapchain, Swapchain, s => s.Vsync, (s, on) => s.RequestVsync(on), Undrawn, saved: true, locked: Hidden);
-        yield return Held("window.samples", "The samples a pixel the window and the scene are drawn with, 1 for none or 2, 4 or 8, rounded down to what the device can do, the swapchain and the scene's target made again on the next frame.", 4,
+        yield return Held("window.samples", "The samples a pixel the window and the scene are drawn with, 1 for none or 2, 4 or 8, rounded down to what the device can do, the swapchain and the scene's target made again on the next frame.", 2,
             Swapchain, Swapchain, s => s.Samples, (s, samples) => s.RequestSamples(samples), Undrawn, low: 1, high: 8, step: 1, saved: true,
             locked: () => Hidden() ?? E3D.SamplesAsked());
         yield return new Setting<bool>("imgui.viewports", "Whether ImGui's windows may leave the program's window for windows of their own, where SDL's driver places windows on the desktop.",

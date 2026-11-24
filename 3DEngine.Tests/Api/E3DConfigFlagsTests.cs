@@ -15,7 +15,7 @@ public sealed class E3DConfigFlagsTests : IDisposable
     {
         var config = ConfigFor(800, 450, "plain");
 
-        config.Samples.Should().Be(4);
+        config.Samples.Should().Be(2);
         (config.Resizable, config.Vsync, config.Undecorated, config.Fullscreen).Should().Be((false, false, false, false),
             "a raylib window is resized only when FLAG_WINDOW_RESIZABLE asks");
         config.WindowData.Should().Be(new WindowData("plain", 800, 450));

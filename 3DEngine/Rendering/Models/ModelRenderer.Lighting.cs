@@ -379,8 +379,15 @@ internal sealed partial class ModelRenderer
         _environmentSource = environment;
     }
 
-    // The six faces a probe is drawn into, made for the first capture and kept for the next.
+    // The six faces a probe is drawn into, made for the first capture and kept for the next, and
+    // the samples a pixel they were made with, the window's then.
     private RenderTarget[]? _probeFaces;
+    private int _probeFacesSamples;
+
+    /// <summary>
+    /// The samples a pixel the probes' faces are drawn with, or 0 before the first capture.
+    /// </summary>
+    internal int ProbeFacesSamples => _probeFaces is null ? 0 : _probeFacesSamples;
 
     // The key a probe's faces take their lights by, apart from every render target's id, which the
     // view mirrored in a program's plane takes them by too (MirrorRenderer).
@@ -418,6 +425,17 @@ internal sealed partial class ModelRenderer
         if (renderWorld.TryGet<ModelDrawList>() is not { IsEmpty: false } draws) return;
         var source = draws.WindowViewProjection is not null ? 0 : draws.Targets() is [var first, ..] ? first : (int?)null;
         if (source is null) return;
+        // Faces made before the window's samples were set are made again at its count, the capture
+        // under way drawn again from its first face and every probe captured again in turn, so
+        // each probe's map is drawn at the window's count. The swapchain was made again after
+        // the device went idle, so no frame in flight draws into the faces let go.
+        if (_probeFaces is not null && _probeFacesSamples != device.Samples)
+        {
+            foreach (var made in _probeFaces) _retiredCubes.Add((_frames, made));
+            _probeFaces = null;
+            if (_capture is not null) _capture.Next = 0;
+            foreach (var probe in probes.ByEntity.Values) probe.Stale = true;
+        }
         if (_capture is null)
         {
             // A capture a placement or a change of lights needs comes before a refresh, and the
@@ -446,6 +464,7 @@ internal sealed partial class ModelRenderer
         {
             // Half floats, so a lamp or a sunlit wall comes back as bright as it was drawn.
             _probeFaces = [.. Enumerable.Range(0, 6).Select(_ => device.CreateRenderTarget(ProbeFaceSize, ProbeFaceSize, ImageFormat.R16G16B16A16_Float))];
+            _probeFacesSamples = device.Samples;
             for (int f = 0; f < 6; f++) device.Name(_probeFaces[f].ColorView.Image, $"Reflection probe face {f}");
         }
         // Cleared to the window's clear color in linear light, so an opening shows what the window
