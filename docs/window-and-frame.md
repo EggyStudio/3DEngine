@@ -358,7 +358,7 @@ it, a page of them for each first word of their names.
 | `ao` | `method` (`Horizons` or `Circular`), `samples`, `filter`, `slope`, `backface`, `boost`, `screen`, `size` (`Half` or `Full`) |
 | `gi` | `rays`, `passes`, the parts a reading leaves out, `history`, `filter`, `screen`, `merge`, `again`, `follow`, `glow`, `through`, `albedo`, `specular`, `normals`, `spread`, `points`, with `meshes`, `cascade`, and the view `show` with `show_cascade` |
 | `field` | `show`, the cascade of the scene's distance field drawn over the window |
-| `window` | `mode` (`Windowed`, `Borderless`, `BorderlessFullscreen` or `Fullscreen`), `resolution` (`native` or a width by a height, as `1280x720`), `resizable`, `monitor`, `vsync`, and `samples`, which only reads |
+| `window` | `mode` (`Windowed`, `Borderless`, `BorderlessFullscreen` or `Fullscreen`), `resolution` (`native` or a width by a height, as `1280x720`), `resizable`, `monitor`, `vsync` and `samples` (1, 2, 4 or 8) |
 | `render` | `scale` (50% to 200%), `filter` (`Linear`, `Nearest` or `Sharp`), `aspect` (`native` or a width to a height, as `4:3`), `fit` (`Fit` or `Stretch`), `fps_limit` (`off` or frames a second) |
 | `interface` | `scale`, `native` or a percent |
 | `imgui` | `viewports` |
@@ -373,10 +373,14 @@ it, a page of them for each first word of their names.
 A setting's name alone reads it, `gi.merge`, its name and a value sets it, `gi.merge off`, and
 `reset gi.merge` puts its default back, in the console, from `./e3d command` or in the panel,
 where Left and Right step it. A value an environment variable gives holds for the run and a set is
-kept for the file alone. The `run` settings and `window.samples` say how the run was started, by
-its command line or its variables, and only read, since no start reads a value set while the
-program runs, so a set of one is refused and the tool starting the program gives them with its
-flag or its variable. `run.seed` reads the seed the window gave the random generator, the one
+kept for the file alone. The `run` settings say how the run was started, by its command line or its
+variables, and only read, since no start reads a value set while the program runs, so a set of one
+is refused and the tool starting the program gives them with its flag or its variable.
+`window.samples` sets the samples a pixel the window and the scene are drawn with, rounded down to
+what the device can do, the swapchain and the scene's target made again on the next frame, and the
+reflection probes' faces, made once, keep the count they were made with until the next start. It
+only reads where the program asks its own count with `SetConfigSamples` or `FLAG_MSAA_4X_HINT` or
+the run gives one with `--samples` or `E3D_SAMPLES`. `run.seed` reads the seed the window gave the random generator, the one
 `--seed` or `E3D_SEED` names or the clock's seconds where neither does, so a run is repeated with
 `--seed`. A set the app cannot apply, as `gi.merge` with global illumination off, `window.vsync`
 with no window or `imgui.viewports` where SDL's driver places no window on the desktop, is refused
@@ -427,7 +431,7 @@ two where both are set. `interface.scale` sizes the console, the panels and the 
 of their size on a screen of scale factor one, `native` taking the screen's own factor.
 
 A program whose window is shown keeps the settings a player chooses for the machine, the five keys,
-the `window` page but `samples`, the `render` and `interface` pages, and `imgui.viewports`, in one
+the `window` page, the `render` and `interface` pages, and `imgui.viewports`, in one
 file, `settings.txt` in a folder of the program's name under the system's folder of applications'
 data, `~/.config/<program>/settings.txt` on Linux and `%APPDATA%\<program>\settings.txt` on Windows,
 the program named as its assembly is. It is read as the program starts and written as one of them

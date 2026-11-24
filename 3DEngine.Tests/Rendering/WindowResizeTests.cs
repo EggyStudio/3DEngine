@@ -137,4 +137,43 @@ public sealed class WindowResizeTests : IDisposable
 
         GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty();
     }
+
+    [NeedsVulkanFact]
+    public void A_Settings_Screen_Changes_The_Samples_While_Frames_Are_Drawn()
+    {
+        // The window opened at 4 samples a pixel, set to 1 and to 2 as a settings screen sets
+        // them, the swapchain, the window's depth and the scene's frame made again at each count
+        // on the next frame. The cube is drawn unlit, so at 1 sample no pixel of its edges lies
+        // between its color and the background's, and at 2 and 4 some do.
+        Open();
+        var device = (GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!;
+        int Mixed(Image image)
+        {
+            var (cube, background) = (GetImageColor(image, 80, 60), GetImageColor(image, 150, 110));
+            static int Apart(Color a, Color b) => Math.Abs(a.R - b.R) + Math.Abs(a.G - b.G) + Math.Abs(a.B - b.B);
+            int mixed = 0;
+            // Below the line of text, whose glyphs are smoothed whatever the count.
+            for (int y = 20; y < image.Height; y++)
+                for (int x = 0; x < image.Width; x++)
+                {
+                    var c = GetImageColor(image, x, y);
+                    if (Apart(c, cube) > 24 && Apart(c, background) > 24) mixed++;
+                }
+            return mixed;
+        }
+
+        var four = Mixed(Capture());
+        device.Samples.Should().Be(4);
+        Command("window.samples 1").Should().Be("window.samples is 1.");
+        var one = Mixed(Capture());
+        device.Samples.Should().Be(1, "the swapchain and the frame are made again at the count set");
+        Command("window.samples 2");
+        var two = Mixed(Capture());
+        device.Samples.Should().Be(2);
+
+        one.Should().Be(0, $"at 1 sample no pixel of the cube's edges is mixed, where at 2 and 4 {two} and {four} are");
+        two.Should().BeGreaterThan(0);
+        four.Should().BeGreaterThan(0);
+        GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty();
+    }
 }

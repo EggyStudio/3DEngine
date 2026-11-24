@@ -152,7 +152,7 @@ internal sealed class RenderPlugin : IPlugin
 
         // The resize the window or an offscreen run asks for, carried out by the render system
         // once none has come for a moment.
-        var resize = new SurfaceResize(renderer, cfg.Vsync);
+        var resize = new SurfaceResize(renderer, cfg.Vsync, cfg.Samples);
         app.World.InsertResource(resize);
 
         if (window is null)
@@ -236,6 +236,11 @@ internal sealed class RenderPlugin : IPlugin
                     resize.VsyncChanged = false;
                     r.Context.SetVsync(resize.Vsync);
                 }
+                if (resize.SamplesChanged)
+                {
+                    resize.SamplesChanged = false;
+                    r.Context.SetSamples(resize.Samples);
+                }
                 Logger.Info("Debounce elapsed, resizing the renderer (swapchain, allocator and camera)...");
                 r.Context.OnResize();
             }
@@ -291,10 +296,11 @@ internal sealed class SurfaceResize
 {
     private readonly Renderer _renderer;
 
-    internal SurfaceResize(Renderer renderer, bool vsync)
+    internal SurfaceResize(Renderer renderer, bool vsync, int samples)
     {
         _renderer = renderer;
         Vsync = vsync;
+        Samples = samples;
     }
 
     /// <summary>Whether a resize waits to be carried out.</summary>
@@ -305,6 +311,15 @@ internal sealed class SurfaceResize
 
     // A change of vsync not yet carried out.
     internal bool VsyncChanged { get; set; }
+
+    /// <summary>
+    /// The samples a pixel the window is drawn with, as asked for last, which the next rebuild
+    /// carries out rounded down to what the device can do.
+    /// </summary>
+    public int Samples { get; private set; }
+
+    // A change of the samples not yet carried out.
+    internal bool SamplesChanged { get; set; }
 
     /// <summary>The seconds of frames since the last resize was asked for.</summary>
     internal double Waited { get; set; }
@@ -335,6 +350,21 @@ internal sealed class SurfaceResize
         VsyncChanged = true;
         Pending = true;
         // Carried out on the next frame, as nothing is being dragged that more requests follow.
+        Waited = double.PositiveInfinity;
+    }
+
+    /// <summary>
+    /// Asks for the window and the scene to be drawn with <paramref name="samples"/> a pixel, 1 to
+    /// 8, which makes the swapchain and the targets drawn at the window's samples again on the next
+    /// frame. A target a pass made before keeps the samples it was made with.
+    /// </summary>
+    public void RequestSamples(int samples)
+    {
+        samples = Math.Clamp(samples, 1, 8);
+        if (samples == Samples) return;
+        Samples = samples;
+        SamplesChanged = true;
+        Pending = true;
         Waited = double.PositiveInfinity;
     }
 }

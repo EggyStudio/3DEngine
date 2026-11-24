@@ -228,6 +228,14 @@ internal sealed class RendererContext : IDisposable
         if (_graphics is GraphicsDevice device) device.Vsync = vsync;
     }
 
+    /// <summary>
+    /// Sets the samples a pixel the window is drawn with, which the next resize carries out.
+    /// </summary>
+    public void SetSamples(int samples)
+    {
+        if (_graphics is GraphicsDevice device) device.RequestedSamples = samples;
+    }
+
     /// <summary>Handles a resize event by recreating the swapchain, dynamic allocator, and camera resources.</summary>
     public void OnResize()
     {

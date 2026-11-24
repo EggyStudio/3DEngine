@@ -106,7 +106,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         Logger.Info("Step 5/6: Creating swapchain resources (swapchain, image views, depth buffer and command pool)...");
         sw.Restart();
         CreateSwapchainResources();
-        Logger.Info($"Step 5/6: Swapchain resources created in {sw.ElapsedMilliseconds}ms ({_swapchainImages.Length} images, {_swapchainExtent.width}x{_swapchainExtent.height}, format={_swapchainFormat})");
+        Logger.Info($"Step 5/6: Swapchain resources created in {sw.ElapsedMilliseconds}ms ({_swapchainImages.Length} images, {_swapchainExtent.width}x{_swapchainExtent.height}, format={_swapchainFormat}, samples={Samples})");
 
         Logger.Info("Step 6/6: Creating synchronization objects, the semaphores and fences of each frame in flight...");
         sw.Restart();
@@ -154,7 +154,7 @@ internal sealed partial class GraphicsDevice : IGraphicsDevice
         CreateSwapchainResources();
         _resizeVersion++;
         _suboptimalLogged = false;
-        Logger.Info($"Swapchain resized to {_swapchainExtent.width}x{_swapchainExtent.height} (revision={_resizeVersion}, images={_swapchainImages.Length})");
+        Logger.Info($"Swapchain resized to {_swapchainExtent.width}x{_swapchainExtent.height} (revision={_resizeVersion}, images={_swapchainImages.Length}, samples={Samples})");
     }
 
     /// <inheritdoc />

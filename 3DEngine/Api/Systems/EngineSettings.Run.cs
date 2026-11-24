@@ -31,9 +31,6 @@ internal static partial class EngineSettings
         yield return new Setting<uint>("run.seed", "The seed InitWindow gave the random generator, as --seed or E3D_SEED gives it or the clock's seconds where neither does, so a run seeded by the clock is run again with --seed.", 0,
             () => E3D.WindowSeed)
         { ReadOnly = true, Saved = false };
-        yield return new Setting<int>("window.samples", "The samples a pixel the window is drawn with where the program asks none, as --samples or E3D_SAMPLES gives it.", 4,
-            () => _started is { } config ? Math.Clamp(config.Samples, 1, 8) : 4)
-        { ReadOnly = true, Saved = false, Low = 1, High = 8 };
         yield return new Setting<string>("run.shuffle", $"The seed each stage's systems are shuffled by as the app starts, so a run finds a system leaning on an order nothing asks for, or empty for none, as {Schedule.ShuffleSeedVariable} gives it.", "",
             () => Environment.GetEnvironmentVariable(Schedule.ShuffleSeedVariable) ?? "")
         { ReadOnly = true, Saved = false };

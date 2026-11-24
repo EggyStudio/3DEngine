@@ -28,12 +28,12 @@ a program given by its path, serving, and returns once it is ready:
 | `--headless` | `E3D_HEADLESS=1` | Has no window and no renderer, frames paced at 60 a second |
 | `--frames N` | `E3D_FRAMES=N` | Closes after N frames |
 | `--frame-time S` | `E3D_FRAME_TIME=S` | Advances time by S seconds a frame and reads no clock, so a capture of something moving is the same on every machine |
-| `--samples N` | `E3D_SAMPLES=N` | Draws a window with N samples a pixel where its program asks for none, 1 drawing as raylib does |
+| `--samples N` | `E3D_SAMPLES=N` | Draws a window with N samples a pixel where its program asks for none, over `window.samples` for the run, 1 drawing as raylib does |
 | `--seed N` | `E3D_SEED=N` | Seeds the random generator with N as the window opens, in place of the clock, so a program that sets no seed places things alike each run |
 | `--live`, `--no-live` | `E3D_LIVE=1`, `E3D_LIVE=0` | Loads again the files it loaded by name as they are saved, or does not, whatever its config says ([Editing while it runs](editing-while-running.md)) |
 
 Each flag's value is a setting a running program reads back. `run.serve`, `run.hidden`,
-`run.offscreen`, `run.headless`, `run.frames`, `window.samples` and `run.seed` only read, the seed
+`run.offscreen`, `run.headless`, `run.frames` and `run.seed` only read, the seed
 the clock's seconds where the run names none, and the variable of `time.frame` or `live.reload`
 overrides it, so a set of either holds for the run only where the variable is unset. A hidden or offscreen run draws everything a visible one
 does, so captures show the game as a player sees it. `./e3d status` says what is serving, and `./e3d stop` closes it, as its close

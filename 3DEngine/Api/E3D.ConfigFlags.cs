@@ -21,6 +21,14 @@ public static partial class E3D
     /// </summary>
     public static void SetConfigSamples(int samples) => _configSamples = Math.Clamp(samples, 1, 8);
 
+    // Why window.samples only reads, where the program or the run asks the window's samples, which
+    // the setting would undo, or null where neither does.
+    internal static string? SamplesAsked() =>
+        _configSamples is not null ? "The program asks its window's samples with SetConfigSamples, so the setting only reads."
+        : _configFlags.HasFlag(ConfigFlags.Msaa4xHint) ? "The program asks 4 samples with FLAG_MSAA_4X_HINT, so the setting only reads."
+        : RunMode.Samples(0) > 0 ? "The run's samples are given by --samples or E3D_SAMPLES, so the setting only reads."
+        : null;
+
     // The config InitWindow opens its window with, from the flags asked for.
     internal static Config ConfigFor(int width, int height, string title)
     {

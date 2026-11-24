@@ -55,11 +55,11 @@ public sealed class EngineSettingsTests : IDisposable
         EngineSettings.All.Should().OnlyContain(setting => ReferenceEquals(ConsoleHost.Registry.FindSetting(setting.Name), setting),
             "each setting is reached from a line by its name");
         EngineSettings.All.Where(setting => setting.Saved).Select(setting => setting.Name)
-            .Should().BeEquivalentTo(["window.mode", "window.resolution", "window.resizable", "window.monitor", "window.vsync", "imgui.viewports",
+            .Should().BeEquivalentTo(["window.mode", "window.resolution", "window.resizable", "window.monitor", "window.vsync", "window.samples", "imgui.viewports",
                     "render.scale", "render.filter", "render.aspect", "render.fit", "render.fps_limit", "interface.scale"],
                 "the file keeps what a player chooses for the machine and none of the run's");
         EngineSettings.All.Where(setting => setting.ReadOnly).Select(setting => setting.Name).Should().BeEquivalentTo(
-            ["run.frames", "run.serve", "run.headless", "run.offscreen", "run.hidden", "run.seed", "window.samples", "run.shuffle",
+            ["run.frames", "run.serve", "run.headless", "run.offscreen", "run.hidden", "run.seed", "run.shuffle",
                 "run.sessions", "run.validation", "run.slangc"],
             "how a tool started the run only reads, since no start reads a value set while the program runs");
         EngineSettings.All.Should().NotContain(setting => setting.AtNextStart, "no setting of the engine's waits for a start");
