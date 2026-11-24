@@ -39,7 +39,11 @@ internal sealed unsafe class ReferenceTracer(GraphicsDevice device) : IDisposabl
     /// <summary>The textures the reference reads its copies' colors and normals from at most, as <c>gi_reference.slang</c>'s <c>ReferenceTextures</c> has them, the white one first.</summary>
     internal const int ReferenceTextures = 256;
 
-    /// <summary>The bytes of a copy's look as <c>gi_reference.slang</c>'s <c>CopyLook</c> reads it, its textures' slots and its strength, then its color before the texture.</summary>
+    /// <summary>
+    /// The bytes of a copy's look as <c>gi_reference.slang</c>'s <c>CopyLook</c> reads it, its
+    /// textures' slots, its strength and its blend, then its color before the texture and whether
+    /// its back faces are drawn.
+    /// </summary>
     internal const int ReferenceLookBytes = 32;
 
     /// <summary>

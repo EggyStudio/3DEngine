@@ -653,6 +653,10 @@ public float4 tracedReflectionPlaced(float3 p, float3 n, float3 r, float roughne
 }
 
 #if defined(RAY_QUERY)
+// The mask of the copies that stand solid, which a reflection's rays meet, the blended ones held
+// apart for the path traced reference alone (GpuRayScenes.SolidMask).
+static const uint RaySolidMask = 0x01u;
+
 // A corner's color, linear, as the model pass brings a vertex's color in.
 float3 rayCornerColor(float4 corner)
 {
@@ -669,7 +673,7 @@ bool rayBlocked(float3 p, float3 way, float reach = 1e4)
     ray.Direction = way;
     ray.TMin = 0.0;
     ray.TMax = reach;
-    query.TraceRayInline(rayScene, RAY_FLAG_NONE, 0xFF, ray);
+    query.TraceRayInline(rayScene, RAY_FLAG_NONE, RaySolidMask, ray);
     query.Proceed();
     return query.CommittedStatus() == COMMITTED_TRIANGLE_HIT;
 }
@@ -687,7 +691,7 @@ float4 rayReflection(float3 p, float3 way)
     ray.Direction = way;
     ray.TMin = 0.0;
     ray.TMax = 1e4;
-    query.TraceRayInline(rayScene, RAY_FLAG_NONE, 0xFF, ray);
+    query.TraceRayInline(rayScene, RAY_FLAG_NONE, RaySolidMask, ray);
     query.Proceed();
     if (query.CommittedStatus() != COMMITTED_TRIANGLE_HIT)
         return float4(0.0);

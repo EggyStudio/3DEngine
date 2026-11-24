@@ -26,6 +26,10 @@ StructuredBuffer<RaySurface> raySurfaces;
 [[vk::binding(20, 0)]]
 StructuredBuffer<float4> rayCorners;
 
+// The mask of the copies that stand solid, which a probe's ray meets, the blended ones held apart
+// for the path traced reference alone (GpuRayScenes.SolidMask), as the field leaves them out.
+static const uint SolidMask = 0x01u;
+
 // A corner's color, linear, as the model pass brings a vertex's color in.
 public float3 meshCornerColor(float4 corner)
 {
@@ -47,7 +51,7 @@ public float meshHit(float3 origin, float3 way, float reach, out float3 n, out f
     ray.Direction = way;
     ray.TMin = 0.0;
     ray.TMax = reach;
-    query.TraceRayInline(rayScene, RAY_FLAG_NONE, 0xFF, ray);
+    query.TraceRayInline(rayScene, RAY_FLAG_NONE, SolidMask, ray);
     query.Proceed();
     if (query.CommittedStatus() != COMMITTED_TRIANGLE_HIT)
         return -1.0;
@@ -93,7 +97,7 @@ public float meshEntered(float3 origin, float3 way, float tMin, float reach, out
     ray.Direction = way;
     ray.TMin = tMin;
     ray.TMax = reach;
-    query.TraceRayInline(rayScene, RAY_FLAG_NONE, 0xFF, ray);
+    query.TraceRayInline(rayScene, RAY_FLAG_NONE, SolidMask, ray);
     while (query.Proceed())
     {
         uint met = query.CandidateInstanceID();
@@ -127,7 +131,7 @@ public float meshDepthInside(float3 origin, float3 way, float t, uint copy)
     ray.Direction = way;
     ray.TMin = t + 1e-4;
     ray.TMax = t + 256.0;
-    query.TraceRayInline(rayScene, RAY_FLAG_NONE, 0xFF, ray);
+    query.TraceRayInline(rayScene, RAY_FLAG_NONE, SolidMask, ray);
     float leaves = 1e30, other = 1e30;
     while (query.Proceed())
     {
@@ -160,7 +164,7 @@ public struct MeshSun : ISunShadow
         ray.Direction = lights.sunDirection.xyz;
         ray.TMin = 0.0;
         ray.TMax = 1e5;
-        query.TraceRayInline(rayScene, RAY_FLAG_NONE, 0xFF, ray);
+        query.TraceRayInline(rayScene, RAY_FLAG_NONE, SolidMask, ray);
         query.Proceed();
         return query.CommittedStatus() == COMMITTED_TRIANGLE_HIT ? 0.0 : 1.0;
     }

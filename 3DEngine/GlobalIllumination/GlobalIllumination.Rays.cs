@@ -10,7 +10,8 @@ internal sealed partial class GlobalIlluminationRenderer
     // The window's meshes for the device's ray tracing, which a reflection the field misses is
     // traced through, at the top quality where the device and the model pass trace rays, a
     // skinned mesh, whose posed shape no vertices on the CPU hold, left out, and each marked
-    // where global illumination carries it as a glow light, for a probe's reference.
+    // where global illumination carries it as a glow light, for a probe's reference. The meshes
+    // the field leaves out as blended go in apart, for the path traced reference alone.
     private void RecordRays(RenderContext renderContext, RenderWorld renderWorld, GraphicsDevice device, SceneFieldPlan? plan)
     {
         if (renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality == GlobalIllumination.High && device.CanQueryRays && renderWorld.TryGet<ModelRenderer>() is { TracesRays: true }
@@ -26,6 +27,11 @@ internal sealed partial class GlobalIlluminationRenderer
             foreach (var (instance, skinned) in fields.Drawn)
                 if (!skinned && fields.HoldsTriangles(instance.Vertices)) copies.Add(new RayInstance(instance.Vertices, instance.World, instance.Color, instance.Emission, instance.Roughness, instance.Metallic,
                     plan is not null && fields.Carried(instance, plan.CellSize), instance.LightThrough, instance.Texture, instance.NormalMap, instance.NormalScale, instance.Tint));
+            // The blended copies after every solid one, so a solid copy's place among them is the
+            // same with them as without.
+            foreach (var (instance, blend) in fields.Blended)
+                copies.Add(new RayInstance(instance.Vertices, instance.World, instance.Color, instance.Emission, instance.Roughness, instance.Metallic, false, 0,
+                    instance.Texture, instance.NormalMap, instance.NormalScale, instance.Tint, blend, instance.DoubleSided));
             try
             {
                 _retired.Add((_frame, device.RecordRayScene(renderContext.CommandBuffer, _rays, copies, mesh => fields.CornersOf((ModelVertex[])mesh),

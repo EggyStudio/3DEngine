@@ -107,11 +107,19 @@ StructuredBuffer<float2> cornerUvs;
 struct CopyLook
 {
     // x: the slot in textures of the copy's color texture, 0 for none, where the copy's color
-    // stands for it. y: its normal map's, 0 for none. z: the bits of the map's strength.
+    // stands for it. y: its normal map's, 0 for none. z: the bits of the map's strength. w: the
+    // bits of its blend, its material's alpha where the model pass blends it at less than half of
+    // it, as a decal, and 0 for a copy that stands solid.
     uint4 slots;
     // rgb: the copy's color before its texture, linear, which the texture's color is multiplied by.
+    // w: 1 where its back faces are drawn.
     float4 tint;
 };
+
+// The masks the scene holds its copies under (GpuRayScenes), the solid ones that every query meets
+// and the blended ones that the reference alone meets.
+static const uint SolidMask = 0x01u;
+static const uint BlendedMask = 0x02u;
 
 // Each copy's textures, in the order of surfaces (BounceReference).
 [[vk::binding(8, 0)]]
@@ -170,17 +178,23 @@ float3 lampArriving(Lamp lamp, float3 p, float3 n, out float3 toward, out float 
     return lamp.colorAndShadow.rgb * result;
 }
 
-// Whether a ray from p along way meets any mesh within reach.
+// Whether a ray from p along way meets any mesh within reach, a blended copy as blendedMet says,
+// drawn by the place the ray leaves from, as the shadow pass keeps a blended surface's texels as
+// often as it is opaque.
 bool blocked(float3 p, float3 way, float reach)
 {
-    RayQuery<RAY_FLAG_FORCE_OPAQUE | RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> query;
+    RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> query;
     RayDesc ray;
     ray.Origin = p;
     ray.Direction = way;
     ray.TMin = 0.0;
     ray.TMax = reach;
-    query.TraceRayInline(scene, RAY_FLAG_NONE, 0xFF, ray);
-    query.Proceed();
+    query.TraceRayInline(scene, RAY_FLAG_NONE, SolidMask | BlendedMask, ray);
+    uint seed = asuint(p.x) * 73856093u ^ asuint(p.y) * 19349663u ^ asuint(p.z) * 83492791u;
+    while (query.Proceed())
+        if (blendedMet(query.CandidateInstanceID(), query.CandidatePrimitiveIndex(), query.CandidateTriangleBarycentrics(),
+                query.CandidateObjectToWorld3x4(), way, seed))
+            query.CommitNonOpaqueTriangleHit();
     return query.CommittedStatus() == COMMITTED_TRIANGLE_HIT;
 }
 
@@ -321,17 +335,21 @@ struct Met
     float3x4 objectToWorld;
 };
 
-// The nearest face along a ray from tMin on, every face met as it is.
-Met nearestFace(float3 origin, float3 way, float tMin)
+// The nearest face along a ray from tMin on, of the copies under mask, every solid face met as it
+// is and a blended copy's as blendedMet says, the ray named by seed.
+Met nearestFace(float3 origin, float3 way, float tMin, uint mask, uint seed)
 {
-    RayQuery<RAY_FLAG_FORCE_OPAQUE> query;
+    RayQuery<RAY_FLAG_NONE> query;
     RayDesc ray;
     ray.Origin = origin;
     ray.Direction = way;
     ray.TMin = tMin;
     ray.TMax = 1e5;
-    query.TraceRayInline(scene, RAY_FLAG_NONE, 0xFF, ray);
-    query.Proceed();
+    query.TraceRayInline(scene, RAY_FLAG_NONE, mask, ray);
+    while (query.Proceed())
+        if (blendedMet(query.CandidateInstanceID(), query.CandidatePrimitiveIndex(), query.CandidateTriangleBarycentrics(),
+                query.CandidateObjectToWorld3x4(), way, seed))
+            query.CommitNonOpaqueTriangleHit();
     Met hit;
     hit.met = query.CommittedStatus() == COMMITTED_TRIANGLE_HIT;
     hit.instance = query.CommittedInstanceID();
@@ -352,6 +370,30 @@ float3 faceOut(float3x4 toWorld, uint instance, uint primitive)
     float3 b = mul(toWorld, float4(corners[corner + 1u].xyz, 1.0));
     float3 c = mul(toWorld, float4(corners[corner + 2u].xyz, 1.0));
     return cross(b - a, c - a);
+}
+
+// Whether a ray along way meets a blended copy's face where the query offers it, from the face's
+// front unless its back faces are drawn, as the model pass draws it, with the chance its coverage
+// gives, its blend times its texture's alpha there, as the model pass blends it over what lies
+// behind. The model pass blends on sRGB-encoded light, which under a dark layer keeps less of what
+// lies behind than the coverage does, and the chance keeps to the coverage. A face is offered only
+// from the copies the scene holds not opaque, the blended ones. The chance is drawn from seed,
+// which names the ray, with the copy and the face, so a face the query offers twice draws the same.
+bool blendedMet(uint instance, uint primitive, float2 between, float3x4 toWorld, float3 way, uint seed)
+{
+    CopyLook look = looks[instance];
+    if (look.tint.w < 0.5 && dot(faceOut(toWorld, instance, primitive), way) >= 0.0)
+        return false;
+    float coverage = asfloat(look.slots.w);
+    if (look.slots.x != 0u)
+    {
+        uint corner = surfaces[instance].corners.x + primitive * 3u;
+        float3 weights = float3(1.0 - between.x - between.y, between.x, between.y);
+        float2 uv = cornerUvs[corner] * weights.x + cornerUvs[corner + 1u] * weights.y + cornerUvs[corner + 2u] * weights.z;
+        coverage *= textures[NonUniformResourceIndex(look.slots.x)].SampleLevel(uv, 0.0).a;
+    }
+    uint drawn = seed ^ instance * 2654435769u ^ primitive * 2246822519u;
+    return random(drawn) < coverage;
 }
 
 // The way a face of n bent by the normal map in the slot given at uv, with the map's strength,
@@ -382,8 +424,9 @@ float3 mappedNormal(float3 n, float3 ab, float3 ac, float2 uvAb, float2 uvAc, ui
 
 // The nearest face along a ray from tMin on but the faces a ray leaves a copy that lets light
 // through by, so a path crossing a canopy meets each block's near face, and its far face, and the
-// near face of the block behind it in the same plane, let it on.
-Met nearestEntered(float3 origin, float3 way, float tMin)
+// near face of the block behind it in the same plane, let it on, of the copies under mask, a
+// blended copy's face met as blendedMet says, the ray named by seed.
+Met nearestEntered(float3 origin, float3 way, float tMin, uint mask, uint seed)
 {
     RayQuery<RAY_FLAG_FORCE_NON_OPAQUE> query;
     RayDesc ray;
@@ -391,10 +434,16 @@ Met nearestEntered(float3 origin, float3 way, float tMin)
     ray.Direction = way;
     ray.TMin = tMin;
     ray.TMax = 1e5;
-    query.TraceRayInline(scene, RAY_FLAG_NONE, 0xFF, ray);
+    query.TraceRayInline(scene, RAY_FLAG_NONE, mask, ray);
     while (query.Proceed())
     {
         uint instance = query.CandidateInstanceID();
+        if (asfloat(looks[instance].slots.w) > 0.0)
+        {
+            if (blendedMet(instance, query.CandidatePrimitiveIndex(), query.CandidateTriangleBarycentrics(), query.CandidateObjectToWorld3x4(), way, seed))
+                query.CommitNonOpaqueTriangleHit();
+            continue;
+        }
         if (asfloat(surfaces[instance].corners.w) > 0.0
             && dot(faceOut(query.CandidateObjectToWorld3x4(), instance, query.CandidatePrimitiveIndex()), way) > 0.0)
             continue;
@@ -422,7 +471,7 @@ float depthInside(float3 origin, float3 way, float t, uint instance)
     ray.Direction = way;
     ray.TMin = t + 1e-4;
     ray.TMax = t + 256.0;
-    query.TraceRayInline(scene, RAY_FLAG_NONE, 0xFF, ray);
+    query.TraceRayInline(scene, RAY_FLAG_NONE, SolidMask, ray);
     float leaves = 1e30, other = 1e30;
     while (query.Proceed())
     {
@@ -438,8 +487,9 @@ float depthInside(float3 origin, float3 way, float t, uint instance)
 
 // The light one path brings back from origin along way, and what its first ray met. From the
 // camera the first face is lit as the model pass lights one, and from a probe as global
-// illumination does.
-float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out uint region, out float met)
+// illumination does. A path that names what its pixel shows meets the solid copies alone with its
+// first ray, so a blended one over a wall leaves the wall's name on the pixel.
+float3 trace(float3 origin, float3 way, bool fromProbe, bool naming, inout uint state, out uint region, out float met)
 {
     float3 throughput = float3(1.0);
     float3 light = float3(0.0);
@@ -451,13 +501,17 @@ float3 trace(float3 origin, float3 way, bool fromProbe, inout uint state, out ui
         // A copy that lets light through is crossed by the share its depth along the ray keeps,
         // which a random number draws, 32 crossings at most before a bounce.
         bool crosses = push.first.z == 1u && (bounce > 0u || fromProbe);
-        Met hit = crosses ? nearestEntered(origin, way, 0.0) : nearestFace(origin, way, 0.0);
+        // The ray's name for the blended faces it meets, drawn from the path's state without moving
+        // it, so a scene with no blended copy is traced by the same numbers as without the name.
+        uint seed = (state ^ (bounce + 1u) * 2654435769u) * 747796405u;
+        uint mask = naming && bounce == 0u ? SolidMask : SolidMask | BlendedMask;
+        Met hit = crosses ? nearestEntered(origin, way, 0.0, mask, seed) : nearestFace(origin, way, 0.0, mask, seed);
         for (int crossing = 0; crosses && hit.met && crossing < 32; crossing++)
         {
             float through = asfloat(surfaces[hit.instance].corners.w);
             if (!(through > 0.0) || random(state) >= pow(min(through, 1.0), depthInside(origin, way, hit.t, hit.instance)))
                 break;
-            hit = nearestEntered(origin, way, hit.t + 1e-4);
+            hit = nearestEntered(origin, way, hit.t + 1e-4, mask, seed);
         }
         if (!hit.met)
         {
@@ -583,7 +637,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         float met;
         if (push.first.y == 1u)
         {
-            sum += trace(push.probe.xyz, fromOctahedron(uv), true, state, region, met);
+            sum += trace(push.probe.xyz, fromOctahedron(uv), true, index == 0u, state, region, met);
             if (index == 0u)
                 regions[id.xy] = uint2(region, asuint(met));
             continue;
@@ -591,7 +645,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         float4 near = mul(push.inverseViewProjection, float4(uv * 2.0 - 1.0, 0.0, 1.0));
         float4 far = mul(push.inverseViewProjection, float4(uv * 2.0 - 1.0, 1.0, 1.0));
         float3 origin = near.xyz / near.w;
-        sum += trace(origin, normalize(far.xyz / far.w - origin), false, state, region, met);
+        sum += trace(origin, normalize(far.xyz / far.w - origin), false, index == 0u, state, region, met);
         if (index == 0u)
             regions[id.xy] = uint2(region, asuint(met));
     }

@@ -18,8 +18,18 @@ namespace Engine;
 /// <param name="NormalMap">Its tangent-space normal map's id, or 0 for none, which a path traced reference bends each face it meets by.</param>
 /// <param name="NormalScale">How strongly the normal map bends the face.</param>
 /// <param name="Tint">Its color before its texture, linear, which the texture's color is multiplied by.</param>
+/// <param name="Blend">
+/// For a copy the model pass blends at less than half of it, as a decal, its material's alpha,
+/// which a path traced reference meets it by, times its texture's alpha where it meets it, and 0
+/// for every copy that stands solid. Such a copy is held apart in the scene
+/// (<see cref="GpuRayScenes.BlendedMask"/>), which a probe's rays and a reflection leave out.
+/// </param>
+/// <param name="DoubleSided">
+/// Whether its back faces are drawn, without which a path traced reference meets a blended copy
+/// from its front alone, as the model pass draws it.
+/// </param>
 internal readonly record struct RayInstance(object Mesh, Matrix4x4 World, Vector3 Color, Vector3 Emission, float Roughness = 1, float Metallic = 0, bool Carried = false,
-    float LightThrough = 0, int Texture = 0, int NormalMap = 0, float NormalScale = 0, Vector3 Tint = default);
+    float LightThrough = 0, int Texture = 0, int NormalMap = 0, float NormalScale = 0, Vector3 Tint = default, float Blend = 0, bool DoubleSided = true);
 
 /// <summary>
 /// The window's meshes as the device's ray tracing sees them, a bottom-level acceleration structure
@@ -150,6 +160,20 @@ internal static unsafe class GpuRayScenes
     }
 
     private const uint CullDisableAndOpaque = 0x1 | 0x4;
+    // A blended copy's flags, its faces left to the query that meets them, opaque to none.
+    private const uint CullDisableAndNotOpaque = 0x1 | 0x8;
+
+    /// <summary>
+    /// The mask of every copy that stands solid, which every query of the scene meets.
+    /// </summary>
+    internal const uint SolidMask = 0x01;
+
+    /// <summary>
+    /// The mask of every blended copy, which a path traced reference alone meets, with the chance
+    /// its coverage gives, and every other query of the scene leaves out, as the field leaves it
+    /// out.
+    /// </summary>
+    internal const uint BlendedMask = 0x02;
 
     extension(GraphicsDevice device)
     {
@@ -490,8 +514,8 @@ internal static unsafe class GpuRayScenes
                     Row0 = new Vector4(m.M11, m.M21, m.M31, moved.X),
                     Row1 = new Vector4(m.M12, m.M22, m.M32, moved.Y),
                     Row2 = new Vector4(m.M13, m.M23, m.M33, moved.Z),
-                    IndexAndMask = (uint)i | (0xFFu << 24),
-                    OffsetAndFlags = CullDisableAndOpaque << 24,
+                    IndexAndMask = (uint)i | ((instance.Blend > 0 ? BlendedMask : SolidMask) << 24),
+                    OffsetAndFlags = (instance.Blend > 0 ? CullDisableAndNotOpaque : CullDisableAndOpaque) << 24,
                     Structure = mesh.Address,
                 };
                 shaded[i] = new SurfaceRecord

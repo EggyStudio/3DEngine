@@ -44,6 +44,10 @@ struct ReferencePush
 
 static const float Pi = 3.14159265359;
 
+// The mask of the copies that stand solid, which the occlusion's rays meet, the blended ones held
+// apart for the path traced reference alone (GpuRayScenes.SolidMask).
+static const uint SolidMask = 0x01u;
+
 float random(inout uint state)
 {
     state = state * 747796405u + 2891336453u;
@@ -71,7 +75,7 @@ bool closed(float3 origin, float3 way, float reach)
     ray.Direction = way;
     ray.TMin = 0.0;
     ray.TMax = reach;
-    query.TraceRayInline(scene, RAY_FLAG_NONE, 0xFF, ray);
+    query.TraceRayInline(scene, RAY_FLAG_NONE, SolidMask, ray);
     query.Proceed();
     return query.CommittedStatus() == COMMITTED_TRIANGLE_HIT;
 }
@@ -103,7 +107,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     ray.Direction = way;
     ray.TMin = 0.0;
     ray.TMax = 1e5;
-    query.TraceRayInline(scene, RAY_FLAG_NONE, 0xFF, ray);
+    query.TraceRayInline(scene, RAY_FLAG_NONE, SolidMask, ray);
     query.Proceed();
     if (query.CommittedStatus() != COMMITTED_TRIANGLE_HIT)
         return;

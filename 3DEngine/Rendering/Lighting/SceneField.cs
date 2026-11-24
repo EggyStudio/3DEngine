@@ -90,6 +90,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     private readonly Dictionary<ModelVertex[], Vector3> _tints = new(ReferenceEqualityComparer.Instance);
     private readonly Dictionary<ModelVertex[], SceneFieldPlan.Box> _bounds = new(ReferenceEqualityComparer.Instance);
     private readonly List<(SceneFieldPlan.Instance, bool)> _drawn = [];
+    private readonly List<(SceneFieldPlan.Instance, float)> _blended = [];
 
     // Each skinned mesh's joints as it was last posed, which a frame that does not pose it again
     // keeps, each joint's box around the vertices at rest it holds most, and the parts a mesh that
@@ -168,6 +169,14 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     /// the window draws none, each with whether it is skinned, as the field gathered them.
     /// </summary>
     internal IReadOnlyList<(SceneFieldPlan.Instance Instance, bool Skinned)> Drawn => _drawn;
+
+    /// <summary>
+    /// The meshes drawn this frame that the field leaves out as blended at less than half of them
+    /// (<see cref="SeeThrough"/>), as a decal, each with its material's alpha, whose triangles it
+    /// holds for the device's ray tracing alone. A skinned mesh and one over shader buffers, whose
+    /// triangles the CPU does not hold, are passed over.
+    /// </summary>
+    internal IReadOnlyList<(SceneFieldPlan.Instance Instance, float Blend)> Blended => _blended;
 
     /// <summary>
     /// The colors of a mesh's corners drawn this frame, as <see cref="CornersOf"/> lays them out,
@@ -432,6 +441,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     {
         _device = device;
         _drawn.Clear();
+        _blended.Clear();
         _indices.Clear();
         _meshOf.Clear();
         // The boxes of vertices no longer drawn go, as an animated mesh's of each frame before.
@@ -460,7 +470,19 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             map != 0 && textures?.AverageLevels(map) is { } levels ? (roughness * levels.Y, metallic * levels.Z) : (roughness, metallic);
         foreach (ref readonly var draw in draws.Span)
         {
-            if (windowAlone && draw.Target != 0 || !draw.CastsShadow || !draw.BouncesLight || draw.Points || SeeThrough(draw.AlphaMode, draw.Color.A / 255f)) continue;
+            if (windowAlone && draw.Target != 0 || !draw.CastsShadow || !draw.BouncesLight || draw.Points) continue;
+            if (SeeThrough(draw.AlphaMode, draw.Color.A / 255f))
+            {
+                if (store.CountedOf(draw.Mesh) is null && !store.IsSkinned(draw.Mesh) && store.TryGetData(draw.Mesh, out var laid, out var laidIndices))
+                {
+                    (_indices[laid], _meshOf[laid]) = (laidIndices, draw.Mesh);
+                    var (rough, metal) = Surfaced(draw.Roughness, draw.Metallic, draw.MetallicRoughnessMap);
+                    var own = new Vector3(ModelRenderer.Instance.Linear[draw.Color.R], ModelRenderer.Instance.Linear[draw.Color.G], ModelRenderer.Instance.Linear[draw.Color.B]);
+                    _blended.Add((new SceneFieldPlan.Instance(draw.Mesh, laid, draw.World, draw.DoubleSided, Textured(own, draw.Texture), Glowing(draw.Emission, draw.EmissiveMap),
+                        null, rough, metal, 0, draw.Texture, draw.NormalMap, draw.NormalMap == 0 ? 0 : draw.NormalScale, own), draw.Color.A / 255f));
+                }
+                continue;
+            }
             if (store.CountedOf(draw.Mesh) is { } counted)
             {
                 if (CountedVertices(device, store, counted) is { } standing)
@@ -504,19 +526,23 @@ internal sealed partial class SceneFieldRenderer : IDisposable
                 skinned = store.IsSkinned(template.Mesh);
             }
             var limbs = skinned ? Limbs(store, template.Mesh, vertices) : null;
+            var laidOver = !skinned && _indices.ContainsKey(vertices);
             if (_groupInstances.Length < group.Count) _groupInstances = new ModelRenderer.Instance[Math.Max(group.Count, _groupInstances.Length * 2)];
             group.CopyTo(_groupInstances);
             for (int i = 0; i < group.Count; i++)
             {
                 ref readonly var instance = ref _groupInstances[i];
-                if (SeeThrough(template.AlphaMode, instance.Color.W)) continue;
+                var seeThrough = SeeThrough(template.AlphaMode, instance.Color.W);
+                if (seeThrough && !laidOver) continue;
                 var (x, y, z) = (instance.WorldX, instance.WorldY, instance.WorldZ);
                 var world = new Matrix4x4(x.X, y.X, z.X, 0, x.Y, y.Y, z.Y, 0, x.Z, y.Z, z.Z, 0, x.W, y.W, z.W, 1);
                 var (roughness, metallic) = Surfaced(instance.Factors.Y, instance.Factors.X, template.MetallicRoughnessMap);
                 var color = new Vector3(instance.Color.X, instance.Color.Y, instance.Color.Z);
-                _drawn.Add((new SceneFieldPlan.Instance(template.Mesh, vertices, world, template.DoubleSided,
+                var laid = new SceneFieldPlan.Instance(template.Mesh, vertices, world, template.DoubleSided,
                     Textured(color, template.Texture), Glowing(new Vector3(instance.Emission.X, instance.Emission.Y, instance.Emission.Z), template.EmissiveMap), limbs,
-                    roughness, metallic, template.LightThrough, template.Texture, template.NormalMap, instance.Factors.Z, color), skinned));
+                    roughness, metallic, seeThrough ? 0 : template.LightThrough, template.Texture, template.NormalMap, instance.Factors.Z, color);
+                if (seeThrough) _blended.Add((laid, instance.Color.W));
+                else _drawn.Add((laid, skinned));
             }
         }
     }
@@ -524,7 +550,8 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     // Whether the model pass blends a draw at less than half of it, as a decal or a pane of tinted
     // glass, which stands in the field as nothing rather than as a solid of its color, since the
     // surface it lies on shows through it, and held solid a decal would darken the wall under it
-    // in the field and the path-traced reference where the frame shows the wall.
+    // in the field where the frame shows the wall. The path-traced reference meets it apart
+    // (Blended), with the chance its coverage gives.
     private static bool SeeThrough(MaterialAlphaMode mode, float alpha) => mode == MaterialAlphaMode.Blend && alpha < 0.5f;
 
     /// <summary>

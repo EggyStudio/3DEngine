@@ -96,7 +96,8 @@ internal static class BounceReference
     // texture first, a texture taking a slot of its own the first time a copy names it, its color
     // decoded from sRGB as the model pass samples it and a normal map as it is stored, and a copy
     // whose texture finds no slot left reading its color alone. A copy's look is its color's slot,
-    // its normal map's, the map's strength, and then its color before the texture.
+    // its normal map's, the map's strength and its blend, then its color before the texture and
+    // whether its back faces are drawn.
     private static (List<(IImageView View, ISampler Sampler)> Textures, byte[] Looks) Looks(GraphicsDevice device, GpuTextures gpu, IReadOnlyList<RayInstance> copies)
     {
         var textures = new List<(IImageView View, ISampler Sampler)> { gpu.ViewFor(device, 0) };
@@ -119,8 +120,10 @@ internal static class BounceReference
             words[at] = Slot(copy.Texture, srgb: true);
             words[at + 1] = copy.NormalScale > 0 ? Slot(copy.NormalMap, srgb: false) : 0;
             words[at + 2] = BitConverter.SingleToUInt32Bits(copy.NormalScale);
+            words[at + 3] = BitConverter.SingleToUInt32Bits(copy.Blend);
             (words[at + 4], words[at + 5], words[at + 6]) = (BitConverter.SingleToUInt32Bits(copy.Tint.X), BitConverter.SingleToUInt32Bits(copy.Tint.Y),
                 BitConverter.SingleToUInt32Bits(copy.Tint.Z));
+            words[at + 7] = BitConverter.SingleToUInt32Bits(copy.DoubleSided ? 1 : 0);
         }
         return (textures, looks);
     }
