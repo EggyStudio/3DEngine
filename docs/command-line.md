@@ -162,8 +162,11 @@ lights, whose light the rays leave out all the same, so what they give can be se
 from it, `gi.spread off` the coarser cascades' trace of half their probes a frame, so each traces
 all of them every frame, `gi.points off` a hit's faint glow lights taken as one point at their
 middle, so every light takes its own form, `gi.footprint off` the sun at a still probe's hit read
-over the patch of the face its ray stands for, so it is read at the hit alone, `gi.cascade 2` keeps
-the third cascade's light alone, and `on` or `-1` puts each back. `gi.meshes on` traces the world's
+over the patch of the face its ray stands for, so it is read at the hit alone, `gi.own_place off`
+each cascade's probes placed by the field from the cascade they stand in outward, so they are placed
+by the finest cascade holding each spot and a probe stands elsewhere each time a finer cascade's box
+moves with the eye, `gi.cascade 2` keeps the third cascade's light alone, and `on` or `-1` puts each
+back. `gi.meshes on` traces the world's
 probes' rays through the GPU's own
 rays at `High` in place of the field, crossing what lets light through as the field does, a step
 that stays off until it reads every view at least as near a path-traced reference as the field, and
@@ -171,11 +174,7 @@ that stays off until it reads every view at least as near a path-traced referenc
 from the cascade they stand in outward rather than from the finest cascade holding each point, so a
 coarser cascade's light holds still where a finer cascade's box moves with the eye, a step that
 stays off since it lights some walls well past a path-traced reference, and `off` puts the finest
-first back. `gi.own_place on` places each cascade's probes by the field from the cascade they stand
-in outward rather than from the finest cascade holding each spot, so a probe stands still where a
-finer cascade's box moves with the eye, a step that stays off since a probe deep in a passage a unit
-wide then reads the court through its opening at 0.62 of a path-traced reference, and `off` puts the
-finest first back. `gi.toward on` has a pixel read each of its probes' faces moved toward the
+first back. `gi.toward on` has a pixel read each of its probes' faces moved toward the
 surface the face's ray met, as far as the pixel lies behind the probe toward it, as a probe's hit
 reads them, a step that stays off since a face moved so is not tested from the pixel, so light
 reaches a floor behind a thin wall, and `off` reads the faces as they stand.

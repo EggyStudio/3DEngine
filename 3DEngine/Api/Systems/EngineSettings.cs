@@ -125,8 +125,8 @@ internal static partial class EngineSettings
             s => s.MeshesTraced, (s, on) => s.MeshesTraced = on);
         yield return Of("gi.own_field", "Whether each cascade's probes march the field from the cascade they stand in outward, from its finest cascade holding each point without it.", false,
             s => s.OwnFieldMarched, (s, on) => s.OwnFieldMarched = on);
-        yield return Of("gi.own_place", "Whether each cascade's probes are placed by the field from the cascade they stand in outward, by its finest cascade holding each spot without it.", false,
-            s => s.OwnFieldPlaced, (s, on) => s.OwnFieldPlaced = on);
+        yield return Part("gi.own_place", "Whether each cascade's probes are placed by the field from the cascade they stand in outward, by its finest cascade holding each spot without it.",
+            s => s.OwnPlaceOff, (s, off) => s.OwnPlaceOff = off);
         yield return Of("gi.cascade", "The one cascade whose rays' light alone reaches the pixels, or -1 for every cascade.", -1,
             s => s.Alone, (s, v) => s.Alone = v, low: -1, high: Engine.Illumination.MostCascades - 1);
         yield return Of("gi.show", "What global illumination holds drawn over the window, its screen's probes, a cascade's rays, merge or probes, the frame against a reference gi.difference reads, or nothing.",

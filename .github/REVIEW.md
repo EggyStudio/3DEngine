@@ -930,3 +930,20 @@ room's inside lit through the moved faces, which are not tested from the pixel, 
 or leaves at Low taking less sky than they let through, and a world moved by a whole step drawing
 its frame 1.57 levels from the one before. The sheet `2026-11-24-item-311-toward.webp` shows the
 gallery both ways with the two pixels ringed, the near wall's figures and the tests.
+
+311. Each cascade's probes are placed by the field from the cascade they stand in outward by
+default, and `gi.own_place off` places them from the finest cascade holding each spot as before.
+Off, 1 to 7 of cascade 1's 512 probes stand elsewhere at each move of cascade 0's box along the
+walk, and on none does. On this build the step at the gallery's back wall where cascade 0 moves its
+box goes from a median of 2.2% to 1.7% through the field and stays at 1.5% through the rays, and
+cascade 1's alone goes from 1.8% to 2.1%, since the sun read over each ray's patch took most of that
+step before it, from 2.7% and 7.2% off. The gallery's shade goes from 1.25 to 1.06 of the reference,
+view 1's low left wall from 1.40 to 1.22, the near wall from 1.62 to 1.65, and the far doorway's
+face from 26.2 to 28.7 through the field and from 26.5 to 25.7 through the rays. The passage's deep
+probe reads the court through its opening at 0.62 of its reference, 1.20 off, below its test's bound
+of 0.75, and the test is skipped with its bound kept, its reason naming the fault open under this
+item. The second bounce room reads 1.4% to 1.9% further from its reference, 0.0706, 0.0497 and
+0.0301 at Low, Medium and High from 0.0697, 0.0490 and 0.0295, which stood within 2% of its bounds,
+and its bounds go to 15% over those readings as its test's rule sets them, every other room within
+0.7% of where it was. The sheet `2026-11-24-item-311-placement-default.webp` shows both views both
+ways with their figures, the probes moved, the passage and the walk both ways.

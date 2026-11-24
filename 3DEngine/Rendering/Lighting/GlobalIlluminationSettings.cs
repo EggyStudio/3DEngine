@@ -236,18 +236,20 @@ internal sealed class GlobalIlluminationSettings
     public bool OwnFieldMarched { get; set; }
 
     /// <summary>
-    /// Whether each cascade's probes are placed by the field from the cascade they stand in
-    /// outward, as <c>gi.own_place on</c> sets it, so a probe stands where it stood when a finer
-    /// cascade's box moves with the eye, where they are otherwise placed by its finest cascade that
-    /// holds each spot. A probe above the first cascade beside a wall then stays on its side of it.
+    /// Whether each cascade's probes are placed by the field from its finest cascade that holds
+    /// each spot, as <c>gi.own_place off</c> sets it, where they are otherwise placed by the field
+    /// from the cascade they stand in outward, so a probe stands where it stood when a finer
+    /// cascade's box moves with the eye. A probe above the first cascade beside a wall then stays
+    /// on its side of it.
     /// </summary>
     /// <remarks>
-    /// Off unless set, since a probe of the first cascade deep in a passage a unit wide then reads
-    /// the sunlit court through the passage's opening at 0.62 of a path-traced reference, the
-    /// probes of the cascade above, moved out of the passage's walls into it, giving it less of the
-    /// court's light than its own rays carried on bring.
+    /// Placed from the cascade they stand in, a probe of the first cascade deep in a passage a unit
+    /// wide reads the sunlit court through the passage's opening at 0.62 of a path-traced
+    /// reference, the probes of the cascade above, moved out of the passage's walls into it, giving
+    /// it less of the court's light than its own rays carried on bring. The passage's test stands
+    /// skipped as that open fault.
     /// </remarks>
-    public bool OwnFieldPlaced { get; set; }
+    public bool OwnPlaceOff { get; set; }
 
     /// <summary>
     /// The one term of the model pass's light drawn, numbered as modelpass.slang's termTaken lists

@@ -192,10 +192,10 @@ internal static class GlobalIlluminationCommands
         if (settings.SpreadOff) off.Add("the coarser cascades' trace in halves");
         if (settings.PointsOff) off.Add("the faint glow lights at a hit taken as one point");
         if (settings.FootprintOff) off.Add("the sun at a still probe's hit read over its ray's patch");
+        if (settings.OwnPlaceOff) off.Add("each cascade's probes placed by the field from their own cascade outward");
         var said = off.Count == 0 ? "every part of global illumination is on" : $"{string.Join(", ", off)} left out";
         if (settings.OwnFieldMarched) said += ", each cascade's probes marching the field from their own cascade outward";
         if (settings.FacesMovedToward) said += ", each pixel reading its probes' faces moved toward the surfaces their rays met";
-        if (settings.OwnFieldPlaced) said += ", each cascade's probes placed by the field from their own cascade outward";
         if (!settings.MeshesTraced) return said;
         var device = ConsoleHost.World is { } world && world.TryGetResource<Renderer>(out var renderer) && renderer.Context.Graphics is GraphicsDevice { CanQueryRays: true };
         return settings.RaysLeftOff is not null ? $"{said}, the probes' rays traced through the field, the device's rays left off since its memory did not hold their structures"

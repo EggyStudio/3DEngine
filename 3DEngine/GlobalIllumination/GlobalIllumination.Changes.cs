@@ -60,7 +60,7 @@ internal sealed partial class GlobalIlluminationRenderer
     private void NoteSwitches(GlobalIlluminationSettings s)
     {
         var now = (s.MergeOff, s.AgainOff, s.FollowOff, s.GlowOff, s.AlbedoOff, s.SpecularOff, s.NormalMapsOff, s.ThroughOff, s.HistoryOff,
-            s.FilterOff, s.ScreenOff, s.MeshesTraced, s.OwnFieldMarched, s.OwnFieldPlaced, s.FootprintOff, s.Alone, s.BounceGain, s.Gather, s.GatherSize);
+            s.FilterOff, s.ScreenOff, s.MeshesTraced, s.OwnFieldMarched, s.OwnPlaceOff, s.FootprintOff, s.Alone, s.BounceGain, s.Gather, s.GatherSize);
         _switchesChanged = _switchesBefore is { } before && before != now;
         _switchesBefore = now;
     }
