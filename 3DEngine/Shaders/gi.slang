@@ -109,10 +109,21 @@ public struct FieldSun : ISunShadow
 // the point is read at the same place in the map and only nearer the sun, where moved a cell and a
 // half along n a floor's hit in cells of half a unit stands 0.75 over the floor, which under a sun
 // 20 degrees up shortens every shadow a low wall casts on it by 2.1 units. Moved by the texel
-// alone, the hits a little behind their surface shadow themselves.
+// alone, the hits a little behind their surface shadow themselves. A still probe's ray stands for a
+// cone of ways, and its hit reads the sun over the patch of the face that cone covers, where a read
+// at the hit alone finds the sun or none as the map's texels move under it with the view. Read at
+// the hit, the second cascade's probe at 7, 7, -5 in a sunlit court found no sun at its hits where
+// a path-traced reference finds 0.00079, and the light of the first cascade's at 7.5, 7.5, -5.5
+// moved by up to 10.9% as the view turned 3 degrees a step with the eye held. Over the patch the
+// one at 7, 7, -5 reads 1.22 of the reference's sun and the one at 7.5, 7.5, -5.5 moves by up to
+// 2.2%.
 public struct SunShadowMap : ISunShadow
 {
     public Sampler2D map;
+    // How far across the cone a probe's ray stands for reaches at its hit, its half angle times
+    // how far the ray went, or 0 where the sun is read at the hit alone, and the ray's way.
+    public float spread;
+    public float3 way;
 
     public float reached(GiLights lights, float3 p, float3 n, float cell)
     {
@@ -120,10 +131,44 @@ public struct SunShadowMap : ISunShadow
         float texel = lights.sunMap.y;
         for (int c = 0; c < count; c++)
         {
-            float4 clip = mul(lights.sunCascades[c], float4(p + n * (lights.sunTexels[c] * 1.5) + lights.sunDirection.xyz * cell, 1.0));
+            float3 lifted = p + n * (lights.sunTexels[c] * 1.5) + lights.sunDirection.xyz * cell;
+            float4 clip = mul(lights.sunCascades[c], float4(lifted, 1.0));
             float3 q = clip.xyz / clip.w;
             if (any(abs(q.xy) > 0.995) || q.z > 1.0 || q.z < 0.0)
                 continue;
+            if (spread > 0.0)
+            {
+                // Sixteen points over a disk on the face as wide as spread, or as a texel of the
+                // cascade where that is wider, spread evenly by the golden angle, each compared at
+                // its own depth so a slanted face shadows none of itself. A point the map holds a
+                // surface behind by over three cells stands in air past the face's edge and is
+                // left out, as is a point past the cascade's edge. Stretched along the ray's way
+                // over the face the disk read the sun at 1.53 of the reference, round at 1.28,
+                // and round with the points in air left out at 1.22.
+                float3 along = way - n * dot(way, n);
+                along = dot(along, along) > 1e-8 ? normalize(along) : abs(n.y) < 0.9 ? normalize(cross(n, float3(0.0, 1.0, 0.0))) : float3(1.0, 0.0, 0.0);
+                float3 across = cross(n, along);
+                float radius = max(spread, lights.sunTexels[c]);
+                float4 away = mul(lights.sunCascades[c], float4(lifted - lights.sunDirection.xyz * (3.0 * cell), 1.0));
+                float air = away.z / away.w - q.z;
+                float lit = 0.0, taken = 0.0;
+                for (int i = 0; i < 16; i++)
+                {
+                    float r = sqrt((float(i) + 0.5) / 16.0) * radius;
+                    float a = float(i) * 2.3999632;
+                    float4 at = mul(lights.sunCascades[c], float4(lifted + (along * cos(a) + across * sin(a)) * r, 1.0));
+                    float3 s = at.xyz / at.w;
+                    if (any(abs(s.xy) > 0.995) || s.z > 1.0 || s.z < 0.0)
+                        continue;
+                    float depth = map.SampleLevel((s.xy * 0.5 + 0.5 + float2(c % 2, c / 2)) * 0.5, 0.0).r;
+                    if (depth - s.z > air)
+                        continue;
+                    lit += s.z - 0.0005 <= depth ? 1.0 : 0.0;
+                    taken += 1.0;
+                }
+                if (taken > 0.0)
+                    return lit / taken;
+            }
             float2 uv = (q.xy * 0.5 + 0.5 + float2(c % 2, c / 2)) * 0.5;
             float shown = 0.0;
             for (int y = -1; y <= 1; y++)
@@ -297,9 +342,9 @@ public float3 directLight<V : IVolume, Sun : ISunShadow>(V field, SceneFieldInfo
 public static const uint TracePlaces[16] = { 0, 10, 2, 8, 5, 15, 7, 13, 1, 11, 3, 9, 4, 14, 6, 12 };
 
 // How much a probe's ray standing for its whole texel widens GGX's alpha squared, the tangent
-// squared of the half-angle of the cone a texel of an n by n octahedron spans on the mean, 4 pi over
-// n squared, 0.0657 at 8 by 8 and 0.0158 at 16 by 16, so a smooth face it meets reflects a light by
-// the lobe's mean over its texel and not by its peak.
+// squared of the half-angle of the cone a texel of an n by n octahedron spans on the mean, 4 pi
+// over n squared, 0.0657 at 8 by 8 and 0.0158 at 16 by 16, so a smooth face it meets reflects a
+// light by the lobe's mean over its texel and not by its peak.
 public float texelWidening(uint n)
 {
     float c = 1.0 - 2.0 / float(n * n);

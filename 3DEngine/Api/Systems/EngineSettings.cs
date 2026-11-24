@@ -117,6 +117,8 @@ internal static partial class EngineSettings
             s => s.SpreadOff, (s, off) => s.SpreadOff = off);
         yield return Part("gi.points", "Whether the faint glow lights at a probe's hit are taken as one point, every light by its own form without it.",
             s => s.PointsOff, (s, off) => s.PointsOff = off);
+        yield return Part("gi.footprint", "Whether a still probe's ray reads the sun at its hit over the patch of the face its cone covers, at the hit alone without it.",
+            s => s.FootprintOff, (s, off) => s.FootprintOff = off);
         yield return Of("gi.meshes", "Whether the probes' rays are traced through the device's rays at High in place of the distance field.", false,
             s => s.MeshesTraced, (s, on) => s.MeshesTraced = on);
         yield return Of("gi.own_field", "Whether each cascade's probes march the field from the cascade they stand in outward, from its finest cascade holding each point without it.", false,

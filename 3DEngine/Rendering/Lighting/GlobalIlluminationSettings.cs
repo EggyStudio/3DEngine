@@ -196,6 +196,20 @@ internal sealed class GlobalIlluminationSettings
     public bool PointsOff { get; set; }
 
     /// <summary>
+    /// Whether a still probe's ray reads the sun at its hit through the shadow map at the hit
+    /// alone, as <c>gi.footprint off</c> sets it, where it is otherwise read over the patch of the
+    /// face the ray's cone covers there, so the light of the read at the hit can be read beside it.
+    /// </summary>
+    /// <remarks>
+    /// Read at the hit alone, the second cascade's probe at 7, 7, -5 in a sunlit court finds no sun
+    /// at its hits where a path-traced reference finds 0.00079, and the light of the first
+    /// cascade's at 7.5, 7.5, -5.5 moves by up to 10.9% as the view turns 3 degrees with the eye
+    /// held, the shadow map's texels moving under its hits. Read over the patch the one finds 1.22
+    /// of the reference's sun and the other moves by up to 2.2%.
+    /// </remarks>
+    public bool FootprintOff { get; set; }
+
+    /// <summary>
     /// Whether each cascade's probes march the field from the cascade they stand in outward, as
     /// <c>gi.own_field on</c> sets it, so a coarser cascade's light does not move when a finer
     /// cascade's box moves with the eye, where they otherwise march it from its finest cascade that

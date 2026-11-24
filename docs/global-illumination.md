@@ -210,6 +210,17 @@ light gets in. A probe deep inside a wall, which would see the light on the wall
 out, and the surfaces near it read the probes around it, so a sealed room stays dark beside a lit
 one.
 
+A probe that stands still reads the sun at each of its rays' hits over the patch of the face its ray
+stands for, the ray's share of the probe's ways taken as a cone and the cone's width at the hit as a
+disk on the face, sixteen points of the sun's shadow map spread over it. A sunlit patch narrower
+than the rays' spacing on the face then lights a ray by its share where a read at the hit alone
+finds the sun or none, and the probe's light holds as the shadow map's texels move with the view. In
+Sponza the second cascade's probe at 7, 7, -5 brings 0.88 of a path-traced reference's light where
+its rays meet a surface, where read at the hit alone it brought 0.33 and no sun, and the light of
+the first cascade's at 7.5, 7.5, -5.5 moves by up to 2.2% as the view turns 3 degrees a step with
+the eye held, where it moved by up to 10.9%. A probe whose rays move within their texels reads the
+sun at the hit, and `gi.footprint off` reads every probe's there.
+
 ## The screen's probes
 
 At `Medium` and `High`, beside the world's probes stands a probe for every few pixels of the window,
@@ -458,7 +469,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 | `gi.show <view>`, `gi.show_cascade <cascade>` | Settings that draw over the window the screen's probes as tiles, their light, filtered or the share of it the frames before gave, or the cascade's rays' light, its merge or its probes as cubes |
 | `gi.difference <png>` | Draws the frame over the window against a reference |
 | `gi.passes <on\|off>` | The setting that times global illumination's passes apart in the profile, the ray scene, each cascade's trace, the merges, the gather, the screen's probes, their filter and the glow lights, as `gpu.gi_` lines, the rest staying `gpu.global_illumination` |
-| `gi.history`, `gi.filter`, `gi.screen`, `gi.merge`, `gi.again`, `gi.follow`, `gi.glow`, `gi.through`, `gi.albedo`, `gi.specular`, `gi.normals`, `gi.spread`, `gi.points` `<on\|off>` | Settings that leave out the frame before's light, the screen's filter, the screen's probes, neither made nor traced, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, the crossing of what lets light through, the surfaces' colors, their reflection of the indirect light, their normal maps, the coarser cascades' trace in halves or the faint glow lights taken as one point |
+| `gi.history`, `gi.filter`, `gi.screen`, `gi.merge`, `gi.again`, `gi.follow`, `gi.glow`, `gi.through`, `gi.albedo`, `gi.specular`, `gi.normals`, `gi.spread`, `gi.points`, `gi.footprint` `<on\|off>` | Settings that leave out the frame before's light, the screen's filter, the screen's probes, neither made nor traced, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, the crossing of what lets light through, the surfaces' colors, their reflection of the indirect light, their normal maps, the coarser cascades' trace in halves, the faint glow lights taken as one point or the sun at a still probe's hit read over the patch of the face its ray stands for |
 | `gi.gather <probes\|pixels>`, `gi.gather_size <full\|half\|quarter\|eighth>`, `gi.gather_reach <units>`, `gi.gather_guide <off\|cascades>`, `gi.gather_rays <on\|off>` | Settings that bring the cascades' light to the picture by the screen's probes or by one ray from each texel of a grid of the window's pixels at the size set, traced through the field as far as the reach set, `0` for as far as the field reaches, its ways drawn by the cosine or half of them toward the light the cascades hold, its rays meeting the meshes through the device's ray tracing where set, made whole each frame and blended within it, the screen's probes then standing for the glow lights alone |
 | `gi.cascade <cascade>`, `gi.meshes <on\|off>`, `gi.own_field <on\|off>`, `gi.own_place <on\|off>` | Settings that keep one cascade's light alone, `-1` for all, trace the probes' rays through the GPU's own rays at `High` and march each cascade's probes' rays through the field from the cascade they stand in outward, or place them by it from there |
 | `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it, each face by where its ways were met, and the ways that carry most of the face furthest from it, each with how far its rays went against what and how far the reference's path through the texel's middle first met, and whether the probe was carried past its interval with its rays moving |

@@ -6,6 +6,17 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-24
+
+![](.github/assets/readings/2026-11-24-item-311-footprint.webp)
+scenes_sponza offscreen at 800 by 450, metered, with the world's cascades alone, on white under its
+title with each panel titled, view 1 and the gallery as their light over the reference's with the
+sun at a still probe's hit read at the hit and over the patch of the face its ray stands for, red
+more and blue less, the two walls boxed, with their figures, the first cascade's probe at 7.5, 7.5,
+-5.5 as the view turns in place both ways, the second cascade's probe at 7, 7, -5 by term against
+the reference, the gallery's back wall's light at 11 still points as the eye steps along it both
+ways, and the ms in Sponza and the Bistro, with lines under them.
+
 ## 2026-11-23
 
 ![](.github/assets/readings/2026-11-23-item-311-turn-flicker.webp)

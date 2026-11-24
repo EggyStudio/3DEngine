@@ -191,6 +191,7 @@ internal static class GlobalIlluminationCommands
         if (settings.Alone >= 0) off.Add($"every cascade but {settings.Alone}");
         if (settings.SpreadOff) off.Add("the coarser cascades' trace in halves");
         if (settings.PointsOff) off.Add("the faint glow lights at a hit taken as one point");
+        if (settings.FootprintOff) off.Add("the sun at a still probe's hit read over its ray's patch");
         var said = off.Count == 0 ? "every part of global illumination is on" : $"{string.Join(", ", off)} left out";
         if (settings.OwnFieldMarched) said += ", each cascade's probes marching the field from their own cascade outward";
         if (settings.OwnFieldPlaced) said += ", each cascade's probes placed by the field from their own cascade outward";

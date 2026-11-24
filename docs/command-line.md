@@ -161,8 +161,10 @@ lights, whose light the rays leave out all the same, so what they give can be se
 `gi.specular off` the surfaces' reflection of the indirect light, so the diffuse light is read apart
 from it, `gi.spread off` the coarser cascades' trace of half their probes a frame, so each traces
 all of them every frame, `gi.points off` a hit's faint glow lights taken as one point at their
-middle, so every light takes its own form, `gi.cascade 2` keeps the third cascade's light alone, and
-`on` or `-1` puts each back. `gi.meshes on` traces the world's probes' rays through the GPU's own
+middle, so every light takes its own form, `gi.footprint off` the sun at a still probe's hit read
+over the patch of the face its ray stands for, so it is read at the hit alone, `gi.cascade 2` keeps
+the third cascade's light alone, and `on` or `-1` puts each back. `gi.meshes on` traces the world's
+probes' rays through the GPU's own
 rays at `High` in place of the field, crossing what lets light through as the field does, a step
 that stays off until it reads every view at least as near a path-traced reference as the field, and
 `off` puts the field back. `gi.own_field on` marches each cascade's probes' rays through the field

@@ -893,3 +893,23 @@ numbers, each in full under Decisions in REVIEW-ARCHIVE.md.
     module in both engines, the engine's own copies deleted as each step lands.
 
 ## Replies
+
+311. The sun at a still probe's hit is read over the patch of the face its ray stands for, on by
+default, and `gi.footprint off` reads it at the hit as before. Sixteen points of the sun's shadow
+map lie over a disk on the face as wide as the ray's cone at the hit, each compared at its own
+depth, and a point the map holds a surface behind by over three cells stands in air past the face's
+edge and is left out. It takes no pass, mip or memory of its own and no history, so a still probe
+reads the same each frame. The second cascade's probe at 7, 7, -5 in Sponza brings 0.88 of the
+reference's light where its rays meet a surface, from 0.33, its sun at 1.22 of the reference's where
+it found none. The first cascade's probe at 7.5, 7.5, -5.5, turned in place 3 degrees a step with
+the eye held, swings by 4.9% where it swung by 12.9%, so the read at the hit is what moved a still
+probe's light with the view. The over-read lies on two ways at edges, the floor's edge met at a
+slant and block 1 met where the texel's middle passes it. The passage a unit wide reads as before,
+its deep probe's face at 0.62 of the reference, since way 16's four rays meet the wall in the shade
+and the sun the reference finds along it comes through the texel's corner by the passage's mouth,
+the scheme's limit at four rays a texel at that spacing. In the gallery the near wall goes from 0.50
+to 1.62 of the reference and the rays' back wall from 0.85 to 1.32, lit by probes right at their
+places a unit off a wall that holds half their light. Global illumination takes 0.05 ms more in
+Sponza through the field and 0.04 through the rays, and 0.22 and 0.24 more in the Bistro, all of it
+in the cascades' traces. The sheet `2026-11-24-item-311-footprint.webp` shows both views over the
+reference both ways with their figures, the turn, the probe by term, the walk both ways and the ms.
