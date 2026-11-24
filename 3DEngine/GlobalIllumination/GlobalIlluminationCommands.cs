@@ -25,7 +25,10 @@ internal static class GlobalIlluminationCommands
             return "global illumination is off";
         var quality = renderer.RenderWorld.TryGet<GlobalIlluminationSettings>()?.Quality ?? GlobalIllumination.Off;
         var p = probes.Probes;
-        var rays = probes.Texels.Select((n, c) => p * p * p * n * n * probes.RaysAt(c)).Sum();
+        // Each cascade's own probes a side, the middle of the images' grid of p a side.
+        var held = renderer.RenderWorld.TryGet<GlobalIlluminationSettings>();
+        var sides = probes.Texels.Select((_, c) => held?.SideOf(c) ?? p).ToArray();
+        var rays = probes.Texels.Select((n, c) => sides[c] * sides[c] * sides[c] * n * n * probes.RaysAt(c)).Sum();
         // Each cascade's rays, merges and the normals its rays met, eight bytes a texel each, every
         // cascade's faces and their light at the surfaces they are read for, the distances and reach
         // each probe is weighed by, the share of the sky its faces and its merged rays see, and each
@@ -35,7 +38,7 @@ internal static class GlobalIlluminationCommands
             + probes.SkyBytes + probes.WaysBytes + 4L * p * p * p * probes.Cascades * (8 + 16) + probes.CycleBytes;
         var lines = new List<string>
         {
-            $"{quality}: {probes.Cascades} cascades of {p * p * p} probes, {string.Join(", ", probes.Texels.Select((n, c) => n * n * probes.RaysAt(c)))} rays each, {rays} rays a frame",
+            $"{quality}: {probes.Cascades} cascades of {string.Join(", ", sides)} probes a side in a grid of {p}, {string.Join(", ", probes.Texels.Select((n, c) => n * n * probes.RaysAt(c)))} rays each, {rays} rays a frame",
             $"world probes {world / 1024.0 / 1024.0:0.00} MB",
         };
         // The probes whose rays the frame carried past their interval and moved within their

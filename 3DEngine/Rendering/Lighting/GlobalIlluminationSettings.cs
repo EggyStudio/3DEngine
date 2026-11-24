@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Numerics;
 
 namespace Engine;
@@ -221,6 +222,84 @@ internal sealed class GlobalIlluminationSettings
     /// floor under a slab or leaves that let light through takes less of the sky than they let by.
     /// </remarks>
     public bool FacesMovedToward { get; set; }
+
+    /// <summary>
+    /// How many probes a side each cascade of the world's probes holds, from the first on, the last
+    /// count holding for the cascades past it, as <c>gi.side</c> sets it. A cascade keeps its
+    /// probes' spacing, so more of them reach further, and its probes' box lies around the middle
+    /// of the field's cascade it stands in.
+    /// </summary>
+    /// <remarks>
+    /// The probes' images are made at the most probes any cascade holds, a cascade of fewer reading
+    /// and tracing the middle of its grid alone, so the memory goes by the most and the time by
+    /// each cascade's own, as <c>docs/global-illumination.md</c> gives them. The probes of the
+    /// field's last cascade past its box see none of the scene, so the light past the probes takes
+    /// their place from the field's side in, and more than 8 a side there adds time and no reach.
+    /// </remarks>
+    public IReadOnlyList<int> ProbesSides { get; set; } = DefaultSides;
+
+    /// <summary>
+    /// The probes a side the cascades hold unless set, 8 for the first two and 12 past them.
+    /// </summary>
+    public static readonly int[] DefaultSides = [8, 8, 12];
+
+    /// <summary>
+    /// The fewest probes a side a cascade holds, the field's cells a side over the probes' spacing.
+    /// </summary>
+    public const int LeastSide = SceneFieldPlan.Resolution / Illumination.ProbeSpacing;
+
+    /// <summary>The most probes a side a cascade holds.</summary>
+    public const int MostSide = 24;
+
+    /// <summary>The probes a side cascade <paramref name="c"/> holds.</summary>
+    public int SideOf(int c) => ProbesSides[Math.Min(c, ProbesSides.Count - 1)];
+
+    /// <summary>
+    /// The probes a side the images are made at for <paramref name="cascades"/> cascades, the most
+    /// any of them holds.
+    /// </summary>
+    public int GridSide(int cascades) => Enumerable.Range(0, Math.Max(cascades, 1)).Max(SideOf);
+
+    /// <summary>
+    /// The corner of a grid of <paramref name="grid"/> probes a side around the middle of the field
+    /// cascade whose box starts at <paramref name="origin"/> in cells <paramref name="cell"/> wide,
+    /// and the first and last probe a side of it cascade <paramref name="c"/> holds, its middle, as
+    /// <c>scenefield.slang</c>'s <c>cascadeAt</c> and <c>probeSpan</c> place them.
+    /// </summary>
+    public (Vector3 Corner, int First, int Last) GridOf(int c, int grid, Vector3 origin, float cell) =>
+        (origin - new Vector3(0.5f * (grid * Illumination.ProbeSpacing - SceneFieldPlan.Resolution) * cell),
+            (grid - SideOf(c)) / 2, (grid + SideOf(c)) / 2 - 1);
+
+    /// <summary>
+    /// The counts <c>gi.side</c> reads, even counts from <see cref="LeastSide"/> to
+    /// <see cref="MostSide"/> joined by commas, or null where the text holds another. Each is even
+    /// so a cascade's probes lie in the middle of the grid of the most whole probes in.
+    /// </summary>
+    internal static int[]? ParseSides(string text)
+    {
+        var parts = text.Split(',', StringSplitOptions.TrimEntries);
+        var sides = new int[parts.Length];
+        for (var i = 0; i < parts.Length; i++)
+            if (!int.TryParse(parts[i], NumberStyles.None, CultureInfo.InvariantCulture, out sides[i]) || sides[i] is < LeastSide or > MostSide || sides[i] % 2 != 0)
+                return null;
+        return sides;
+    }
+
+    /// <summary>The counts as <c>gi.side</c> shows them, joined by commas.</summary>
+    internal static string SidesText(IEnumerable<int> sides) => string.Join(",", sides);
+
+    /// <summary>
+    /// The turns the probes past a cascade's inner eight a side trace in, a part a frame and whole
+    /// on a frame the cascade moved, or 0 for every frame, as <c>gi.shell_parts</c> sets it.
+    /// </summary>
+    /// <remarks>
+    /// Off unless set. In quarters the cascades' passes at 8, 8, 12 take about a tenth less time
+    /// than traced whole, as <c>docs/global-illumination.md</c> gives it. A probe carried with its
+    /// rays moving traces every frame, since traced on its turn alone its cycle of sixteen places
+    /// met four of them in quarters and two in eighths, and a doorway's face in a court at 15:00
+    /// read 0.940 and 0.922 of its light traced whole, 1.000 with it.
+    /// </remarks>
+    public int ShellParts { get; set; }
 
     /// <summary>
     /// Whether each cascade's probes march the field from the cascade they stand in outward, as

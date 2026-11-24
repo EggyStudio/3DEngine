@@ -83,8 +83,9 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // And its light from all around the indirect light the probes hold.
         if (Illumination.CascadesIn(renderWorld) is > 0 and var cascades)
         {
+            // z: the probes a side of the grid the probes' images hold, the most any cascade holds.
             windowUbo.Indirect = new System.Numerics.Vector4(1, Illumination.ProbeSpacing,
-                SceneFieldPlan.Resolution / Illumination.ProbeSpacing, cascades);
+                renderWorld.TryGet<GlobalIlluminationSettings>()!.GridSide(cascades), cascades);
             var quality = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
             var settings = renderWorld.TryGet<GlobalIlluminationSettings>()!;
             // z: 1 at Low, where the screen's probes stand for the glow lights alone, whose texels are read.

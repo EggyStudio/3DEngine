@@ -49,7 +49,7 @@ public sealed class EngineSettingsTests : IDisposable
             .ToDictionary(page => page.Key, page => page.Count());
         pages.Should().Equal(new Dictionary<string, int>
         {
-            ["ao"] = 8, ["gi"] = 28, ["field"] = 1, ["window"] = 6, ["render"] = 5, ["interface"] = 1, ["imgui"] = 1, ["time"] = 1,
+            ["ao"] = 8, ["gi"] = 30, ["field"] = 1, ["window"] = 6, ["render"] = 5, ["interface"] = 1, ["imgui"] = 1, ["time"] = 1,
             ["live"] = 1, ["log"] = 1, ["scenes"] = 1, ["sky"] = 1, ["run"] = 10,
         });
         EngineSettings.All.Should().OnlyContain(setting => ReferenceEquals(ConsoleHost.Registry.FindSetting(setting.Name), setting),
@@ -89,6 +89,10 @@ public sealed class EngineSettingsTests : IDisposable
         Run("run.headless").Should().StartWith("run.headless is on");
         Run("gi.show tiles").Should().Be("The program runs no global illumination, which SetGlobalIllumination turns on.");
         Run("gi.show").Should().StartWith("gi.show is None", "a refused set leaves the value as it read");
+        Run("gi.side 8,9").Should().Be("The probes a side are even counts from 8 to 24 joined by commas, as 8,8,12, not 8,9.");
+        Run("gi.side 8,26").Should().Be("The probes a side are even counts from 8 to 24 joined by commas, as 8,8,12, not 8,26.");
+        Run("gi.side 8,12").Should().Be("The program runs no global illumination, which SetGlobalIllumination turns on.");
+        Run("gi.side").Should().StartWith("gi.side is 8,8,12", "the first two cascades hold 8 a side and the rest 12 unless set");
         Run("window.vsync on").Should().Be("The program has no window and draws no frames.", "a headless run has no swapchain");
         Run("window.mode fullscreen").Should().Be("The program has no window and draws no frames.", "a headless run has no window to cover the screen");
         Run("sky.hours 3").Should().Be("The program runs no day sky, which SetSkyTime or SetSkyDay starts.");

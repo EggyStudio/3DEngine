@@ -61,7 +61,8 @@ float4 reflectedIn<V : IVolume>(V cubes, V ways, V reach, SceneFieldInfo info, f
     int c, int cascades)
 {
     float4 oc = cascadeAt(info, c, cascades);
-    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    float2 span = probeSpan(info, c, probes);
+    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, span.x, span.y);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 r2 = r * r;

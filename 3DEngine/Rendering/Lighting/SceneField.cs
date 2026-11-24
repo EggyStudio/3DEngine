@@ -316,7 +316,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         plan.Update(settings?.Center ?? AheadOf(view, settings?.Ahead ?? 0, plan.CellSize), _drawn);
         try
         {
-            Record(renderContext, device, plan, renderWorld.TryGet<RenderOrigin>());
+            Record(renderContext, device, plan, renderWorld.TryGet<RenderOrigin>(), ProbesSides(renderWorld));
         }
         catch (DeviceMemoryException e)
         {
@@ -336,14 +336,14 @@ internal sealed partial class SceneFieldRenderer : IDisposable
 
     // The frame's builds, repaints and stamps, the info and the stamps' shapes handed against the
     // frame's origin, which the builds' meshes and corners never meet, being their own.
-    private void Record(RenderContext renderContext, GraphicsDevice device, SceneFieldPlan plan, RenderOrigin renderOrigin)
+    private void Record(RenderContext renderContext, GraphicsDevice device, SceneFieldPlan plan, RenderOrigin renderOrigin, int[] sides)
     {
         var field = _field!;
         var repaints = Repaints(plan);
         var stages = SceneFieldStages.Of(device);
 
         var commands = renderContext.CommandBuffer;
-        stages.RecordSceneFieldInfo(commands, field, Info(plan, renderOrigin));
+        stages.RecordSceneFieldInfo(commands, field, Info(plan, renderOrigin, sides));
         if (plan.Builds.Count == 0 && plan.Bricks.Count == 0 && repaints.Count == 0) return;
 
         stages.RecordSceneFieldOpen(commands, field);
@@ -651,9 +651,16 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         return _tints[instance.Vertices] = tint;
     }
 
+    // The probes a side each cascade of the world's probes holds, none where there are no probes.
+    private static int[] ProbesSides(RenderWorld renderWorld) =>
+        renderWorld.TryGet<GlobalIlluminationSettings>() is { } lit && Illumination.CascadesIn(renderWorld) is > 0 and var cascades
+            ? [.. Enumerable.Range(0, Math.Min(cascades, GpuSceneField.ProbeCascades)).Select(lit.SideOf)]
+            : [];
+
     // Where each cascade lies as it was last built, its corner and the eye against the frame's
-    // origin, and the cells a shift brought in that wait, as scenefield.slang's SceneFieldInfo.
-    private static byte[] Info(SceneFieldPlan plan, RenderOrigin against)
+    // origin, the cells a shift brought in that wait, and the probes a side of each cascade of the
+    // world's probes and of their grid, as scenefield.slang's SceneFieldInfo.
+    private static byte[] Info(SceneFieldPlan plan, RenderOrigin against, int[] sides)
     {
         var values = new float[GpuSceneField.InfoBytes / 4];
         // w: the far cascade's place, the last, or 0 where there is none.
@@ -664,6 +671,9 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         var eyeAt = 4 + GpuSceneField.MaxCascades * 4;
         var eye = against.Against(plan.Eye);
         (values[eyeAt], values[eyeAt + 1], values[eyeAt + 2]) = (eye.X, eye.Y, eye.Z);
+        values[eyeAt + 3] = sides.Length > 0 ? sides.Max() : 0;
+        for (var c = 0; c < sides.Length; c++)
+            values[eyeAt + 12 + c] = sides[c];
         // The cells a shift brought in that wait for its build's last part, with one more than
         // their cascade, which the passes read in the next cascade out until then.
         if (plan.Unbuilt is (var cascade, var cells))

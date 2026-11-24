@@ -121,6 +121,20 @@ internal static partial class EngineSettings
             s => s.FootprintOff, (s, off) => s.FootprintOff = off);
         yield return Of("gi.toward", "Whether a pixel reads each of its probes' faces moved toward the surface the face's ray met as a probe's hit reads them, as they stand without it.", false,
             s => s.FacesMovedToward, (s, on) => s.FacesMovedToward = on);
+        yield return new Setting<string>("gi.side", $"How many probes a side each cascade of the world's probes holds, their spacing kept, from the first on as 8,8,12, the last count holding for the cascades past it, each even from {GlobalIlluminationSettings.LeastSide} to {GlobalIlluminationSettings.MostSide}.",
+            GlobalIlluminationSettings.SidesText(GlobalIlluminationSettings.DefaultSides),
+            () => GlobalIlluminationSettings.SidesText(Lit()?.ProbesSides ?? GlobalIlluminationSettings.DefaultSides),
+            apply: text =>
+            {
+                if (GlobalIlluminationSettings.ParseSides(text) is not { } sides)
+                    return $"The probes a side are even counts from {GlobalIlluminationSettings.LeastSide} to {GlobalIlluminationSettings.MostSide} joined by commas, as 8,8,12, not {text}.";
+                if (Lit() is not { } lit) return unlit;
+                lit.ProbesSides = sides;
+                return null;
+            })
+        { Saved = false };
+        yield return Of("gi.shell_parts", "The turns the probes past each cascade's inner eight a side trace in, a part a frame and whole on a frame the cascade moves, or 0 for every frame.", 0,
+            s => s.ShellParts, (s, v) => s.ShellParts = v, low: 0, high: 8);
         yield return Of("gi.meshes", "Whether the probes' rays are traced through the device's rays at High in place of the distance field.", false,
             s => s.MeshesTraced, (s, on) => s.MeshesTraced = on);
         yield return Of("gi.own_field", "Whether each cascade's probes march the field from the cascade they stand in outward, from its finest cascade holding each point without it.", false,

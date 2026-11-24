@@ -35,7 +35,7 @@ public bool fadesOn(SceneFieldInfo info, int c, int probes)
 // (bandHold), past the cell fieldCascade keeps.
 public float cascadeHold(SceneFieldInfo info, int c, float3 p, int probes = 0)
 {
-    float4 oc = cascadeAt(info, c, probes);
+    float4 oc = boxAt(info, c, probes);
     return bandHold(info, c, (p - oc.xyz) / oc.w, CascadeBand, 1.0, probes);
 }
 
@@ -54,11 +54,16 @@ public float probesHold(SceneFieldInfo info, float3 p, float3 n, float spacing, 
     int c = fieldCoarsestBuilt(info, upTo, probes);
     if (c < 0)
         return 0.0;
-    float4 oc = cascadeAt(info, c, probes);
+    float4 oc = boxAt(info, c, probes);
     float3 cell = (p - oc.xyz) / oc.w;
     if (info.counts.w > 0.5 && probes > 0 && c == probes - 1)
-        return max(farHold(info, oc, cell + n * (Lean * spacing)), farHold(info, oc, cell));
-    return max(bandHold(info, c, cell + n * (Lean * spacing), CascadeBand, 0.0, probes), bandHold(info, c, cell, CascadeBand, 0.0, probes));
+        return max(farHold(info, oc, cell + n * (Lean * spacing), c, probes), farHold(info, oc, cell, c, probes));
+    // The last field cascade's probes past its box, as a cascade of more probes a side than its
+    // cells make holds, stand where no field holds the scene and see none of it, so the light past
+    // the probes takes their place from the field's side in.
+    int box = c == int(info.counts.x) - 1 && boxCellsOf(info, c, probes) > info.counts.y ? 0 : probes;
+    cell = (p - boxAt(info, c, box).xyz) / oc.w;
+    return max(bandHold(info, c, cell + n * (Lean * spacing), CascadeBand, 0.0, box), bandHold(info, c, cell, CascadeBand, 0.0, box));
 }
 
 // How much of the light from all around a point `cell` the far cascade's probes give rather than
@@ -69,11 +74,15 @@ public float probesHold(SceneFieldInfo info, float3 p, float3 n, float spacing, 
 // probes' light in one frame and the light past them in the next. Weighed around the eye, the band follows a walk
 // as smoothly as the eye moves. A cell's width at the cascade's sides holds it to the cascade as it
 // is built, for the frames a cascade waits to follow an eye gone past its snap.
-public float farHold(SceneFieldInfo info, float4 oc, float3 cell)
+public float farHold(SceneFieldInfo info, float4 oc, float3 cell, int c = 0, int probes = 0)
 {
-    float3 eye = (info.eye.xyz - oc.xyz) / oc.w;
-    float3 around = saturate((info.counts.y * 0.5 - SnapCells * 0.5 - abs(cell - eye)) / CascadeBand);
-    float3 inside = saturate(min(cell, info.counts.y - cell));
+    // The box the far cascade's own probes hold, as wide as its probes a side, or its field's where
+    // that is narrower, since no field holds the scene past it for probes standing there to see.
+    float size = min(boxCellsOf(info, c, probes), info.counts.y);
+    cell -= 0.5 * (boxCellsOf(info, c, probes) - size);
+    float3 eye = (info.eye.xyz - oc.xyz) / oc.w - 0.5 * (boxCellsOf(info, c, probes) - size);
+    float3 around = saturate((size * 0.5 - SnapCells * 0.5 - abs(cell - eye)) / CascadeBand);
+    float3 inside = saturate(min(cell, size - cell));
     return min(min(around.x, around.y), around.z) * min(min(inside.x, inside.y), inside.z);
 }
 

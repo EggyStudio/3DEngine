@@ -321,7 +321,7 @@ bool skyPastAbove(float3 way, float3 origin, int3 baseAbove, uint probes)
         float w = aboveAround[corner].w;
         if (w <= 0.0)
             continue;
-        int3 nb = clamp(baseAbove + int3(corner & 1, (corner >> 1) & 1, corner >> 2), int3(0), int3(int(probes) - 1));
+        int3 nb = probeClamp(fieldInfo, int(push.cascade.x) + 1, int(probes), baseAbove + int3(corner & 1, (corner >> 1) & 1, corner >> 2));
         skySum += skyAbove.Load(int4(nb.xy * int(push.above.x) + tt, nb.z, 0)) * w;
         skyWeight += w;
     }
@@ -343,14 +343,15 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     uint each = RaysAt(texels);
     uint rays = texels * texels * each;
     uint probe = id.x / rays + push.above.y;
-    // A probe's rays are 256, so every workgroup is one probe's, and one past the last probes
-    // leaves whole, before the sum below every ray of a group reaches.
-    if (probe >= probes * probes * probes)
+    // A probe's rays are 256, so every workgroup is one probe's, and one past the last probes, or
+    // past those its cascade holds of the grid (pastProbes), leaves whole, before the sum below
+    // every ray of a group reaches.
+    uint3 at = uint3(probe % probes, (probe / probes) % probes, probe / (probes * probes));
+    if (probe >= probes * probes * probes || pastProbes(fieldInfo, int(push.cascade.x), int(probes), at))
         return;
     uint index = id.x % rays;
     uint ray = index / each;
     uint quarter = index % each;
-    uint3 at = uint3(probe % probes, (probe / probes) % probes, probe / (probes * probes));
     uint2 texel = uint2(ray % texels, ray / texels);
     uint3 written = uint3(at.xy * texels + texel, at.z);
 
@@ -389,7 +390,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
         float4 ac = cascadeAt(fieldInfo, upperCascade, int(push.interval.w));
         float upperApart = ac.w * push.interval.z;
         int3 base = int3(floor((spot - ac.xyz) / upperApart - 0.5));
-        int3 neighbor = clamp(base + int3(int(lane & 1u), int((lane >> 1) & 1u), int(lane >> 2)), int3(0), int3(int(probes) - 1));
+        int3 neighbor = probeClamp(fieldInfo, int(upperCascade), int(probes), base + int3(int(lane & 1u), int((lane >> 1) & 1u), int(lane >> 2)));
         float4 upperPlace = held[int3(3 * int(probes) + neighbor.x, neighbor.y, int(upperCascade) * int(probes) + neighbor.z)];
         float3 upperProbe = ac.xyz + (float3(neighbor) + 0.5 + upperPlace.xyz) * upperApart;
         bool seen = ac.w > 0.0 && upperPlace.w > 0.5 && seesPastLeaves(sceneField, fieldAlbedo, fieldInfo, origin, upperProbe, oc.w * 0.5);
@@ -414,12 +415,11 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint lane : SV_GroupIndex)
     // A carried probe whose rays move marked in its place's w, 2, for the merge and the gather to
     // keep its cycle, a probe walled in keeping its 0.
     bool moving = carried && place.w > 0.5 && !walledIn && (push.above.z & 1u) != 0u;
-    // A cascade traced in halves, the probes whose coordinates' sum has the frame's parity this
-    // frame and the rest the next, those of the other half keep their rays' light of the frame
-    // before, as the far cascade's parts do; a probe carried with its rays moving traces each
-    // frame, its cycle taking one spot a frame. The whole group leaves together, after the place it
-    // stood at and the probes above it sees are written for the merge and the gather.
-    if ((push.above.w & 1u) != 0u && !moving && ((at.x + at.y + at.z) & 1u) != ((push.above.w >> 1) & 1u))
+    // A cascade traced in halves or in turns (onTurn), a probe off its turn keeps its rays' light
+    // of the frame before, as the far cascade's parts do; a probe carried with its rays moving
+    // traces each frame, its cycle taking one spot a frame. The whole group leaves together, after
+    // the place it stood at and the probes above it sees are written for the merge and the gather.
+    if (!moving && !onTurn(fieldInfo, int(probes), at, push.above.w))
         return;
     float widen = moving ? 0.0 : texelWidening(texels);
     if (lane == 0u && moving)

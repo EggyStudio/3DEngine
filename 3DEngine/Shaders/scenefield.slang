@@ -81,19 +81,101 @@ public struct SceneFieldInfo
     public float4 counts;
     public FieldCascade cascades[9];
     // xyz: the eye the cascades lie around this frame, which their outer bands keep clear of
-    // (bandHold). w: unused.
+    // (bandHold). w: the probes a side of the world's probes' grid, the most any cascade holds, or
+    // 0 where there are none.
     public float4 eye;
     // The cells a shift brought into a cascade, which hold nothing until its build's last part
     // splats the meshes there (fieldWaits). xyz: the first cell along each axis and the last,
     // both within. w of the first: one more than the cascade, or 0 where none waits.
     public float4 waitingFirst;
     public float4 waitingLast;
+    // The probes a side each cascade of the world's probes holds, in the middle of their grid, the
+    // first cascade's in x of the first, 0 past the cascades there are.
+    public float4 probesSide[2];
 };
 
 // Whether the field holds anything to read.
 public bool fieldOn(SceneFieldInfo info)
 {
     return info.counts.x > 0.5;
+}
+
+// The cells a probe of the world's probes stands apart by in its cascade of the field.
+public static const float ProbeCells = 8.0;
+
+// The cells a side of the grid of each cascade of the world's `probes` cascades of probes, its
+// probes a side the most any cascade holds, or of a cascade of the field where `probes` is 0.
+public float gridCells(SceneFieldInfo info, int probes)
+{
+    return probes > 0 && info.eye.w > 0.0 ? info.eye.w * ProbeCells : info.counts.y;
+}
+
+// The probes a side cascade c of the world's probes holds in the middle of its grid of `grid` a
+// side, the whole grid where the info holds none for it.
+public float probesOf(SceneFieldInfo info, int c, float grid)
+{
+    float side = c >= 0 && c < 8 ? info.probesSide[c >> 2][c & 3] : 0.0;
+    return side > 0.0 && side < grid ? side : grid;
+}
+
+// The cells a side of the box cascade c of the world's `probes` cascades of probes holds points
+// in, the cells of its own probes, or of a cascade of the field where `probes` is 0.
+public float boxCellsOf(SceneFieldInfo info, int c, int probes)
+{
+    return probes > 0 && info.eye.w > 0.0 ? probesOf(info, c, info.eye.w) * ProbeCells : info.counts.y;
+}
+
+// The first and the last probe along each axis of the grid of `probes` a side that cascade c
+// holds, the ones a point is read between.
+public float2 probeSpan(SceneFieldInfo info, int c, float probes)
+{
+    float lo = (probes - probesOf(info, c, probes)) * 0.5;
+    return float2(lo, probes - 1.0 - lo);
+}
+
+// A probe's coordinates of cascade c held to the probes it holds of a grid of `probes` a side.
+public int3 probeClamp(SceneFieldInfo info, int c, int probes, int3 at)
+{
+    float2 span = probeSpan(info, c, float(probes));
+    return clamp(at, int3(int(span.x)), int3(int(span.y)));
+}
+
+// Whether a point `q` probe spacings from the first probe of a grid of `probes` a side lies among
+// the probes cascade c holds, or within half a spacing past them.
+public bool nearProbes(SceneFieldInfo info, int c, float probes, float3 q)
+{
+    float2 span = probeSpan(info, c, probes);
+    return all(q >= span.x - 0.5) && all(q <= span.y + 0.5);
+}
+
+// Whether the probe at `at` of a grid of `probes` a side lies past the probes cascade c holds,
+// which it neither traces nor reads.
+public bool pastProbes(SceneFieldInfo info, int c, int probes, uint3 at)
+{
+    float2 span = probeSpan(info, c, float(probes));
+    return any(at < uint(span.x)) || any(at > uint(span.y));
+}
+
+// Whether the probe at `at` of a grid of `probes` a side lies past the middle probes that stand
+// over its field cascade's own box, those gi.shell_parts traces in turns.
+public bool inShell(SceneFieldInfo info, int probes, uint3 at)
+{
+    uint inner = uint(info.counts.y / ProbeCells);
+    uint lo = uint(max(probes - int(inner), 0)) / 2u;
+    return uint(probes) > inner && (any(at < lo) || any(at >= lo + inner));
+}
+
+// Whether the probe at `at` of a grid of `probes` a side traces this frame, where `half` says
+// its cascade traces in halves, by its first bit, the probes whose coordinates' sum has the
+// parity its second bit holds this frame and the rest the next, and its probes past the inner
+// eight in turns (inShell), by their count from its fifth bit, such a probe on the frame its
+// turn comes, from its ninth, by the parities of its coordinates.
+public bool onTurn(SceneFieldInfo info, int probes, uint3 at, uint half)
+{
+    uint parts = (half >> 4) & 15u;
+    if (parts > 0u && inShell(info, probes, at))
+        return ((at.x & 1u) | (at.y & 1u) << 1 | (at.z & 1u) << 2) % parts == ((half >> 8) & 15u);
+    return (half & 1u) == 0u || ((at.x + at.y + at.z) & 1u) == ((half >> 1) & 1u);
 }
 
 // Cascade c's corner and the width of its cell among the field's cascades, or where `probes` is
@@ -107,7 +189,22 @@ public bool fieldOn(SceneFieldInfo info)
 public float4 cascadeAt(SceneFieldInfo info, int c, int probes = 0)
 {
     int far = int(info.counts.w);
-    return info.cascades[probes > 0 && far > 0 && c == probes - 1 ? far : c].originAndCell;
+    float4 oc = info.cascades[probes > 0 && far > 0 && c == probes - 1 ? far : c].originAndCell;
+    // A cascade of probes' grid lies around its field cascade's middle, as wide as its probes a
+    // side times the cells a probe.
+    if (probes > 0)
+        oc.xyz -= 0.5 * (gridCells(info, probes) - info.counts.y) * oc.w;
+    return oc;
+}
+
+// The corner of the box cascade c holds points in and the width of its cell, the corner of the
+// middle of its grid its own probes hold, or of the field's cascade where `probes` is 0.
+public float4 boxAt(SceneFieldInfo info, int c, int probes = 0)
+{
+    float4 oc = cascadeAt(info, c, probes);
+    if (probes > 0)
+        oc.xyz += 0.5 * (gridCells(info, probes) - boxCellsOf(info, c, probes)) * oc.w;
+    return oc;
 }
 
 // How many of the field's cascades a point is looked for in, or of those the world's `probes`
@@ -141,11 +238,12 @@ public static const float EyeClear = 6.0;
 // reaches them (CascadeEdgeTests).
 public float bandHold(SceneFieldInfo info, int c, float3 cell, float band, float margin, int probes = 0)
 {
-    float4 oc = cascadeAt(info, c, probes);
+    float4 oc = boxAt(info, c, probes);
     float3 eye = (info.eye.xyz - oc.xyz) / oc.w;
     float3 low = clamp(eye - margin - EyeClear, 0.0, band);
-    float3 high = clamp(info.counts.y - eye - margin - EyeClear, 0.0, band);
-    float3 held = saturate(min((cell - margin) / max(low, 1e-3), (info.counts.y - cell - margin) / max(high, 1e-3)));
+    float size = boxCellsOf(info, c, probes);
+    float3 high = clamp(size - eye - margin - EyeClear, 0.0, band);
+    float3 held = saturate(min((cell - margin) / max(low, 1e-3), (size - cell - margin) / max(high, 1e-3)));
     return min(min(held.x, held.y), held.z);
 }
 
@@ -212,14 +310,14 @@ public int fieldOfProbes(SceneFieldInfo info, int c, int probes)
 public int fieldCascade(SceneFieldInfo info, float3 p, float margin, int probes = 0)
 {
     int count = cascadesOf(info, probes);
-    float size = info.counts.y;
     int waiting = probes > 0 ? -1 : int(info.waitingFirst.w + 0.5) - 1;
     for (int i = probes > 0 ? 0 : fieldFloor; i < count; i++)
     {
-        float4 oc = cascadeAt(info, i, probes);
+        float4 oc = boxAt(info, i, probes);
         if (oc.w <= 0.0)
             continue;
         float3 cell = (p - oc.xyz) / oc.w;
+        float size = boxCellsOf(info, i, probes);
         if (all(cell >= margin) && all(cell <= size - margin) && (i != waiting || !fieldWaits(info, cell, margin)))
             return i;
     }

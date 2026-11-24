@@ -261,7 +261,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     if (traced < 8u)
     {
         int3 offset = int3(traced & 1u, (traced >> 1) & 1u, traced >> 2);
-        int3 neighbor = clamp(base + offset, int3(0), int3(int(probes) - 1));
+        int3 neighbor = probeClamp(fieldInfo, int(upperCascade), int(probes), base + offset);
         float3 upperProbe = ac.xyz + (float3(neighbor) + 0.5 + placeOf(neighbor, upperCascade, probes).xyz) * (ac.w * push.spacing.x);
         seen[slot * 8u + traced] = upper > 0u && probe < probes * probes * probes && oc.w > 0.0
             && seesPastLeaves(sceneField, fieldAlbedo, fieldInfo, origin, upperProbe, oc.w * 0.5) ? 1u : 0u;
@@ -324,7 +324,7 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     for (int corner = 0; corner < 8; corner++)
     {
         int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
-        int3 neighbor = clamp(base + offset, int3(0), int3(int(probes) - 1));
+        int3 neighbor = probeClamp(fieldInfo, int(upperCascade), int(probes), base + offset);
         float3 lerps = lerp(1.0 - f, f, float3(offset));
         float weight = lerps.x * lerps.y * lerps.z * float(seen[slot * 8u + uint(corner)]) / float(factor * factor);
         // The probe above read toward the point of this ray nearest where its own ray along the way

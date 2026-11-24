@@ -281,9 +281,11 @@ internal static class BounceReference
 
         var (p, n) = (gi.Probes, gi.Texels[c]);
         var spacing = plan.CellOf(standing) * Illumination.ProbeSpacing;
-        var at = Vector3.Clamp(new Vector3(MathF.Floor((point.X - origin.X) / spacing), MathF.Floor((point.Y - origin.Y) / spacing),
-            MathF.Floor((point.Z - origin.Z) / spacing)), Vector3.Zero, new Vector3(p - 1));
-        var middle = origin + (at + new Vector3(0.5f)) * spacing;
+        // The cascade holds the middle of a grid that lies around its field cascade's middle.
+        var (corner, first, last) = (tracer.Render.TryGet<GlobalIlluminationSettings>() ?? new()).GridOf(c, p, origin, plan.CellOf(standing));
+        var at = Vector3.Clamp(new Vector3(MathF.Floor((point.X - corner.X) / spacing), MathF.Floor((point.Y - corner.Y) / spacing),
+            MathF.Floor((point.Z - corner.Z) / spacing)), new Vector3(first), new Vector3(last));
+        var middle = corner + (at + new Vector3(0.5f)) * spacing;
         var (x, y, z) = ((int)at.X, (int)at.Y, (int)at.Z);
 
         var device = tracer.Device;

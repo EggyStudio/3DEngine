@@ -947,3 +947,36 @@ item. The second bounce room reads 1.4% to 1.9% further from its reference, 0.07
 and its bounds go to 15% over those readings as its test's rule sets them, every other room within
 0.7% of where it was. The sheet `2026-11-24-item-311-placement-default.webp` shows both views both
 ways with their figures, the probes moved, the passage and the walk both ways.
+
+311. Each cascade holds as many probes a side as `gi.side` sets, 8 for cascades 0 and 1 and 12 from
+cascade 2 on unless set, the last count holding for the cascades past it, and `gi.shell_parts`
+traces the probes past a cascade's inner eight in turns, off unless set, a probe carried with its
+rays moving traced every frame. The images are made at the most any cascade holds, and a cascade of
+fewer traces and reads the middle of that grid. At 8 whole, the default and 12 whole the far
+doorway's face of view 1 reads 28.7, 5.42 and 5.44 of the reference through the field and 25.7, 5.52
+and 5.51 through the rays, view 1's shade 1.24, 1.16 and 1.11, and the gallery's back wall 1.11,
+1.11 and 0.85 through the field, its light from cascade 0 alone 0.125 at 8 whole and the default and
+0.300 at 12 whole. The step as cascade 0 moves its box reads a median of 1.6%, 1.5% and 1.1% through
+the field, the turn's swing 4.3%, 4.4% and 4.2%, and the 12 light tests pass at each. At High at 800
+by 450 on an RTX 4070 the cascades' passes take 4.76, 6.78 and 11.51 ms in Sponza and 5.61, 7.90 and
+13.80 in the Bistro, the probes 29.3 MB at 8 whole and 99.0 MB at the other two, and with
+`gi.shell_parts 4` the default's passes take 6.11 and 7.03. The new test stands a cascade of 8
+probes a side in a grid of 12 and reads its rays' light as a grid of 8 does and its frame 1.7e-8
+apart, and with the centring taken out they read 1.44 and 0.019 apart and it fails. The sheet
+`2026-11-24-item-311-probes-a-side.webp` shows both views at each count with their figures and the
+five.
+The suite at the default found two faults of the count. The reference's reading of a probe took the
+cascade's grid as whole, so 12 tests read a cascade of 8 from probes past its middle that hold
+nothing, and it now takes the middle the cascade holds. And the probes of the field's last cascade
+past its box stand where no field holds the scene and see none of it, so the light past the probes
+now takes their place from the field's side in, at the far cascade and at the last counted one
+alike. Before it a block in the far cascade's band read 25.0% apart from one frame to the next as
+the cascade moved, against 1.0% at 8 whole, and the wall along the field's edge at High stepped 2.4%
+from one pixel to the next where cascade 2's probes end and 2.1% where the field's last cascade
+ends. With it they read 0.58% and 1.38% at the default and at 12 whole and 1.03% and 0.61% at 8
+whole as before, against the tests' 10% and 1.5%. More than 8 a side at the field's last cascade so
+adds time and no reach. Cascade 2's probes past its field cascade's box march the coarser cascade's
+cells and read the wall 3.5% brighter than cascade 3's probes beside them, which is the step of
+1.38% left where its band ends. With it the far doorway's face, view 1's shade and the gallery's
+back wall from every cascade and from each alone read at the default as before it, the gallery's
+shade moving by 0.001.

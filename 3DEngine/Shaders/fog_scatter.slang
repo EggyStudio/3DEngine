@@ -69,7 +69,8 @@ float3 airAt(float3 p, int c)
     float probes = fog.grid.w, spacing = fog.probes.x;
     int cascades = int(fog.probes.y);
     float4 oc = cascadeAt(field, c, cascades);
-    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    float2 span = probeSpan(field, c, probes);
+    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, span.x, span.y);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 seenSum = float3(0.0);

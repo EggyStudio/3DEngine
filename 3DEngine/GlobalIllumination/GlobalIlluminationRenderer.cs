@@ -14,8 +14,10 @@ namespace Engine;
 /// <remarks>
 /// <para>
 /// A cascade's probes lie every <see cref="ProbeSpacing"/> cells of the field's cascade of the same
-/// number, eight along each side, so each cascade's probes are twice as far apart as the one
-/// before's and cover eight times the room. Each probe's rays cover an interval from as far as the
+/// number, as many along each side as <c>gi.side</c> holds for it, eight for the first two and
+/// twelve past them unless set, in a box around the field's cascade's middle, so each cascade's
+/// probes are twice as far apart as the one before's, and of as many probes cover eight times the
+/// room. Each probe's rays cover an interval from as far as the
 /// probes are apart to four times that, the first cascade's from the probe itself, so it reaches as
 /// far again as the next cascade's interval begins, and each cascade has
 /// four times the directions of the one before up to 256, so the far light, which changes slowly
@@ -80,7 +82,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     private readonly Dictionary<int, TargetScreen> _targets = [];
     private GpuReflectionHistory? _history;
     private GpuRayScene? _rays;
-    private (GpuSceneField Field, GlobalIllumination Quality, int Cascades) _made;
+    private (GpuSceneField Field, GlobalIllumination Quality, int Cascades, string Sides) _made;
     private CubeMap? _black;
     private long _frame;
     // Where each cascade of the field lay the frame before, which says whether the probes' own light
@@ -167,14 +169,18 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         var plan = renderWorld.TryGet<SceneFieldRenderer>()?.Plan;
         var origin = renderWorld.TryGet<RenderOrigin>();
         var far = FarIn(renderWorld);
-        if (_gi is null || !ReferenceEquals(_made.Field, field.Field) || _made.Quality != wanted || _made.Cascades != cascades)
+        // The probes a side of each cascade, made again where they change, so a cascade's probes
+        // newly held start from none rather than from what a run before left in them.
+        var lit = renderWorld.TryGet<GlobalIlluminationSettings>()!;
+        var sides = GlobalIlluminationSettings.SidesText(Enumerable.Range(0, cascades).Select(lit.SideOf));
+        if (_gi is null || !ReferenceEquals(_made.Field, field.Field) || _made.Quality != wanted || _made.Cascades != cascades || _made.Sides != sides)
         {
             Release();
             var making = Stopwatch.GetTimestamp();
-            _gi = GlobalIlluminationStages.Of(device).CreateGlobalIllumination(field.Field.Resolution / ProbeSpacing, TexelsFor(wanted, cascades, far), far,
+            _gi = GlobalIlluminationStages.Of(device).CreateGlobalIllumination(lit.GridSide(cascades), TexelsFor(wanted, cascades, far), far,
                 cycle: wanted == GlobalIllumination.High && device.CanQueryRays);
-            _made = (field.Field, wanted, cascades);
-            Logger.Info($"Global illumination's probes made at {wanted}, {cascades} cascades of {_gi.Probes} a side, "
+            _made = (field.Field, wanted, cascades, sides);
+            Logger.Info($"Global illumination's probes made at {wanted}, {cascades} cascades of {sides} probes a side in a grid of {_gi.Probes}, "
                 + $"in {Stopwatch.GetElapsedTime(making).TotalMilliseconds:0} ms.");
         }
 
@@ -287,7 +293,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,
             far ? cascades - 2 : -1, _lightThrough, plan is { Whole: true }, farPart, switches.MeshesTraced || moving ? _rays : null, shifts, CarriedShare, CarriedSince, CarriedPhase,
             (moving ? 1u : 0) | (switches.MeshesTraced ? 2u : 0) | (switches.OwnFieldMarched ? 4u : 0) | (switches.OwnPlaceOff ? 0 : 8u) | (switches.FootprintOff ? 16u : 0), spread, _fieldRebuilt,
-            origin.Against(_fieldChanged.Min), origin.Against(_fieldChanged.Max))));
+            origin.Against(_fieldChanged.Min), origin.Against(_fieldChanged.Max), lit.ShellParts)));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval
         // theirs. At Low, which leaves them out, they stand for the glow lights alone while some

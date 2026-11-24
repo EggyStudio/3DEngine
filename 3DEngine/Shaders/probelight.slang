@@ -39,7 +39,8 @@ float3 bouncedInBoth<V : IVolume>(V cubes, V cubesAt, V reach, SceneFieldInfo in
     int cascades, out float3 alongMirror)
 {
     float4 oc = cascadeAt(info, c, cascades);
-    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    float2 span = probeSpan(info, c, probes);
+    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, span.x, span.y);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 n2 = n * n, m2 = m * m;
@@ -183,7 +184,8 @@ float3 bouncedIn<V : IVolume, let Sky : bool, let At : bool>(V cubes, V cubesAt,
     int cascades, out float sky, bool toward = false)
 {
     float4 oc = cascadeAt(info, c, cascades);
-    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    float2 span = probeSpan(info, c, probes);
+    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, span.x, span.y);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 n2 = n * n;
@@ -249,7 +251,8 @@ public float skyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, 
     if (c < 0 || c >= int(cascades))
         return 1.0;
     float4 oc = cascadeAt(info, c, int(cascades));
-    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    float2 span = probeSpan(info, c, probes);
+    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, span.x, span.y);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 r2 = r * r;
@@ -333,7 +336,8 @@ public float3 bouncedSeenAtBoth<V : IVolume>(V field, SceneFieldInfo info, Scene
     if (c < 0 || c >= int(cascades))
         return float3(0.0);
     float4 oc = cascadeAt(gathered, c, int(cascades));
-    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    float2 span = probeSpan(gathered, c, probes);
+    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, span.x, span.y);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 n2 = n * n, m2 = m * m;
@@ -383,7 +387,8 @@ float4 seenSumIn<V : IVolume, let At : bool>(V field, SceneFieldInfo info, Scene
     float spacing, int c, int cascades)
 {
     float4 oc = cascadeAt(gathered, c, cascades);
-    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
+    float2 span = probeSpan(gathered, c, probes);
+    float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, span.x, span.y);
     int3 base = int3(floor(q));
     float3 f = q - float3(base);
     float3 n2 = n * n;

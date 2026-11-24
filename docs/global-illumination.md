@@ -121,6 +121,23 @@ cascade deep in a passage a unit wide reads the sunlit court through its opening
 path-traced reference, as the passage's test in `GlobalIlluminationTests.Passage.cs` measures it,
 the probes above it, moved out of the passage's walls into it, giving it less of the court's light
 than its own rays carried on bring, a fault still open.
+Each cascade holds as many probes a side as `gi.side` says from the first on, 8 for the first two
+and 12 for the rest unless set, the last count given holding for the cascades past it, each even
+from 8 to 24. A cascade keeps its probes eight cells apart, so 12 a side reach two probes past its
+field cascade's box on each side, and the probes' images are made at the most any cascade holds, a
+cascade of fewer tracing and reading the middle of that grid alone. At 8 a side a surface past the
+second cascade's probes takes the coarser cascades' alone, which stand further from it, and the far
+doorway's face of Sponza's first view reads 28.7 times its path-traced reference's light through the
+field, 5.4 with the cascades past the second at 12. At High at 800 by 450 on an RTX 4070 the
+cascades' passes take 4.76, 6.78 and 11.51 ms in Sponza at 8 a side, at the default and at 12 for
+every cascade, and 5.61, 7.90 and 13.80 in the Bistro, and the probes take 29.3 MB at 8 a side and
+99.0 MB at the default or at 12, as `gi.state` says. The probes of the field's last cascade past its
+box stand where no field holds the scene and see none of it, so the light past the probes takes
+their place from the field's side in, as at 8 a side, and more than 8 a side there adds time and no
+reach. `gi.shell_parts 4` traces the probes past each
+cascade's inner eight a side a quarter a frame while the cascade lies where it lay, whole on a frame
+it moves, 6.11 ms in Sponza and 7.03 in the Bistro at the default, and a probe carried with its rays
+moving traces every frame.
 A cascade that point has gone past the grid of keeps the cells it holds, moved on the GPU, and
 builds the slab of cells the move brings in alone, as a clipmap does, so a walk splats a fraction of
 what building each cascade again did. One the point went half its width past or more is built again
@@ -473,6 +490,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 | `gi.history`, `gi.filter`, `gi.screen`, `gi.merge`, `gi.again`, `gi.follow`, `gi.glow`, `gi.through`, `gi.albedo`, `gi.specular`, `gi.normals`, `gi.spread`, `gi.points`, `gi.footprint`, `gi.own_place` `<on\|off>` | Settings that leave out the frame before's light, the screen's filter, the screen's probes, neither made nor traced, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, the crossing of what lets light through, the surfaces' colors, their reflection of the indirect light, their normal maps, the coarser cascades' trace in halves, the faint glow lights taken as one point, the sun at a still probe's hit read over the patch of the face its ray stands for or each cascade's probes placed by the field from the cascade they stand in outward |
 | `gi.gather <probes\|pixels>`, `gi.gather_size <full\|half\|quarter\|eighth>`, `gi.gather_reach <units>`, `gi.gather_guide <off\|cascades>`, `gi.gather_rays <on\|off>` | Settings that bring the cascades' light to the picture by the screen's probes or by one ray from each texel of a grid of the window's pixels at the size set, traced through the field as far as the reach set, `0` for as far as the field reaches, its ways drawn by the cosine or half of them toward the light the cascades hold, its rays meeting the meshes through the device's ray tracing where set, made whole each frame and blended within it, the screen's probes then standing for the glow lights alone |
 | `gi.cascade <cascade>`, `gi.meshes <on\|off>`, `gi.own_field <on\|off>`, `gi.toward <on\|off>` | Settings that keep one cascade's light alone, `-1` for all, trace the probes' rays through the GPU's own rays at `High` and march each cascade's probes' rays through the field from the cascade they stand in outward, or have a pixel read its probes' faces moved toward the surfaces their rays met |
+| `gi.side <counts>`, `gi.shell_parts <turns>` | Settings that set how many probes a side each cascade holds from the first on, as `8,8,12`, the last count holding for the cascades past it, and the turns the probes past each cascade's inner eight a side trace in, `0` for every frame |
 | `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it, each face by where its ways were met, and the ways that carry most of the face furthest from it, each with how far its rays went against what and how far the reference's path through the texel's middle first met, and whether the probe was carried past its interval with its rays moving |
 | `field.march <x> <y> <z> [dx] [dy] [dz] [sun]` | Marches the scene's distance field from a point along a way, or toward the sun, as the passes march it, and says where it met a surface, in which cascade and cell, and each step, with `sun` marching on from that surface toward the sun as a probe's hit does |
 | `gi.screenprobe <x> <y> [samples] [bounces]` | Each of the sixteen rays of the screen's probe under a pixel, where it was met and its light, against a path-traced reference along the same way |

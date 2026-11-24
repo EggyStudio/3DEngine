@@ -344,13 +344,16 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     /// <param name="fieldBuilt">The cascades a build of the frame changed, a bit a cascade, none where no build did.</param>
     /// <param name="changedLow">The least corner of the box the frame's builds changed, against the frame's origin.</param>
     /// <param name="changedHigh">The most corner of that box.</param>
+    /// <param name="shellParts">
+    /// The turns the probes past each cascade's inner eight a side trace in, or 0 for every frame.
+    /// </param>
     /// <param name="carriedPhase">Where a carried probe's cycle of sixteen frames stands, counted from the last change, so the first whole cycle is gathered in the sixteen frames after it.</param>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordGlobalIllumination(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSceneField field, IImageView environment,
         ISampler environmentSampler, IImageView sunMap, ISampler sunSampler, ReadOnlySpan<byte> lights, IReadOnlyList<(float Start, float End)> intervals, float spacing,
         bool mergeOff = false, int alone = -1, bool viewed = false, long frame = 0, IReadOnlyList<bool>? lying = null, int lastCounted = -1, bool lightThrough = false,
         bool fieldWhole = false, int farPart = -1, GpuRayScene? rays = null, IReadOnlyList<(int X, int Y, int Z)?>? shifts = null, float carriedShare = 1, uint carriedSince = 0, uint carriedPhase = 0, uint traceFlags = 0, bool spread = false,
-        uint fieldBuilt = 0, System.Numerics.Vector3 changedLow = default, System.Numerics.Vector3 changedHigh = default)
+        uint fieldBuilt = 0, System.Numerics.Vector3 changedLow = default, System.Numerics.Vector3 changedHigh = default, int shellParts = 0)
     {
         // Traced through the meshes where asked and the build for the frame was made, crossing what
         // lets light through where the frame holds any.
@@ -449,6 +452,11 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             push.First = first;
             if (Halved(c, gi.Cascades, lastCounted, lying, spread))
                 push.Half = 1u | (uint)(frame & 1) << 1;
+            // The probes past the inner eight of a cascade lying where it lay, or of every
+            // cascade with the follow off, trace a part a frame, the far cascade's parts aside,
+            // and whole on a frame the cascade moved.
+            if (shellParts > 0 && (lying is null || c < lying.Count && lying[c]) && !(c == gi.Cascades - 1 && farPart >= 0))
+                push.Half |= (uint)shellParts << 4 | (uint)(frame % shellParts) << 8;
             run.Dispatch(trace, set, MemoryMarshal.AsBytes(new ReadOnlySpan<IlluminationTrace>(in push)),
                 (count * n * n * (uint)gi.RaysAt(c) + 63) / 64);
             MarkGlobalIllumination(commandBuffer, $"gi_trace{c}");

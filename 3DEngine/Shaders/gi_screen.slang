@@ -266,7 +266,7 @@ bool probesAround(float3 p, uint c, out int3 base, out float3 f)
     float3 q = (p - oc.xyz) / (oc.w * view.trace.z) - 0.5;
     base = int3(floor(q));
     f = q - float3(base);
-    return oc.w > 0.0 && all(q >= -0.5) && all(q <= probes - 0.5);
+    return oc.w > 0.0 && nearProbes(fieldInfo, int(c), probes, q);
 }
 
 // Where the probe of cascade c at `at` stands, its spot in the grid moved as its faces say.
@@ -378,7 +378,7 @@ float3 beyond(float3 start, float3 normal, float3 way, float reached, uint aroun
     for (int corner = 0; corner < 8; corner++)
     {
         int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
-        int3 neighbor = clamp(base + offset, int3(0), int3(int(probes) - 1));
+        int3 neighbor = probeClamp(fieldInfo, int(c), int(probes), base + offset);
         float3 lerps = lerp(1.0 - f, f, float3(offset));
         float weight = lerps.x * lerps.y * lerps.z;
         if (weight <= 0.0)
