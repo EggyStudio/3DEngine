@@ -113,4 +113,57 @@ public sealed partial class GlobalIlluminationTests
         spreads[1].Should().BeLessThan(1.3f, $"the first cascade's probe holds still, its face's readings within {spreads[1]:0.000} times of each other");
         UnloadModel(slab);
     }
+
+    [NeedsRayQueryFact]
+    [Trait("Category", "Render")]
+    public void Probes_In_A_Row_At_The_Lintels_Height_Take_Alike_From_The_Probes_Above()
+    {
+        // The same hall with the second cascade's light alone, read at three of the first
+        // cascade's probes a unit apart along the hall's middle at the lintel's height, on the
+        // face toward the opening of each. A probe above's reach is the mean of its four rays',
+        // and where two meet the lintel and two pass under it, that mean lies on no surface and
+        // lands past the end of the interval, though the probe holds the lintel's light along a
+        // way the ray below passes under. Taken where the ray's march met no surface, it gave the
+        // middle probe 1.82 times the light of the two beside it. So it is taken only where the
+        // ray, marched on past the end, meets a surface about as far.
+        Open();
+        SetSceneField(4, 0.125f, 2);
+        SetSceneFieldCenter(new Vector3(-2, 1.5f, 0));
+        SetGlobalIllumination(GlobalIllumination.High);
+        SetAmbientLight(new Color(200, 220, 255), 1);
+        var settings = GetApp().World.Resource<GlobalIlluminationSettings>();
+        settings.AgainOff = true;
+        settings.Alone = 1;
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        slab.Materials[0].Roughness = 1;
+        var gray = new Color(160, 160, 160);
+        var camera = new Camera3D(new Vector3(6, 3, 6), new Vector3(0, 1.5f, 0), Vector3.UnitY, 60);
+        void Box(float x0, float x1, float y0, float y1, float z0, float z1) =>
+            DrawModelEx(slab, new Vector3(x0 + x1, y0 + y1, z0 + z1) / 2, Vector3.UnitY, 0, new Vector3(x1 - x0, y1 - y0, z1 - z0), gray);
+        for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 20; frame++)
+        {
+            BeginDrawing();
+            ClearBackground(Color.Black);
+            BeginMode3D(camera);
+            Box(-24, 10, -0.5f, 0, -12, 12);
+            Box(-6.5f, 10.5f, 4, 4.5f, -3.5f, 3.5f);
+            Box(-6.5f, -6, 2, 4, -3.5f, 3.5f);
+            Box(10, 10.5f, 0, 4, -3.5f, 3.5f);
+            Box(-6.5f, 10.5f, 0, 4, -4, -3.5f);
+            Box(-6.5f, 10.5f, 0, 4, 3.5f, 4);
+            EndMode3D();
+            EndDrawing();
+        }
+        float Face(float x)
+        {
+            var probe = BounceReference.MeasureProbe(GetApp().World, new Vector3(x, 2.5f, 0.5f), 1, 0, 0, out var why);
+            probe.Should().NotBeNull(why);
+            var c = probe!.FacesMerged[1];
+            return 0.2126f * c.X + 0.7152f * c.Y + 0.0722f * c.Z;
+        }
+        var (near, middle, far) = (Face(-0.5f), Face(0.5f), Face(1.5f));
+        (middle / ((near + far) / 2)).Should().BeInRange(0.8f, 1.25f,
+            $"the middle probe takes {middle:0.00000} where the two beside it take {near:0.00000} and {far:0.00000}");
+        UnloadModel(slab);
+    }
 }

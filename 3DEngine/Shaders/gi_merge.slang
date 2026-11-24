@@ -23,7 +23,8 @@
 // probe below sees the sky along. Where the cascade above's interval ends at twice this one's, this
 // ray is marched on past its interval to that end through the field, across surfaces that let light
 // through, and each probe above whose own hit along the way lies off where the march met a surface,
-// by two of its cells or a quarter of the way, or that met one where the march met none, is passed
+// by two of its cells or a quarter of the way, or that met one where the march met none, save one
+// whose hit lies past that end where the march, marched on, meets a surface about as far, is passed
 // over, those that agree taken alone, and where none agrees and the march met a surface, the light
 // from beyond is none. A probe above that is carried past its interval with its rays moving through
 // their sixteen places is read by its texels' middle ways' hits, which the trace keeps for it
@@ -318,6 +319,10 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
     float limit = push.spacing.w;
     bool marched = limit < 2.5 * end;
     float occluder = marched ? metPastLeaves(sceneField, fieldAlbedo, fieldInfo, origin, d, end, limit) : -1.0;
+    // Where it meets one past that end, up to two of the cascade above's spacings on, as far as a
+    // probe above's own hit can lie along it, marched once a probe above needs it, or -1 where it
+    // meets none.
+    float past = -2.0;
     float3 sum = float3(0.0), agreedSum = float3(0.0);
     float sky = 0.0, agreedSky = 0.0;
     float weights = 0.0, agreedWeights = 0.0;
@@ -351,7 +356,20 @@ void computeMain(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID)
         int2 first = int2(floor(octahedron(way) * float(upper) - float(factor) * 0.5 + 0.5));
         // Where along this ray the probe above's own hit lies, or past the limit where it met none.
         float along = r > 0.0 && r < limit * 0.999 ? dot(upperAt + d * r - origin, d) : 1e30;
-        bool agrees = !marched || (occluder < 0.0 ? along >= limit * 0.999 : abs(along - occluder) <= max(2.0 * ac.w, 0.25 * occluder));
+        // Where the march met none, a probe above that met a surface agrees only where its hit lies
+        // past the end and this ray, marched on, meets a surface about as far. Its reach is the
+        // mean of its four rays', and where two meet a lintel and two pass under it, that mean
+        // lies on no surface, and from a probe above standing further along the way it lands past
+        // the end, though the probe carries the lintel's light along a way this ray passes under.
+        bool agrees = !marched || occluder < 0.0 && along > 1e29;
+        if (marched && occluder >= 0.0)
+            agrees = abs(along - occluder) <= max(2.0 * ac.w, 0.25 * occluder);
+        else if (marched && !agrees && along >= limit * 0.999)
+        {
+            if (past < -1.5)
+                past = metPastLeaves(sceneField, fieldAlbedo, fieldInfo, origin, d, limit, limit + 2.0 * ac.w * push.spacing.x);
+            agrees = past >= 0.0 && abs(along - past) <= max(2.0 * ac.w, 0.25 * past);
+        }
         // The texels of the cascade above that lie inside this one's, one or four of them, those
         // that met a surface before their interval dark, and those inside a mesh passed over.
         for (uint v = 0u; v < factor; v++)

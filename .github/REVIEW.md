@@ -980,3 +980,17 @@ cells and read the wall 3.5% brighter than cascade 3's probes beside them, which
 1.38% left where its band ends. With it the far doorway's face, view 1's shade and the gallery's
 back wall from every cascade and from each alone read at the default as before it, the gallery's
 shade moving by 0.001.
+
+311. A ray of a probe below that the march past its interval finds meeting no surface takes a probe
+above whose own hit lies past that end only where the ray, marched on up to two of the cascade
+above's spacings, meets a surface about as far. A probe above's reach is the mean of its four rays',
+and where two meet a lintel and two pass under it, that mean lies on no surface and lands past the
+end, though the probe holds the lintel's light along a way the ray below passes under. In the hall
+under a lintel with the second cascade's light alone, three first cascade probes a unit apart along
+the hall's middle at the lintel's height took 0.0355, 0.0637 and 0.0346 on their faces toward the
+opening, the middle 1.82 times the two beside it, and take 0.0355, 0.0380 and 0.0346, 1.08 times,
+which the new test holds within a quarter. In Sponza, in the recording's room at 9.5 hours, the
+probes under the floor's squares read their upward faces against the reference at a mean log ratio
+of 0.531 where 0.593, and step from one to the next by 0.438 where 0.499. The march on past the end
+gives the merge two more copies of the table of cascades, 80 in the built-in shaders where 78, which
+the test counting them holds.
