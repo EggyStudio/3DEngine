@@ -293,7 +293,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
                 }
             }, [.. distances.Select(i => (i.Item1, i.Item3))], reach, new VulkanImageView(device, reachOwner, reachView),
             partialView, heldView, [.. mergedSky.Select(i => (i.Item1, i.Item3))], skies, new VulkanImageView(device, skiesOwner, skiesView),
-            ways, new VulkanImageView(device, waysOwner, waysView)) { Far = farCascade, GlowFaces = glowFaces, CubesAt = cubesAt, CubesAtView = cubesAtView, RayReach = rayReach.Item3,
+            ways, new VulkanImageView(device, waysOwner, waysView)) { Far = farCascade, GlowFaces = glowFaces, CubesAt = cubesAt, CubesAtView = cubesAtView,
+                CubesAtShared = new VulkanImageView(device, reachOwner, cubesAtView), RayReach = rayReach.Item3,
                 HitNormals = [.. hitNormals.Select(i => (i.Item1, i.Item3))], CyclePartialBefore = [.. cyclePartialBefore.Select(i => (i.Item1, i.Item3))],
                 CyclePartial = [.. cyclePartial.Select(i => (i.Item1, i.Item3))], CycleFull = [.. cycleFull.Select(i => (i.Item1, i.Item3))],
                 CycleFullBefore = [.. cycleFullBefore.Select(i => (i.Item1, i.Item3))], CycleSkyMarkBefore = [.. cycleSkyMarkBefore.Select(i => (i.Item1, i.Item3))],

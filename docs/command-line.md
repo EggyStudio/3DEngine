@@ -175,7 +175,10 @@ first back. `gi.own_place on` places each cascade's probes by the field from the
 in outward rather than from the finest cascade holding each spot, so a probe stands still where a
 finer cascade's box moves with the eye, a step that stays off since a probe deep in a passage a unit
 wide then reads the court through its opening at 0.62 of a path-traced reference, and `off` puts the
-finest first back.
+finest first back. `gi.toward on` has a pixel read each of its probes' faces moved toward the
+surface the face's ray met, as far as the pixel lies behind the probe toward it, as a probe's hit
+reads them, a step that stays off since a face moved so is not tested from the pixel, so light
+reaches a floor behind a thin wall, and `off` reads the faces as they stand.
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so

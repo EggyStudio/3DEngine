@@ -194,6 +194,7 @@ internal static class GlobalIlluminationCommands
         if (settings.FootprintOff) off.Add("the sun at a still probe's hit read over its ray's patch");
         var said = off.Count == 0 ? "every part of global illumination is on" : $"{string.Join(", ", off)} left out";
         if (settings.OwnFieldMarched) said += ", each cascade's probes marching the field from their own cascade outward";
+        if (settings.FacesMovedToward) said += ", each pixel reading its probes' faces moved toward the surfaces their rays met";
         if (settings.OwnFieldPlaced) said += ", each cascade's probes placed by the field from their own cascade outward";
         if (!settings.MeshesTraced) return said;
         var device = ConsoleHost.World is { } world && world.TryGetResource<Renderer>(out var renderer) && renderer.Context.Graphics is GraphicsDevice { CanQueryRays: true };

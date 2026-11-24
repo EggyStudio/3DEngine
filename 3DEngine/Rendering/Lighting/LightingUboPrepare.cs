@@ -96,7 +96,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             var gather = Illumination.GatherAt(renderWorld);
             windowUbo.Screen = new System.Numerics.Vector4(gather > 0 ? gather : Illumination.TileAt(quality, tall),
                 Illumination.ScreenProbesOn(renderWorld) ? 1 : 0, glowOnly ? 1 : 0,
-                (settings.AlbedoOff ? 1 : 0) + (settings.SpecularOff ? 2 : 0) + (gather > 0 ? 16 : 0) + settings.Term * 256);
+                (settings.AlbedoOff ? 1 : 0) + (settings.SpecularOff ? 2 : 0) + (gather > 0 ? 16 : 0) + (settings.FacesMovedToward ? 32 : 0) + settings.Term * 256);
             windowUbo.ScreenGlow = new System.Numerics.Vector4(GpuScreenProbes.GlowTexelAt(tall), 0, 0, 0);
             // And a glossy surface's reflection traced through its depth and the field, looked up
             // in the frame before's picture where the renderer kept it.

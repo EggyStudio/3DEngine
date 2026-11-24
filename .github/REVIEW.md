@@ -913,3 +913,20 @@ places a unit off a wall that holds half their light. Global illumination takes 
 Sponza through the field and 0.04 through the rays, and 0.22 and 0.24 more in the Bistro, all of it
 in the cascades' traces. The sheet `2026-11-24-item-311-footprint.webp` shows both views over the
 reference both ways with their figures, the turn, the probe by term, the walk both ways and the ms.
+
+311. A pixel reads each of its probes' faces moved toward the surface the face's ray met, as far as
+it lies behind the probe toward it, as a probe's hit reads them, with `gi.toward on`, off unless
+set. The model pass binds the probes' light at the surfaces their faces' rays met at 41, beside
+their light as it stands. With the world's cascades alone through the field and the rays, the
+gallery's near wall goes from 1.62 to 1.19 of the reference and from 1.88 to 1.35, its pixel at 756,
+404 from 1.84 to 1.30 and from 2.14 to 1.49, and the one at 688, 216 from 1.31 to 1.01 and from 1.49
+to 1.12. The back wall goes from 1.10 to 0.95 and from 1.32 to 1.11, and the shade of both views
+drops by up to 0.04. The far doorway's face keeps 26.2 of the reference, since a way that met
+nothing within its reach is kept along its own way with its share whole. The step and the turn read
+as before, and the model pass takes 0.11 ms more in Sponza through the field and 0.16 through the
+rays, the Bistro's within its spread. With the screen's probes on, as by default, it moves no figure
+by 0.01. It stays off since seven tests fail with it on, a floor behind a thin wall and a closed
+room's inside lit through the moved faces, which are not tested from the pixel, a floor under a slab
+or leaves at Low taking less sky than they let through, and a world moved by a whole step drawing
+its frame 1.57 levels from the one before. The sheet `2026-11-24-item-311-toward.webp` shows the
+gallery both ways with the two pixels ringed, the near wall's figures and the tests.

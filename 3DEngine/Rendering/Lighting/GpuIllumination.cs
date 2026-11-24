@@ -193,6 +193,10 @@ internal sealed class GpuIllumination : IDisposable
     internal VkImage CubesAt { get; init; }
     internal VkImageView CubesAtView { get; init; }
 
+    // The same view as the model pass binds it, beside the faces (bouncedAtSurface in
+    // lightset.slang), which destroys nothing of its own.
+    internal IImageView? CubesAtShared { get; init; }
+
     // The way out from the surfaces each cascade's texels' rays met, as the trace keeps them for the
     // gather.
     internal (VkImage Image, VkImageView View)[] HitNormals { get; init; } = [];

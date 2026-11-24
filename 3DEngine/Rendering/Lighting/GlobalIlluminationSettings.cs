@@ -210,6 +210,19 @@ internal sealed class GlobalIlluminationSettings
     public bool FootprintOff { get; set; }
 
     /// <summary>
+    /// Whether the model pass's pixels read each of their probes' faces moved toward its light at
+    /// the surface the face's ray met, as far as the pixel lies behind the probe toward it, as a
+    /// probe's hit reads them, as <c>gi.toward on</c> sets it, where they otherwise read the faces
+    /// as they stand.
+    /// </summary>
+    /// <remarks>
+    /// Off unless set, since a face moved to the surface its ray met is not tested from the pixel's
+    /// point, so light reaches a floor behind a thin wall and a closed room's inside, and at Low a
+    /// floor under a slab or leaves that let light through takes less of the sky than they let by.
+    /// </remarks>
+    public bool FacesMovedToward { get; set; }
+
+    /// <summary>
     /// Whether each cascade's probes march the field from the cascade they stand in outward, as
     /// <c>gi.own_field on</c> sets it, so a coarser cascade's light does not move when a finer
     /// cascade's box moves with the eye, where they otherwise march it from its finest cascade that

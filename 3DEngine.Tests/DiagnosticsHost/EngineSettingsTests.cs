@@ -49,7 +49,7 @@ public sealed class EngineSettingsTests : IDisposable
             .ToDictionary(page => page.Key, page => page.Count());
         pages.Should().Equal(new Dictionary<string, int>
         {
-            ["ao"] = 8, ["gi"] = 27, ["field"] = 1, ["window"] = 6, ["render"] = 5, ["interface"] = 1, ["imgui"] = 1, ["time"] = 1,
+            ["ao"] = 8, ["gi"] = 28, ["field"] = 1, ["window"] = 6, ["render"] = 5, ["interface"] = 1, ["imgui"] = 1, ["time"] = 1,
             ["live"] = 1, ["log"] = 1, ["scenes"] = 1, ["sky"] = 1, ["run"] = 10,
         });
         EngineSettings.All.Should().OnlyContain(setting => ReferenceEquals(ConsoleHost.Registry.FindSetting(setting.Name), setting),

@@ -133,8 +133,8 @@ public float3 bouncedHitAt<V : IVolume>(V cubes, V cubesAt, V reach, SceneFieldI
 // of that cascade's probes, which the two weigh alike, since a face's alpha holds its probe's move
 // along the face's axis on both faces of it. Read apart, the share would take a second gather of
 // the eight probes.
-public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing,
-    float cascades, out float sky)
+public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V cubesAt, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes,
+    float spacing, float cascades, bool toward, out float sky)
 {
     sky = 1.0;
     int c = fieldCascade(info, p, 1.0, int(cascades));
@@ -150,7 +150,7 @@ public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V skies, V reach, SceneField
         if (k == 0 || share > 0.0)
         {
             float seen;
-            light += bouncedIn<V, true, false>(cubes, cubes, skies, reach, info, p, n, r, probes, spacing, c + k, int(cascades), seen) * share;
+            light += bouncedIn<V, true, false>(cubes, cubesAt, skies, reach, info, p, n, r, probes, spacing, c + k, int(cascades), seen, toward) * share;
             if (k == 0)
                 sky = seen;
         }
@@ -180,7 +180,7 @@ public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V skies, V reach, SceneField
 // floor's slab, in the open under it, and light the probe above it far brighter in its downward
 // face than it is lit.
 float3 bouncedIn<V : IVolume, let Sky : bool, let At : bool>(V cubes, V cubesAt, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing, int c,
-    int cascades, out float sky)
+    int cascades, out float sky, bool toward = false)
 {
     float4 oc = cascadeAt(info, c, cascades);
     float3 q = clamp((p - oc.xyz) / (oc.w * spacing) - 0.5, 0.0, probes - 1.0);
@@ -215,7 +215,7 @@ float3 bouncedIn<V : IVolume, let Sky : bool, let At : bool>(V cubes, V cubesAt,
             }
         }
         float3 probe = oc.xyz + (float3(at) + 0.5 + moved) * (oc.w * spacing);
-        if (At)
+        if (At || toward)
             light = towardSurface(cubesAt, light, n, n2, at, c, probes, dot(probe - p, n), oc.w * spacing);
         float weight = lerps.x * lerps.y * lerps.z * valid * probeFacing(p, n, probe);
         float sees = probeSees(reach, p, n, probe, at, c, probes, oc.w * spacing);

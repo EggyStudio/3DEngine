@@ -497,8 +497,9 @@ public float3 bouncedAndSkyPlaced(float3 p, float3 n, float3 r, out float sky)
     int c = fieldCascade(bouncedField, p, 1.0, int(lighting.indirect.w));
     if (c < 0 || c >= int(lighting.indirect.w))
         return float3(-1.0);
-    return bouncedAndSkyAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField,
-        p, n, r, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w, sky) / 3.14159265;
+    bool toward = (uint(lighting.screen.w + 0.5) & 32u) != 0u;
+    return bouncedAndSkyAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedAtSurface, lightNearest), SplitVolume(bouncedSky, lightNearest),
+        SplitVolume(bouncedReach, lightNearest), bouncedField, p, n, r, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w, toward, sky) / 3.14159265;
 }
 
 // Whether a surface at p facing n lies by a wall thinner than a cell, whose probes beyond it the

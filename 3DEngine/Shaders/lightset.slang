@@ -81,7 +81,8 @@ public struct Lighting
     // (gi.albedo off), 2 where the reflection of the indirect light is left out (gi.specular off)
     // and 4 where the materials' normal maps are, the faces lit by their own normals (gi.normals
     // off), set with global illumination off as well. 8 where the surfaces' roughness is left as
-    // the materials give it, and 16 where the screen's texels are the gather by pixel's.
+    // the materials give it, 16 where the screen's texels are the gather by pixel's, and 32 where a
+    // pixel reads its probes' faces moved toward the surfaces their rays met (gi.toward).
     public float4 screen;
     // The window's camera this frame, a place to clip space and back, and the frame before's, both
     // ways, which a glossy surface's reflection is traced through the window's depth with and
@@ -211,6 +212,13 @@ public Texture3D bouncedSky;
 // rough surface reflects (reflectedAt), or the field's image where light does not bounce.
 [[vk::binding(39, 1)]]
 public Texture3D bouncedWays;
+
+// Each probe's faces' light at the surface its ray along the face's opposite way met, laid out as
+// the indirect light is, with that ray's distance in alpha, which a pixel reads its probes' faces
+// moved toward where they lie behind it (towardSurface), or the field's image where light does not
+// bounce.
+[[vk::binding(41, 1)]]
+public Texture3D bouncedAtSurface;
 
 // The share of the light from all around a surface reflects by its specular lobe, the split sum's
 // scale on F0 in r and bias in g, by the cosine between the normal and the eye across and the

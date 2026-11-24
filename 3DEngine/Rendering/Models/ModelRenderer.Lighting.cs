@@ -188,6 +188,10 @@ internal sealed partial class ModelRenderer
             _lightsTypes.TryGetValue(binding, out var type) ? type : DescriptorType.CombinedImageSampler);
     }
 
+    // Whether the model pass declares a binding of the lights' set, which a build that reads the
+    // probes' faces as they stand may leave out.
+    private bool LightsHolds(uint binding) => (_lightsTypes ??= _lightsBindings.ToDictionary(b => b.Binding, b => b.Type)).ContainsKey(binding);
+
     // Where modelpass.slang binds ambientOcclusionMap in the lights' set.
     private const uint AmbientOcclusionBinding = 9;
 
@@ -202,7 +206,7 @@ internal sealed partial class ModelRenderer
     // window's surfaces, their normals and the far lights' light, and the probes' light by way.
     private const uint BouncedLightBinding = 15, BouncedFieldBinding = 16, ScreenLightBinding = 17, ScreenSurfacesBinding = 18,
         BouncedReachBinding = 31, BouncedSkyBinding = 32, ScreenGlowBinding = 33, ScreenGlowNormalBinding = 34, ScreenGlowFarBinding = 35,
-        BouncedWaysBinding = 39;
+        BouncedWaysBinding = 39, BouncedAtSurfaceBinding = 41;
 
     // Where it binds what a glossy surface's reflection is traced through and shaded from, the
     // field, its colors, light and faces, the lights, the window's depth, and its scene and depth
@@ -244,6 +248,8 @@ internal sealed partial class ModelRenderer
             device.UpdateDescriptorSet(set, null, Lit(bounced.Probes.ReachView, bounced.Probes.Sampler, BouncedReachBinding));
             device.UpdateDescriptorSet(set, null, Lit(bounced.Probes.SkiesView, bounced.Probes.Sampler, BouncedSkyBinding));
             device.UpdateDescriptorSet(set, null, Lit(bounced.Probes.WaysView, bounced.Probes.Sampler, BouncedWaysBinding));
+            if (LightsHolds(BouncedAtSurfaceBinding))
+                device.UpdateDescriptorSet(set, null, Lit(bounced.Probes.CubesAtShared ?? bounced.Probes.CubesView, bounced.Probes.Sampler, BouncedAtSurfaceBinding));
             device.UpdateDescriptorSet(set, new UniformBufferBinding(bounced.Probes.Lights, ReflectLightsBinding, 0, GpuIllumination.LightsBytes), null);
         }
         else
@@ -262,6 +268,8 @@ internal sealed partial class ModelRenderer
             device.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, BouncedReachBinding));
             device.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, BouncedSkyBinding));
             device.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, BouncedWaysBinding));
+            if (LightsHolds(BouncedAtSurfaceBinding))
+                device.UpdateDescriptorSet(set, null, Lit(none.View, none.Sampler, BouncedAtSurfaceBinding));
             device.UpdateDescriptorSet(set, new UniformBufferBinding(_noGiLights, ReflectLightsBinding, 0, GpuIllumination.LightsBytes), null);
         }
         device.UpdateDescriptorSet(set, new UniformBufferBinding(field.Info, BouncedFieldBinding, 0, GpuSceneField.InfoBytes), null);
