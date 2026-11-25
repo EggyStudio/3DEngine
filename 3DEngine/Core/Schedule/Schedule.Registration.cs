@@ -18,7 +18,11 @@ public sealed partial class Schedule
     {
         var d = new SystemDescriptor(system);
         ApplyAmbientSource(d);
-        lock (_lock) _systemsByStage[stage].Add(d);
+        lock (_lock)
+        {
+            _systemsByStage[stage].Add(d);
+            Changed();
+        }
         return this;
     }
 
@@ -31,7 +35,11 @@ public sealed partial class Schedule
     {
         var d = new SystemDescriptor(system) { RunCondition = runCondition };
         ApplyAmbientSource(d);
-        lock (_lock) _systemsByStage[stage].Add(d);
+        lock (_lock)
+        {
+            _systemsByStage[stage].Add(d);
+            Changed();
+        }
         return this;
     }
 
@@ -42,7 +50,11 @@ public sealed partial class Schedule
     public Schedule AddSystem(Stage stage, SystemDescriptor descriptor)
     {
         ApplyAmbientSource(descriptor);
-        lock (_lock) _systemsByStage[stage].Add(descriptor);
+        lock (_lock)
+        {
+            _systemsByStage[stage].Add(descriptor);
+            Changed();
+        }
         return this;
     }
 
@@ -59,7 +71,10 @@ public sealed partial class Schedule
     internal int RemoveSystems(Stage stage, Predicate<SystemDescriptor> predicate)
     {
         lock (_lock)
+        {
+            Changed();
             return _systemsByStage[stage].RemoveAll(predicate);
+        }
     }
 
     /// <summary>Removes systems tagged with the given <see cref="SystemDescriptor.Source"/> from every stage.</summary>
@@ -70,6 +85,7 @@ public sealed partial class Schedule
         int total = 0;
         lock (_lock)
         {
+            Changed();
             foreach (var kv in _systemsByStage)
                 total += kv.Value.RemoveAll(d => d.Source == source);
         }

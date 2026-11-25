@@ -27,7 +27,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         var ubo = LightingUboPacker.Pack(lights?.All ?? (IReadOnlyList<RenderLight>)System.Array.Empty<RenderLight>());
         // A render texture's light is bent and encoded by the model pass, its highlights by the
         // frame effects' highlight knee and strength.
-        var effects = renderWorld.TryGet<FrameEffects>() ?? new FrameEffects();
+        var effects = renderWorld.TryGet<FrameEffects>() ?? FrameEffects.Unset;
         ubo.Output = new System.Numerics.Vector4(0, 0, effects.HighlightKnee, effects.HighlightStrength);
         // How wide the sun's shadow's edge spreads per unit of a caster's height over a point.
         var softness = renderWorld.TryGet<ShadowSettings>()?.Softness ?? 0;
@@ -53,9 +53,10 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         // view's shadow, shared by views near enough to read one set of cascades alike, is fitted
         // to its camera as it is pushed.
         var unshadowed = ubo;
-        var placed = PlacedViews(draws, renderWorld.TryGet<WindowView>()?.Back ?? System.Numerics.Matrix4x4.Identity, origin);
-        var casters = Casters(renderWorld, lights, ubo.LightCount, [.. placed.Select(view => (view.Eye, (System.Numerics.Matrix4x4?)view.Camera))], origin);
-        var shared = casters is null ? [] : SharedShadows(casters, [.. placed.Select(view => (view.View, view.Camera))]);
+        var placed = _placed;
+        PlaceViews(draws, renderWorld.TryGet<WindowView>()?.Back ?? System.Numerics.Matrix4x4.Identity, origin, placed);
+        var casters = Casters(renderWorld, lights, ubo.LightCount, placed, origin);
+        var shared = casters is null ? NoShadows : SharedShadows(casters, [.. placed.Select(view => (view.View, view.Camera))]);
         var shadow = shared.GetValueOrDefault(0);
         if (shadow is null) renderWorld.Remove<FrameShadow>();
         else
@@ -135,7 +136,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             windowUbo.MirrorScreen = new System.Numerics.Vector4(1f / swapchain.Extent.Width, 1f / swapchain.Extent.Height, 0, 0);
         }
         var binding = Upload(allocator, in windowUbo, origin);
-        renderWorld.Set(new FrameLightingBinding(binding, ubo.LightCount, environment is not null));
+        renderWorld.Set(_frameBinding.Fill(binding, ubo.LightCount, environment is not null));
 
         // The window's light left linear, as a reflection probe's half-float faces hold it. A probe
         // whose map is of an earlier placement or of lights since changed gives no light to a
@@ -181,6 +182,15 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         Logger.FrameTrace($"LightingUboPrepare: uploaded {ubo.LightCount} light(s) into a {LightingUboPacker.SizeBytes}-byte UBO.");
     }
 
+    // The lighting buffer's binding, filled again in each frame.
+    private readonly FrameLightingBinding _frameBinding = new();
+
+    // The views of the frame, kept from frame to frame and filled again in each.
+    private readonly List<(int View, System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4 Camera)> _placed = [];
+
+    // The shadows of a frame without a light that casts one, which no caller adds to.
+    private static readonly Dictionary<int, FrameShadow?> NoShadows = [];
+
     // The probes with a capture to reflect, the four whose boxes come nearest the eye, written into
     // the buffer by slot and named for the model pass, which binds each one's cube and irradiance at
     // its slot.
@@ -191,10 +201,21 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         bound.Slots.Clear();
         if (renderWorld.TryGet<ReflectionProbes>() is not { } probes) return;
 
-        float Away(ReflectionProbes.Probe p) => eye is { } at
+        static float Away(ReflectionProbes.Probe p, System.Numerics.Vector3? eye) => eye is { } at
             ? System.Numerics.Vector3.Distance(System.Numerics.Vector3.Clamp(at, p.Position - p.HalfSize, p.Position + p.HalfSize), at)
             : 0;
-        bound.Slots.AddRange(probes.ByEntity.Values.Where(p => p.Map is not null).OrderBy(Away).Take(LightingUboPacker.MaxProbes));
+        // Nearest first, those as near in the order found, sorted by insertion in the slots' own
+        // list, and those past the slots let go.
+        var slots = bound.Slots;
+        foreach (var probe in probes.ByEntity.Values)
+        {
+            if (probe.Map is null) continue;
+            var away = Away(probe, eye);
+            var at = slots.Count;
+            while (at > 0 && Away(slots[at - 1], eye) > away) at--;
+            slots.Insert(at, probe);
+        }
+        if (slots.Count > LightingUboPacker.MaxProbes) slots.RemoveRange(LightingUboPacker.MaxProbes, slots.Count - LightingUboPacker.MaxProbes);
         ubo.ProbeCount = new System.Numerics.Vector4(bound.Slots.Count, 0, 0, 0);
         for (int i = 0; i < bound.Slots.Count; i++)
         {
@@ -359,13 +380,21 @@ internal sealed class LightingUboPrepare : IPrepareSystem
         System.Numerics.Matrix4x4 back, RenderOrigin origin)
     {
         var views = new List<(int View, System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4 Camera)>();
-        if (draws is null) return views;
-        if (draws.WindowViewProjection is { } windowed) views.Add((0, EyeAt(EyeOf(windowed, draws)), origin.Seen(windowed, draws.EyeOf(windowed)) * back));
-        foreach (var target in draws.Targets())
-            if (draws.ViewProjectionOf(target) is { } camera) views.Add((target, EyeAt(EyeOf(camera, draws)), origin.Seen(camera, draws.EyeOf(camera))));
+        PlaceViews(draws, back, origin, views);
         return views;
+    }
 
-        System.Numerics.Vector3? EyeAt(System.Numerics.Vector3? eye) => eye is { } at ? origin.Against(at) : null;
+    // The same views written into a list the caller keeps, emptied first.
+    private static void PlaceViews(ModelDrawList? draws, System.Numerics.Matrix4x4 back, RenderOrigin origin,
+        List<(int View, System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4 Camera)> views)
+    {
+        views.Clear();
+        if (draws is null) return;
+        if (draws.WindowViewProjection is { } windowed) views.Add((0, EyeAt(EyeOf(windowed, draws), origin), origin.Seen(windowed, draws.EyeOf(windowed)) * back));
+        foreach (var target in draws.Targets())
+            if (draws.ViewProjectionOf(target) is { } camera) views.Add((target, EyeAt(EyeOf(camera, draws), origin), origin.Seen(camera, draws.EyeOf(camera))));
+
+        static System.Numerics.Vector3? EyeAt(System.Numerics.Vector3? eye, RenderOrigin origin) => eye is { } at ? origin.Against(at) : null;
     }
 
     // Whether a sphere is at least partly inside the view, by the six planes of its view and
@@ -405,9 +434,16 @@ internal sealed class LightingUboPrepare : IPrepareSystem
     // (Rank), so a level of many torches shadows those in front of a camera, the brightest there
     // with the most texels.
     private static ShadowCasters? Casters(RenderWorld renderWorld, RenderLights? lights, int count,
-        IReadOnlyList<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)> views, RenderOrigin origin)
+        List<(int View, System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4 Camera)> placed, RenderOrigin origin) =>
+        lights is null || renderWorld.TryGet<ModelDrawList>() is not { IsEmpty: false } ? null : CastersOf(renderWorld, lights, count, placed, origin);
+
+    // Casters for a frame with lights and meshes, apart from it, since the lambdas here read its
+    // arguments, and what they read would be made in every frame, a frame without either too.
+    private static ShadowCasters? CastersOf(RenderWorld renderWorld, RenderLights lights, int count,
+        List<(int View, System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4 Camera)> placed, RenderOrigin origin)
     {
-        if (lights is null || renderWorld.TryGet<ModelDrawList>() is not { IsEmpty: false }) return null;
+        IReadOnlyList<(System.Numerics.Vector3? Eye, System.Numerics.Matrix4x4? Camera)> views =
+            [.. placed.Select(view => (view.Eye, (System.Numerics.Matrix4x4?)view.Camera))];
 
         var settings = renderWorld.TryGet<ShadowSettings>();
         var distance = settings?.Distance is > 0 and var d ? d : ShadowFit.Distance;
@@ -560,11 +596,34 @@ internal sealed class TargetShadows
 /// <summary>
 /// Render-world resource published by <see cref="LightingUboPrepare"/>: the
 /// <see cref="UniformBufferBinding"/> for this frame's lighting UBO and the count
-/// of valid entries inside it. Renamed each frame; consumers should read it
-/// transiently rather than caching.
+/// of valid entries inside it. One object the prepare keeps and fills again in each frame, which
+/// <see cref="Frame"/> numbers; consumers should read it transiently rather than caching.
 /// </summary>
-/// <param name="Binding">Buffer binding suitable for <see cref="IGraphicsDevice.UpdateDescriptorSet(IDescriptorSet, in UniformBufferBinding?, in CombinedImageSamplerBinding?)"/>.</param>
-/// <param name="LightCount">Number of valid <see cref="LightUboEntry"/> entries in the buffer.</param>
-/// <param name="HasEnvironment">Whether an <see cref="EnvironmentMap"/> lights the frame.</param>
-internal sealed record FrameLightingBinding(UniformBufferBinding Binding, int LightCount, bool HasEnvironment = false);
+internal sealed class FrameLightingBinding
+{
+    // The fillings counted across every binding, so no two frames share a number.
+    private static long _frames;
+
+    /// <summary>The lighting buffer's binding, which a descriptor set's update takes.</summary>
+    public UniformBufferBinding Binding { get; private set; }
+
+    /// <summary>Number of valid <see cref="LightUboEntry"/> entries in the buffer.</summary>
+    public int LightCount { get; private set; }
+
+    /// <summary>Whether an <see cref="EnvironmentMap"/> lights the frame.</summary>
+    public bool HasEnvironment { get; private set; }
+
+    /// <summary>
+    /// The frame the binding was last filled for, a number no other frame shares.
+    /// </summary>
+    public long Frame { get; private set; }
+
+    /// <summary>Fills the binding for the next frame and gives it a number of its own.</summary>
+    internal FrameLightingBinding Fill(UniformBufferBinding binding, int lightCount, bool hasEnvironment)
+    {
+        (Binding, LightCount, HasEnvironment) = (binding, lightCount, hasEnvironment);
+        Frame = Interlocked.Increment(ref _frames);
+        return this;
+    }
+}
 

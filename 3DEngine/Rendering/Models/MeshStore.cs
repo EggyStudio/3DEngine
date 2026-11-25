@@ -491,6 +491,7 @@ internal sealed class MeshStore
     {
         lock (_gate)
         {
+            if (_uploads.Count == 0 && _removals.Count == 0) return ([], []);
             // A mesh of positions alone reaches the GPU as its positions and its own stream, its
             // colors kept here for the readers of the CPU's copy, since its shader unpacks its color
             // from the stream, and a buffer of them and one of zero second texture coordinates

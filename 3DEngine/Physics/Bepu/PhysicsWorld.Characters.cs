@@ -176,18 +176,8 @@ public sealed partial class PhysicsWorld
         }
 
         var all = _characterList;
-        const int Chunk = 32;
-        if (all.Count < 2 * Chunk) Plan(all, 0, all.Count, dt, BufferPool);
-        else
-        {
-            var chunks = (all.Count + Chunk - 1) / Chunk;
-            while (_probePools.Count < Environment.ProcessorCount) _probePools.Add(new BepuUtilities.Memory.BufferPool());
-            Parallel.For(0, chunks, () => TakePool(), (chunk, _, pool) =>
-            {
-                Plan(all, chunk * Chunk, Math.Min(all.Count, (chunk + 1) * Chunk), dt, pool);
-                return pool;
-            }, GivePool);
-        }
+        if (all.Count < 2 * CharacterChunk) Plan(all, 0, all.Count, dt, BufferPool);
+        else PlanAcross(all, dt);
 
         foreach (var character in all)
         {
@@ -198,6 +188,22 @@ public sealed partial class PhysicsWorld
             reference.Velocity.Angular = Vector3.Zero;
             if (!reference.Awake) Simulation.Awakener.AwakenBody(new BodyHandle(character.Body.Handle));
         }
+    }
+
+    // The characters a thread plans at a time where there are enough to share out.
+    private const int CharacterChunk = 32;
+
+    // A crowd planned on several threads, apart from UpdateCharacters, so the lambdas and what
+    // they read are made only for a crowd, where they would be made in every step.
+    private void PlanAcross(List<Character> all, float dt)
+    {
+        var chunks = (all.Count + CharacterChunk - 1) / CharacterChunk;
+        while (_probePools.Count < Environment.ProcessorCount) _probePools.Add(new BepuUtilities.Memory.BufferPool());
+        Parallel.For(0, chunks, () => TakePool(), (chunk, _, pool) =>
+        {
+            Plan(all, chunk * CharacterChunk, Math.Min(all.Count, (chunk + 1) * CharacterChunk), dt, pool);
+            return pool;
+        }, GivePool);
     }
 
     // The characters in order, made again when one is added or removed, and the pools rays are cast

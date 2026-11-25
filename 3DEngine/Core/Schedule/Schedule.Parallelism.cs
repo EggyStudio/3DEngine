@@ -18,6 +18,7 @@ public sealed partial class Schedule
     {
         lock (_lock)
         {
+            Changed();
             if (parallel) 
                 _parallelStages.Add(stage); 
             else 

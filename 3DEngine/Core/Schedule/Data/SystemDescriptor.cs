@@ -111,6 +111,10 @@ public sealed class SystemDescriptor
     // handing to other threads.
     internal double LastMilliseconds;
 
+    // How many times its access or its thread was set, so a stage's batches, which these decide,
+    // are built again once either changes after the stage first ran.
+    internal int Revision;
+
     /// <summary>Runs this system after every system in its stage called <paramref name="name"/>.</summary>
     /// <remarks>
     /// <para>
@@ -158,6 +162,7 @@ public sealed class SystemDescriptor
     public SystemDescriptor MainThreadOnly()
     {
         Affinity = ThreadAffinity.MainThread;
+        Revision++;
         return this;
     }
 
@@ -187,6 +192,7 @@ public sealed class SystemDescriptor
     public SystemDescriptor Read<T>() where T : notnull
     {
         _reads.Add(typeof(T));
+        Revision++;
         return this;
     }
 
@@ -197,6 +203,7 @@ public sealed class SystemDescriptor
     public SystemDescriptor Write<T>() where T : notnull
     {
         _writes.Add(typeof(T));
+        Revision++;
         return this;
     }
 

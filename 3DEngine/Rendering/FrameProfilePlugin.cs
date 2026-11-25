@@ -17,8 +17,32 @@ internal sealed class FrameProfilePlugin : IPlugin
 
     private static TimeSpan _paused = GC.GetTotalPauseDuration();
 
+    // The names the frame's values are kept under, each made the first time it is met, so a frame
+    // formats none, and the stage and system durations it reads, refilled each frame.
+    private static readonly Dictionary<Stage, string> StageKeys = Enum.GetValues<Stage>().ToDictionary(stage => stage, stage => $"stage.{stage}");
+    private readonly Dictionary<(Stage, string), string> _systemKeys = [];
+    private readonly Dictionary<string, string> _prepareKeys = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _cpuKeys = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _gpuKeys = new(StringComparer.Ordinal);
+    private readonly List<(Stage Stage, TimeSpan Elapsed)> _stages = [];
+    private readonly List<(Stage Stage, string System, TimeSpan Elapsed)> _systems = [];
+
+    private static string Key(Dictionary<string, string> keys, string prefix, string name)
+    {
+        if (!keys.TryGetValue(name, out var key)) keys[name] = key = prefix + name;
+        return key;
+    }
+
+    // Each named time of a list the renderer fills, read by index, since a foreach over the list's
+    // interface would make an enumerator each frame.
+    private static void AddEach(FrameProfile profile, Dictionary<string, string> keys, string prefix, IReadOnlyList<(string Name, double Milliseconds)> times)
+    {
+        for (int i = 0; i < times.Count; i++)
+            profile.Add(Key(keys, prefix, times[i].Name), times[i].Milliseconds);
+    }
+
     // The frame that ended, read before the schedule overwrites its numbers with this frame's.
-    private static void Measure(World world)
+    private void Measure(World world)
     {
         var profile = world.Resource<FrameProfile>();
         if (world.TryGetResource<Time>(out var time) && time.DeltaSeconds > 0) profile.Add("frame", time.DeltaSeconds * 1000);
@@ -29,16 +53,21 @@ internal sealed class FrameProfilePlugin : IPlugin
 
         if (world.TryGetResource<ScheduleDiagnostics>(out var schedule))
         {
+            schedule.CopyDurations(_stages, _systems);
             double work = 0;
-            foreach (var (stage, duration) in schedule.StageDurations)
+            foreach (var (stage, duration) in _stages)
             {
                 if (stage is Stage.Startup or Stage.Cleanup) continue;
                 work += duration.TotalMilliseconds;
-                profile.Add($"stage.{stage}", duration.TotalMilliseconds);
+                profile.Add(StageKeys[stage], duration.TotalMilliseconds);
             }
             profile.Add("work", work);
-            foreach (var ((stage, system), duration) in schedule.SystemDurations)
-                if (stage is not (Stage.Startup or Stage.Cleanup)) profile.Add($"system.{stage}.{system}", duration.TotalMilliseconds);
+            foreach (var (stage, system, duration) in _systems)
+            {
+                if (stage is Stage.Startup or Stage.Cleanup) continue;
+                if (!_systemKeys.TryGetValue((stage, system), out var key)) _systemKeys[(stage, system)] = key = $"system.{stage}.{system}";
+                profile.Add(key, duration.TotalMilliseconds);
+            }
         }
 
         if (world.TryGetResource<Renderer>(out var renderer))
@@ -64,9 +93,9 @@ internal sealed class FrameProfilePlugin : IPlugin
                     profile.Add("gpu.mesh_counts", device.MeshCountsGpuMs);
                 }
             }
-            foreach (var (system, ms) in t.PrepareCpu) profile.Add($"prepare.{system}", ms);
-            foreach (var (node, ms) in t.NodeCpu) profile.Add($"cpu.{node}", ms);
-            foreach (var (node, ms) in t.NodeGpu) profile.Add($"gpu.{node}", ms);
+            AddEach(profile, _prepareKeys, "prepare.", t.PrepareCpu);
+            AddEach(profile, _cpuKeys, "cpu.", t.NodeCpu);
+            AddEach(profile, _gpuKeys, "gpu.", t.NodeGpu);
         }
         profile.EndFrame();
     }

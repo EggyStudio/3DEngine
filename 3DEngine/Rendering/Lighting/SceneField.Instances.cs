@@ -3,7 +3,8 @@ using System.Runtime.InteropServices;
 
 namespace Engine;
 
-// The meshes of a build as the field's splat reads them.
+// The meshes of a build as the field's splat reads them, and its shapes and bricks as the stamp
+// reads them.
 internal sealed partial class SceneFieldRenderer
 {
     // A build's instances as field_splat.slang's FieldInstance reads them, 96 bytes each, each
@@ -75,5 +76,54 @@ internal sealed partial class SceneFieldRenderer
         var y = size.Y * new Vector3(w.M21, w.M22, w.M23).Length();
         var z = size.Z * new Vector3(w.M31, w.M32, w.M33).Length();
         return Math.Max(Math.Min(x, Math.Min(y, z)), 1e-4f);
+    }
+
+    // The frame's shapes as the RadianceCascades module's StampShape lays them out, one at least,
+    // each one's rows taking a place against the frame's origin into its box, as the info's corners
+    // are handed. The gloss a box's face is stamped with, a roughness of a half and no metal or
+    // reflectance, whose bits the field's readers take as no gloss painted (faceGloss in
+    // scenefield.slang).
+    private static readonly Vector3 ShapeGloss = new(0.5f, 0, 0);
+
+    private static IBuffer Shapes(GraphicsDevice device, List<SceneFieldPlan.Shape> shapes, RenderOrigin origin)
+    {
+        var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, shapes.Count) * 128, BufferUsage.Storage, CpuAccessMode.Write));
+        var mapped = device.Map(buffer).Cast<float>();
+        for (int s = 0; s < shapes.Count; s++)
+        {
+            var (_, center, extents, scale, color, through, emission) = shapes[s];
+            var m = StampRows(shapes[s], origin);
+            ReadOnlySpan<float> values = [m.M11, m.M21, m.M31, m.M41, m.M12, m.M22, m.M32, m.M42, m.M13, m.M23, m.M33, m.M43,
+                center.X, center.Y, center.Z, scale, extents.X, extents.Y, extents.Z, 0, color.X, color.Y, color.Z, through, emission.X, emission.Y, emission.Z, 0, ShapeGloss.X, ShapeGloss.Y, ShapeGloss.Z, 0];
+            mapped.Slice(s * 32).CopyFrom(values);
+        }
+        device.Unmap(buffer);
+        return buffer;
+    }
+
+    /// <summary>
+    /// A shape's rows as field_stamp.slang reads them, from a place against
+    /// <paramref name="origin"/> into the shape's own space, the inverse of its matrix taken
+    /// against the origin in doubles first, so the inverse holds no float of the world's size, or
+    /// nothing where it has none.
+    /// </summary>
+    internal static Matrix4x4 StampRows(SceneFieldPlan.Shape shape, RenderOrigin origin) =>
+        Matrix4x4.Invert(origin.Against(shape.World), out var toOwn) ? toOwn : default;
+
+    // Each brick as field_stamp.slang reads it, its cascade, its place packed a byte an axis, and
+    // where its run of shapes begins and how long it is, then the runs, a shape's place each, made
+    // up to a whole element of four, since the shader reads four places at a time and would read
+    // the last of a run past the buffer's end.
+    private static IBuffer Bricks(GraphicsDevice device, SceneFieldPlan plan)
+    {
+        var (bricks, ranges, shapes) = (plan.Bricks, plan.BrickRanges, plan.BrickShapes);
+        var buffer = device.CreateBuffer(new BufferDesc((ulong)(Math.Max(1, bricks.Count) * 4 + (shapes.Count + 3) / 4 * 4) * 4, BufferUsage.Storage, CpuAccessMode.Write));
+        var mapped = device.Map(buffer).Cast<uint>();
+        for (int b = 0; b < bricks.Count; b++)
+            (mapped[b * 4], mapped[b * 4 + 1], mapped[b * 4 + 2], mapped[b * 4 + 3]) =
+                ((uint)bricks[b].Cascade, (uint)(bricks[b].X | bricks[b].Y << 8 | bricks[b].Z << 16), (uint)ranges[b].First, (uint)ranges[b].Count);
+        mapped.Slice(bricks.Count * 4).CopyFrom(MemoryMarshal.Cast<int, uint>(CollectionsMarshal.AsSpan(shapes)));
+        device.Unmap(buffer);
+        return buffer;
     }
 }

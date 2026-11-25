@@ -129,6 +129,24 @@ internal sealed class ParticleRenderer : IDisposable
     private readonly Dictionary<int, State> _emitters = [];
     private readonly List<(long Frame, ParticleBuffer Buffer)> _retired = [];
     private readonly List<State> _drawn = [];
+
+    // The frame's emitters where the render world holds none, which nothing adds to.
+    private static readonly List<(int Entity, ParticleEmitter Emitter, Matrix4x4 World, int Burst)> NoEmitters = [];
+
+    // The order emitters draw in, the additive ones first, then the alpha ones far to near from the
+    // eye, kept so a frame's sort makes no comparer.
+    private sealed class DrawOrder : IComparer<State>
+    {
+        public Vector3 Eye;
+
+        public int Compare(State? a, State? b) => a!.Emitter.Blend != b!.Emitter.Blend
+            ? a.Emitter.Blend == ParticleBlend.Additive ? -1 : 1
+            : a.Emitter.Blend == ParticleBlend.Alpha
+                ? Vector3.DistanceSquared(b.Position, Eye).CompareTo(Vector3.DistanceSquared(a.Position, Eye))
+                : 0;
+    }
+
+    private readonly DrawOrder _drawOrder = new();
     private long _frame;
 
     /// <summary>The particle slots the last frame's dispatches stepped, every emitter's, for a test to read.</summary>
@@ -186,7 +204,7 @@ internal sealed class ParticleRenderer : IDisposable
         var frame = renderWorld.TryGet<RenderParticles>();
         SetView(renderContext, renderWorld, device, textures,
             frame?.Emitters.Any(e => e.Emitter.Collision != ParticleCollision.None && !e.Emitter.Local) == true);
-        foreach (var (entity, emitter, world, burst) in frame?.Emitters ?? [])
+        foreach (var (entity, emitter, world, burst) in frame?.Emitters ?? NoEmitters)
         {
             var capacity = Math.Clamp(emitter.MaxParticles, 1, 1 << 20);
             if (!_emitters.TryGetValue(entity, out var state))
@@ -259,12 +277,13 @@ internal sealed class ParticleRenderer : IDisposable
             if (span > 0 || state.Placed is not null) _drawn.Add(state);
         }
 
-        // Emitters gone this frame.
-        foreach (var gone in _emitters.Where(e => e.Value.Seen != _frame).ToArray())
+        // Emitters gone this frame. A dictionary's entries may be removed while it is read.
+        foreach (var (entity, gone) in _emitters)
         {
-            _retired.Add((_frame, gone.Value.Born));
-            if (gone.Value.Placed is { } placed) _retired.Add((_frame, placed));
-            _emitters.Remove(gone.Key);
+            if (gone.Seen == _frame) continue;
+            _retired.Add((_frame, gone.Born));
+            if (gone.Placed is { } placed) _retired.Add((_frame, placed));
+            _emitters.Remove(entity);
         }
     }
 
@@ -394,11 +413,8 @@ internal sealed class ParticleRenderer : IDisposable
         var lights = models.LightsFor(gfx, renderWorld, textures, target);
         var push = renderWorld.TryGet<RenderOrigin>().Push(viewProjection, renderWorld.TryGet<ModelDrawList>()?.EyeOf(viewProjection));
 
-        _drawn.Sort((a, b) => a.Emitter.Blend != b.Emitter.Blend
-            ? a.Emitter.Blend == ParticleBlend.Additive ? -1 : 1
-            : a.Emitter.Blend == ParticleBlend.Alpha
-                ? Vector3.DistanceSquared(b.Position, eye).CompareTo(Vector3.DistanceSquared(a.Position, eye))
-                : 0);
+        _drawOrder.Eye = eye;
+        _drawn.Sort(_drawOrder);
         foreach (var state in _drawn)
         {
             var key = (renderPass, state.Emitter.Blend);

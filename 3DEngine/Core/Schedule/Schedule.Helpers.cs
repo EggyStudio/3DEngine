@@ -9,18 +9,8 @@ public sealed partial class Schedule
     /// <param name="stage">The stage being executed.</param>
     /// <param name="systems">The list of system descriptors to run.</param>
     /// <param name="world">The shared world instance.</param>
-    /// <param name="stageMarkedParallel">Whether the stage was originally marked for parallel execution.</param>
-    private void RunSequential(Stage stage, List<SystemDescriptor> systems, World world, bool stageMarkedParallel)
+    private void RunSequential(Stage stage, List<SystemDescriptor> systems, World world)
     {
-        var sequentialReason = stageMarkedParallel
-            ? (systems.Count <= 1 ? "single-system-stage" : "serialized-by-conflicts")
-            : "stage-configured-single-threaded";
-
-        var batches = systems.Select(s => new List<SystemDescriptor> { s }).ToList();
-        var notes = batches.Select(_ => (IReadOnlyList<string>)new[] { sequentialReason }).ToList();
-        Diagnostics.RecordBatches(stage, batches);
-        Diagnostics.RecordBatchNotes(stage, notes);
-
         var span = CollectionsMarshal.AsSpan(systems);
         for (int i = 0; i < span.Length; i++)
         {
@@ -37,22 +27,14 @@ public sealed partial class Schedule
     }
 
     /// <summary>
-    /// Builds execution batches from resource access metadata and runs them in parallel.
+    /// Runs a stage's execution batches, built from resource access metadata, each in parallel.
     /// Main-thread systems form their own single-item batch.
     /// </summary>
     /// <param name="stage">The stage being executed.</param>
-    /// <param name="systems">The list of system descriptors to partition and run.</param>
+    /// <param name="batches">The stage's batches, which its plan keeps.</param>
     /// <param name="world">The shared world instance.</param>
-    private void RunParallel(Stage stage, List<SystemDescriptor> systems, World world)
+    private void RunParallel(Stage stage, List<List<SystemDescriptor>> batches, World world)
     {
-        WarnForMissingAccessMetadata(stage, systems);
-
-        // Build execution batches where systems can safely run together.
-        // Main-thread systems form their own single-item batch and flush pending parallel work.
-        var batches = BuildExecutionBatches(systems, out var notes);
-        Diagnostics.RecordBatches(stage, batches);
-        Diagnostics.RecordBatchNotes(stage, notes);
-
         for (int i = 0; i < batches.Count; i++)
         {
             var batch = batches[i];
@@ -68,15 +50,22 @@ public sealed partial class Schedule
                 continue;
             }
 
-            Interlocked.Increment(ref _parallelBatches);
-            try
-            {
-                Parallel.ForEach(batch, desc => ExecuteSystem(stage, desc, world));
-            }
-            finally
-            {
-                Interlocked.Decrement(ref _parallelBatches);
-            }
+            RunTogether(stage, batch, world);
+        }
+    }
+
+    // A batch handed to other threads, apart from RunParallel so the lambda's captures are made
+    // only for a batch that runs this way, where they would be made for each stage's every run.
+    private void RunTogether(Stage stage, List<SystemDescriptor> batch, World world)
+    {
+        Interlocked.Increment(ref _parallelBatches);
+        try
+        {
+            Parallel.ForEach(batch, desc => ExecuteSystem(stage, desc, world));
+        }
+        finally
+        {
+            Interlocked.Decrement(ref _parallelBatches);
         }
     }
 
@@ -214,7 +203,7 @@ public sealed partial class Schedule
     private void Invoke(Stage stage, SystemDescriptor desc, World world)
     {
         var outer = ChangeTicks.Enter(desc.LastRunTick, out var tick);
-        var sw = Stopwatch.StartNew();
+        var started = Stopwatch.GetTimestamp();
         try
         {
             desc.System(world);
@@ -228,9 +217,9 @@ public sealed partial class Schedule
             ChangeTicks.Leave(outer);
             desc.LastRunTick = tick;
         }
-        sw.Stop();
-        desc.LastMilliseconds = sw.Elapsed.TotalMilliseconds;
-        Diagnostics.RecordSystem(stage, desc.Name, sw.Elapsed);
+        var elapsed = Stopwatch.GetElapsedTime(started);
+        desc.LastMilliseconds = elapsed.TotalMilliseconds;
+        Diagnostics.RecordSystem(stage, desc.Name, elapsed);
     }
 
     // How often each system has thrown each type of exception in each stage. The first of each is

@@ -296,7 +296,7 @@ internal sealed partial class ModelRenderer : IDisposable
     private readonly List<List<IDescriptorSet>> _lightSets = [];
     private readonly Dictionary<int, IDescriptorSet> _lightSetOf = [];
     private int _lightSlot;
-    private FrameLightingBinding? _lastFrame;
+    private long _lastFrame;
     private IDescriptorSet? _noLights;
     private IBuffer? _noLightsBuffer;
     private ShadowMap? _shadowMap;
@@ -353,7 +353,7 @@ internal sealed partial class ModelRenderer : IDisposable
     private readonly List<IDescriptorSet>[] _drawSets = Enumerable.Range(0, SetRingFrames).Select(_ => new List<IDescriptorSet>()).ToArray();
     private int _drawSetSlot;
     private int _drawSetNext;
-    private RenderContext? _lastContext;
+    private long _lastContextFrame;
 
     /// <summary>
     /// Creates the renderer from the compiled stages of <c>model.slang</c>, and those of

@@ -15,6 +15,7 @@ public sealed partial class Schedule
         List<SystemDescriptor> list;
         bool isParallel;
         bool stageMarkedParallel;
+        int version;
 
         lock (_lock)
         {
@@ -22,20 +23,23 @@ public sealed partial class Schedule
             if (list.Count == 0) return;
             stageMarkedParallel = _parallelStages.Contains(stage);
             isParallel = stageMarkedParallel && list.Count > 1;
+            version = _version;
         }
 
         Logger.FrameTrace($"Stage {stage}: executing {list.Count} system(s) [{(isParallel ? "parallel" : "sequential")}]");
 
-        var stageSw = Stopwatch.StartNew();
+        var started = Stopwatch.GetTimestamp();
 
+        var plan = PlanOf(stage, list, version, isParallel, stageMarkedParallel);
+        Diagnostics.RecordBatches(stage, plan.Names, plan.Notes);
         if (isParallel)
-            RunParallel(stage, list, world);
+            RunParallel(stage, plan.Batches, world);
         else
-            RunSequential(stage, list, world, stageMarkedParallel);
+            RunSequential(stage, list, world);
 
-        stageSw.Stop();
-        Diagnostics.RecordStage(stage, stageSw.Elapsed);
-        Logger.FrameTrace($"Stage {stage}: completed in {stageSw.Elapsed.TotalMilliseconds:F2}ms");
+        var elapsed = Stopwatch.GetElapsedTime(started);
+        Diagnostics.RecordStage(stage, elapsed);
+        Logger.FrameTrace($"Stage {stage}: completed in {elapsed.TotalMilliseconds:F2}ms");
     }
 
     /// <summary>Runs all stages in their fixed order (Startup → … → Cleanup).</summary>

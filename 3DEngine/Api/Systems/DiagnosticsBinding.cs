@@ -80,7 +80,11 @@ internal sealed partial class DiagnosticsBinding
     public DiagnosticKeys Keys { get; }
 
     /// <summary>The binding of a world, made the first time it is asked for.</summary>
-    public static DiagnosticsBinding Of(World world) => world.GetOrInsertResource(() => new DiagnosticsBinding(world));
+    public static DiagnosticsBinding Of(World world) =>
+        world.TryGetResource<DiagnosticsBinding>(out var made) ? made : Make(world);
+
+    // Apart from Of, so the lambda that reads the world is made only when the binding is.
+    private static DiagnosticsBinding Make(World world) => world.GetOrInsertResource(() => new DiagnosticsBinding(world));
 
     /// <summary>
     /// Whether the console or the settings panel is open, which holds the exit key so that the key
@@ -92,6 +96,8 @@ internal sealed partial class DiagnosticsBinding
     // The open panels' answer to whether one that takes input is open, which the program's input
     // is held by while it is true.
     private Func<bool>? _holdsInput;
+
+    private bool PanelsHoldInput() => Keys.Panels.HoldsInput;
 
     /// <summary>Binds an action to an engine key, or to none with <see cref="Key.Null"/>.</summary>
     internal void Bind(KeyAction action, Key key) => Keys.KeyOf(action).TrySet(key == Key.Null ? "" : key.ToString());
@@ -122,15 +128,15 @@ internal sealed partial class DiagnosticsBinding
         // A field of an ImGui window that has the caret, the console's among them, takes the keys
         // of one character typed into it.
         var typing = binding._drawnConsole.Typing || (ImGui.GetCurrentContext() != IntPtr.Zero && ImGui.GetIO().WantTextInput);
-        Borrowing(world, app, () =>
+        using (new Borrowed(world, app))
         {
             foreach (var key in input.KeysPressed.ToArray()) binding.Keys.KeyDown(key.ToString(), typing);
             foreach (var key in input.KeysReleased.ToArray()) binding.Keys.KeyUp(key.ToString());
-        });
+        }
         // The keys read above are the raw ones, which a panel holding the program's input leaves
         // to them, and the hold is read again once they have opened or closed one, so the stages
         // after see the panels as the keys left them.
-        input.HoldWhile(binding._holdsInput ??= () => binding.Keys.Panels.HoldsInput);
+        input.HoldWhile(binding._holdsInput ??= binding.PanelsHoldInput);
     }
 
     /// <summary>
@@ -157,12 +163,12 @@ internal sealed partial class DiagnosticsBinding
     internal static void DrawOverlay(World world, App app)
     {
         var binding = Of(world);
-        Borrowing(world, app, () =>
+        using (new Borrowed(world, app))
         {
             // The first frame, which has no time, is not kept.
             if (world.TryGetResource<Time>(out var time) && time.DeltaSeconds > 0) binding.Overlay.Frame(time.DeltaSeconds);
             if (binding.Overlay.Shown) E3D.DrawDebugOverlay(binding.Overlay);
-        });
+        }
     }
 
     /// <summary>
@@ -221,20 +227,25 @@ internal sealed partial class DiagnosticsBinding
 
     private static ulong Frame(World world) => world.TryGetResource<Time>(out var time) ? time.FrameCount : 0;
 
-    // Runs what asks the overlay's sections for their lines with the flat API made to run against
-    // the app, where it runs against another or none, since a section reads the window through it.
-    private static void Borrowing(World world, App app, Action read)
+    // The flat API made to run against the app until disposed, where it runs against another or
+    // none, while the overlay's sections are asked for their lines, since a section reads the
+    // window through it. A scope rather than a lambda, which a system run in every frame would make
+    // in each.
+    private readonly ref struct Borrowed
     {
-        var current = E3D.CurrentApp;
-        var borrowed = !E3D.Holds(world) && ReferenceEquals(app.World, world);
-        if (borrowed) E3D.UseApp(app);
-        try
+        private readonly App? _current;
+        private readonly bool _borrowed;
+
+        public Borrowed(World world, App app)
         {
-            read();
+            _current = E3D.CurrentApp;
+            _borrowed = !E3D.Holds(world) && ReferenceEquals(app.World, world);
+            if (_borrowed) E3D.UseApp(app);
         }
-        finally
+
+        public void Dispose()
         {
-            if (borrowed) E3D.UseApp(current);
+            if (_borrowed) E3D.UseApp(_current);
         }
     }
 }

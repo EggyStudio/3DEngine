@@ -14,8 +14,8 @@ internal sealed class ScheduleDiagnostics
     private readonly Lock _lock = new();
     private readonly Dictionary<Stage, TimeSpan> _stageTimes = new();
     private readonly Dictionary<(Stage Stage, string System), TimeSpan> _systemTimes = new();
-    private readonly Dictionary<Stage, List<IReadOnlyList<string>>> _stageBatches = new();
-    private readonly Dictionary<Stage, List<IReadOnlyList<string>>> _stageBatchNotes = new();
+    private readonly Dictionary<Stage, IReadOnlyList<IReadOnlyList<string>>> _stageBatches = new();
+    private readonly Dictionary<Stage, IReadOnlyList<IReadOnlyList<string>>> _stageBatchNotes = new();
 
     /// <summary>Records the total duration of a stage execution.</summary>
     /// <param name="stage">The stage that was executed.</param>
@@ -53,7 +53,31 @@ internal sealed class ScheduleDiagnostics
     internal void RecordBatchNotes(Stage stage, List<IReadOnlyList<string>> notes)
     {
         lock (_lock)
-            _stageBatchNotes[stage] = notes.ToList();
+            _stageBatchNotes[stage] = notes.ToArray();
+    }
+
+    // A stage's batch names and notes as the schedule built them, which it keeps unchanged while
+    // the stage stays as it was, so a frame records them by reference and copies nothing.
+    internal void RecordBatches(Stage stage, IReadOnlyList<IReadOnlyList<string>> names, IReadOnlyList<IReadOnlyList<string>> notes)
+    {
+        lock (_lock)
+        {
+            _stageBatches[stage] = names;
+            _stageBatchNotes[stage] = notes;
+        }
+    }
+
+    // The last frame's stage and system durations, written into lists the caller keeps, so a reader
+    // in every frame makes no dictionary as StageDurations and SystemDurations do.
+    internal void CopyDurations(List<(Stage Stage, TimeSpan Elapsed)> stages, List<(Stage Stage, string System, TimeSpan Elapsed)> systems)
+    {
+        stages.Clear();
+        systems.Clear();
+        lock (_lock)
+        {
+            foreach (var (stage, elapsed) in _stageTimes) stages.Add((stage, elapsed));
+            foreach (var ((stage, system), elapsed) in _systemTimes) systems.Add((stage, system, elapsed));
+        }
     }
 
     /// <summary>Returns the last recorded duration for the specified stage.</summary>

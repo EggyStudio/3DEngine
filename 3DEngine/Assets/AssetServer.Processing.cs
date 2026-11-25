@@ -68,17 +68,29 @@ public sealed partial class AssetServer
     /// <param name="world">The world containing event resources.</param>
     internal void ClearEvents(World world)
     {
-        // Clear events for all known asset types
-        foreach (var kv in _pathToId.Values)
-            OpsFor(kv.AssetType).ClearEvents(world);
+        // Each type's once, from the list of the types known, since the values of the map of paths
+        // are copied each time they are asked for and name a type once for each of its assets.
+        foreach (var ops in Volatile.Read(ref _allOps))
+            ops.ClearEvents(world);
     }
 
     // What the frame does with an asset of one type, made where the type is known, in Load and
     // LoadSync, so no generic method is made by reflection for it, which a native build cannot
     // (N 2.5). A dependency loaded alongside is an object's.
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<Type, AssetTypeOps> _typeOps = new() { [typeof(object)] = new AssetTypeOps<object>() };
+    private static readonly AssetTypeOps ObjectOps = new AssetTypeOps<object>();
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<Type, AssetTypeOps> _typeOps = new() { [typeof(object)] = ObjectOps };
 
-    private void Know<T>() => _typeOps.TryAdd(typeof(T), new AssetTypeOps<T>());
+    // The same operations as a list, replaced whole as a type comes, which a frame reads whole.
+    private AssetTypeOps[] _allOps = [ObjectOps];
+    private readonly Lock _opsGate = new();
+
+    private void Know<T>()
+    {
+        if (_typeOps.ContainsKey(typeof(T))) return;
+        lock (_opsGate)
+            if (_typeOps.TryAdd(typeof(T), new AssetTypeOps<T>()))
+                _allOps = [.. _allOps, _typeOps[typeof(T)]];
+    }
 
     private AssetTypeOps OpsFor(Type type) => _typeOps[type];
 

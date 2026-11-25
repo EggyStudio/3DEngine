@@ -193,7 +193,15 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>The window's pass, which every frame image is drawn in.</summary>
-    private VulkanRenderPass WindowPass => new(_swapchainFormat, VkFormat.D32Sfloat, _samples);
+    /// <remarks>
+    /// Made again only when the window's format or samples change, since each frame asks for it.
+    /// </remarks>
+    private VulkanRenderPass WindowPass =>
+        _windowPass is { } made && made.ColorFormat == _swapchainFormat && made.Samples == _samples
+            ? made
+            : _windowPass = new(_swapchainFormat, VkFormat.D32Sfloat, _samples);
+
+    private VulkanRenderPass? _windowPass;
 
     /// <summary>The attachments of each frame image, made with the images.</summary>
     private void CreateFramebuffers()

@@ -85,8 +85,11 @@ public static partial class E3D
             return;
         }
 
+        // Put in only when it changes, since the world keeps it boxed and a program clears to the
+        // same color in every frame.
         var c = color.ToVector4();
-        World.InsertResource(new ClearColor(c.X, c.Y, c.Z, c.W));
+        var clear = new ClearColor(c.X, c.Y, c.Z, c.W);
+        if (!World.TryGetResource<ClearColor>(out var had) || had != clear) World.InsertResource(clear);
     }
 
     // -- Render targets

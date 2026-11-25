@@ -12,6 +12,10 @@ namespace Engine;
 /// <seealso cref="ActiveSwapchainPass"/>
 internal sealed class MainPassNode : INode
 {
+    // The pass and its binding, begun again in each frame.
+    private TrackedRenderPass? _pass;
+    private ActiveSwapchainPass? _active;
+
     /// <inheritdoc />
     public void Run(RenderGraphContext graphContext, RenderContext renderContext, RenderWorld renderWorld)
     {
@@ -24,7 +28,7 @@ internal sealed class MainPassNode : INode
             swapchainTarget.Extent,
             LoadOp.Clear,
             StoreOp.Store,
-            clearColor));
+            clearColor), ref _pass);
 
         var extent = swapchainTarget.Extent;
         pass.SetViewport(0, 0, extent.Width, extent.Height, 0, 1);
@@ -38,6 +42,7 @@ internal sealed class MainPassNode : INode
             else renderer.Composite(pass, swapchainTarget.RenderPass, renderContext, renderWorld, renderWorld.TryGet<BloomSettings>(), effects);
         }
 
-        renderWorld.Set(new ActiveSwapchainPass(pass, extent));
+        if (_active is null || !ReferenceEquals(_active.Pass, pass) || _active.Extent != extent) _active = new ActiveSwapchainPass(pass, extent);
+        renderWorld.Set(_active);
     }
 }

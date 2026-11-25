@@ -17,6 +17,17 @@ public interface ILogger
     /// <param name="message">The log message text.</param>
     void FrameTrace(string message);
 
+    /// <summary>
+    /// <see cref="FrameTrace(string)"/> with an interpolated message, whose text is built only
+    /// while <see cref="LogConfig.PerFrameLogging"/> is on, so a trace in every frame makes no
+    /// string.
+    /// </summary>
+    /// <param name="message">The interpolated message.</param>
+    void FrameTrace(ref FrameTraceHandler message)
+    {
+        if (message.Wanted) FrameTrace(message.ToStringAndClear());
+    }
+
     /// <summary>Writes a debug-level message for internal development diagnostics.</summary>
     /// <param name="message">The log message text.</param>
     void Debug(string message);

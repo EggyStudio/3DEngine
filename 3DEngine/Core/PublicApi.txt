@@ -613,6 +613,13 @@ sealed class Engine.FixedTime
   double Alpha { get; }
   double Hz { get; set; }
   double StepSeconds { get; set; }
+struct Engine.FrameTraceHandler
+  FrameTraceHandler(int literalLength, int formattedCount, out bool wanted)
+  bool Wanted { get; }
+  string ToStringAndClear()
+  void AppendFormatted<T>(T value, string? format)
+  void AppendFormatted<T>(T? value)
+  void AppendLiteral(string value)
 enum Engine.GamepadAxis : int
   LeftTrigger = 4
   LeftX = 0
@@ -705,6 +712,7 @@ interface Engine.ILogger
   void Debug(string message)
   void Error(string message, Exception? exception = null)
   void Fatal(string message, Exception? exception = null)
+  void FrameTrace(ref FrameTraceHandler message)
   void FrameTrace(string message)
   void Info(string message)
   void Log(LogLevel level, string message, Exception? exception = null)
@@ -1009,6 +1017,7 @@ sealed class Engine.Logger : ILogger
   void Debug(string message)
   void Error(string message, Exception? exception = null)
   void Fatal(string message, Exception? exception = null)
+  void FrameTrace(ref FrameTraceHandler message)
   void FrameTrace(string message)
   void Info(string message)
   void Log(LogLevel level, string message, Exception? exception = null)

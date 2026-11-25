@@ -55,7 +55,8 @@ internal sealed unsafe partial class GraphicsDevice
     {
         if (!TimestampsSupported || commandBuffer is not VulkanCommandBuffer vkCmd) return [];
         var labels = _timestampLabels[slot];
-        var results = new List<(string, double)>();
+        var results = _timestampResults[_timestampTurn ^= 1];
+        results.Clear();
         if (_timestampsWritten[slot] && labels.Count > 1)
         {
             var ticks = stackalloc ulong[labels.Count];
@@ -71,6 +72,12 @@ internal sealed unsafe partial class GraphicsDevice
         _timestampsWritten[slot] = true;
         return results;
     }
+
+    // The times read back for the last two frames, the list the caller holds and the list being
+    // filled, which swap each frame, so a frame makes no list and the caller's list stays whole
+    // until the frame after the next.
+    private readonly List<(string, double)>[] _timestampResults = [[], []];
+    private int _timestampTurn;
 
     /// <summary>Marks the point in a frame's commands at which the GPU has finished everything recorded before it.</summary>
     public void Timestamp(ICommandBuffer commandBuffer, int slot, string label)

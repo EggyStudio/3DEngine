@@ -108,6 +108,9 @@ internal sealed class AnimatedModelDraws
     /// <summary>The system, for <see cref="Stage.Render"/>, in the app the flat API runs against.</summary>
     public static void Run(World world) => Run(world, null);
 
+    // Apart from Run, so the lambda that reads the world is made only when the triangles are.
+    private static void Posed(World world) => world.GetOrInsertResource<IPosedTriangles>(() => new PosedTriangles(world));
+
     /// <summary>
     /// The system, for <see cref="Stage.Render"/>, in <paramref name="app"/>, which the flat API is
     /// made to run against while it records where it runs against another app or none, as an app a
@@ -118,7 +121,7 @@ internal sealed class AnimatedModelDraws
         if (!world.TryGetResource<EcsWorld>(out var ecs)) return;
         var self = world.GetOrInsertResource(static () => new AnimatedModelDraws());
         // The posed triangles physics makes a collider of, read once the draws are there.
-        world.GetOrInsertResource<IPosedTriangles>(() => new PosedTriangles(world));
+        if (!world.TryGetResource<IPosedTriangles>(out _)) Posed(world);
         var current = E3D.CurrentApp;
         var borrowed = app is not null && !E3D.Holds(world) && ReferenceEquals(app.World, world);
         if (borrowed) E3D.UseApp(app);

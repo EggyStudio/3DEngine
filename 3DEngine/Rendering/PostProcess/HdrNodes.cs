@@ -81,7 +81,7 @@ internal sealed class BloomNode : INode
         if (bloom is { On: true }) renderer.DrawChain(renderContext, bloom, effects);
         // The depth of field and motion blur, run every frame the scene is drawn, so motion blur
         // knows the camera of the frame before once it is turned on.
-        renderer.Lens(renderContext, renderWorld, effects ?? new FrameEffects(), renderWorld.TryGet<WindowView>());
+        renderer.Lens(renderContext, renderWorld, effects ?? FrameEffects.Unset, renderWorld.TryGet<WindowView>());
         // With FXAA the composite is drawn ahead, into the 8-bit frame FXAA reads in the window's pass.
         if (effects is { Fxaa: true }) renderer.CompositeForFxaa(renderContext, renderWorld, bloom, effects);
     }

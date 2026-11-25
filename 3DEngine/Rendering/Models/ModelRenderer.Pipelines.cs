@@ -133,12 +133,12 @@ internal sealed partial class ModelRenderer
         }
     }
 
-    // Moves to the next slot of draw sets once a frame, however many targets draw in it. Each
-    // frame has a RenderContext of its own.
+    // Moves to the next slot of draw sets once a frame, however many targets draw in it, which the
+    // frame's RenderContext numbers.
     private void BeginFrameOfSets(RenderContext renderContext)
     {
-        if (ReferenceEquals(renderContext, _lastContext)) return;
-        _lastContext = renderContext;
+        if (renderContext.Frame == _lastContextFrame) return;
+        _lastContextFrame = renderContext.Frame;
         DrawCalls = 0;
         PipelinesBound = 0;
         ViewsPushed = 0;

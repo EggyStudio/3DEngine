@@ -50,7 +50,13 @@ internal sealed unsafe partial class GraphicsDevice
         _deviceApi.vkResetCommandBuffer(cmd, 0).CheckResult();
         _deviceApi.vkBeginCommandBuffer(cmd, &beginInfo).CheckResult();
 
-        return new VulkanFrameContext(this, imageIndex, _currentFrame, MaxFramesInFlight, cmd, _swapchainExtent, _resizeVersion);
+        // The slot's context, made again where its command buffer was, since a frame begins in
+        // every slot many times a second.
+        if (_frameContexts.Length != _commandBuffers.Length) _frameContexts = new VulkanFrameContext?[_commandBuffers.Length];
+        if (_frameContexts[_currentFrame] is not { } context || context.CommandBufferHandle.Handle != cmd.Handle
+            || context.FramesInFlight != MaxFramesInFlight)
+            _frameContexts[_currentFrame] = context = new VulkanFrameContext(this, _currentFrame, MaxFramesInFlight, cmd);
+        return context.Begin(imageIndex, _swapchainExtent, _resizeVersion);
     }
 
     /// <summary>Ends the command buffer, submits to the graphics queue, and presents the frame.</summary>
@@ -179,10 +185,10 @@ internal sealed unsafe partial class GraphicsDevice
     private sealed class VulkanFrameContext : IFrameContext
     {
         private readonly GraphicsDevice _owner;
-        private readonly ulong _bornResizeVersion;
+        private ulong _bornResizeVersion;
 
         /// <inheritdoc />
-        public uint FrameIndex { get; }
+        public uint FrameIndex { get; private set; }
         /// <inheritdoc />
         public int InFlightIndex { get; }
         /// <inheritdoc />
@@ -190,30 +196,37 @@ internal sealed unsafe partial class GraphicsDevice
         /// <inheritdoc />
         public ICommandBuffer CommandBuffer { get; }
         /// <inheritdoc />
-        public Extent2D Extent { get; }
+        public Extent2D Extent { get; private set; }
 
         /// <summary>The raw Vulkan command buffer handle for direct API calls.</summary>
         internal VkCommandBuffer CommandBufferHandle { get; }
 
-        /// <summary>Creates a new frame context capturing the current swapchain and synchronization state.</summary>
+        /// <summary>
+        /// Creates the context of an in-flight slot, which each frame in the slot begins again.
+        /// </summary>
         /// <param name="owner">The owning graphics device.</param>
-        /// <param name="frameIndex">Swapchain image index for this frame.</param>
         /// <param name="inFlightIndex">In-flight slot index (0 .. <c>MaxFramesInFlight-1</c>).</param>
         /// <param name="framesInFlight">Total number of frames allowed in flight.</param>
-        /// <param name="cmd">The Vulkan command buffer for this frame.</param>
-        /// <param name="extent">The current swapchain extent.</param>
-        /// <param name="resizeVersion">Swapchain resize generation at context creation time.</param>
-        public VulkanFrameContext(GraphicsDevice owner, uint frameIndex, int inFlightIndex, int framesInFlight,
-            VkCommandBuffer cmd, VkExtent2D extent, ulong resizeVersion)
+        /// <param name="cmd">The Vulkan command buffer of the slot.</param>
+        public VulkanFrameContext(GraphicsDevice owner, int inFlightIndex, int framesInFlight, VkCommandBuffer cmd)
         {
             _owner = owner;
-            _bornResizeVersion = resizeVersion;
-            FrameIndex = frameIndex;
             InFlightIndex = inFlightIndex;
             FramesInFlight = framesInFlight;
             CommandBufferHandle = cmd;
-            Extent = new Extent2D(extent.width, extent.height);
             CommandBuffer = new VulkanCommandBuffer(cmd);
+        }
+
+        /// <summary>Begins a frame in the slot, capturing the current swapchain state.</summary>
+        /// <param name="frameIndex">Swapchain image index for this frame.</param>
+        /// <param name="extent">The current swapchain extent.</param>
+        /// <param name="resizeVersion">Swapchain resize generation at the frame's start.</param>
+        public VulkanFrameContext Begin(uint frameIndex, VkExtent2D extent, ulong resizeVersion)
+        {
+            _bornResizeVersion = resizeVersion;
+            FrameIndex = frameIndex;
+            Extent = new Extent2D(extent.width, extent.height);
+            return this;
         }
 
         /// <inheritdoc />
@@ -225,6 +238,9 @@ internal sealed unsafe partial class GraphicsDevice
             }
         }
     }
+
+    // The context of each in-flight slot, begun again by each frame in it.
+    private VulkanFrameContext?[] _frameContexts = [];
 
     private bool _debugUtils;
 
@@ -257,7 +273,10 @@ internal sealed unsafe partial class GraphicsDevice
     public void BeginDebugLabel(ICommandBuffer commands, string name)
     {
         if (!_debugUtils || commands is not VulkanCommandBuffer vk) return;
-        var bytes = System.Text.Encoding.UTF8.GetBytes(name + "\0");
+        // Written on the stack with its closing zero, since each node opens one in every frame.
+        var most = System.Text.Encoding.UTF8.GetMaxByteCount(name.Length) + 1;
+        Span<byte> bytes = most <= 512 ? stackalloc byte[most] : new byte[most];
+        bytes[System.Text.Encoding.UTF8.GetBytes(name, bytes)] = 0;
         fixed (byte* text = bytes)
         {
             var label = new VkDebugUtilsLabelEXT { pLabelName = text };

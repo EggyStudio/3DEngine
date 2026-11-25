@@ -244,8 +244,12 @@ internal static class Recorder
 
         if (!session.Stopping || session.Pending.Count > 0) return;
         Finish(session, session.Request.Path, null);
-        _ = Task.Run(() => Write(session));
+        WriteApart(session);
     }
+
+    // Apart from Tick, so the lambda and the recording it reads are made only for a file to
+    // write, where they would be made in every frame.
+    private static void WriteApart(Session session) => _ = Task.Run(() => Write(session));
 
     /// <summary>
     /// Writes what a recording took where the app ends while it records, at once and on this

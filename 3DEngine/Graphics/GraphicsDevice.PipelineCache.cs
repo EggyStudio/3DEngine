@@ -274,6 +274,8 @@ internal sealed unsafe partial class GraphicsDevice
     /// </summary>
     internal string[] TakePipelinesNamed()
     {
+        // Most frames make none, and take nothing.
+        if (_pipelinesNamed.IsEmpty) return [];
         var named = new List<string>();
         while (_pipelinesNamed.TryDequeue(out var one)) named.Add(one);
         return [.. named];

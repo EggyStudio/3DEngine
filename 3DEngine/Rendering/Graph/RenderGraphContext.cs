@@ -8,7 +8,7 @@ namespace Engine;
 /// <seealso cref="SlotValue"/>
 internal sealed class RenderGraphContext
 {
-    private readonly SlotValue[] _inputs;
+    private SlotValue[] _inputs;
     private readonly SlotValue[] _outputs;
     private readonly Action<string, SlotValue[]>? _runSubGraph;
 
@@ -21,6 +21,20 @@ internal sealed class RenderGraphContext
         _inputs = inputs;
         _outputs = new SlotValue[outputCount];
         _runSubGraph = runSubGraph;
+    }
+
+    /// <summary>The number of output slots it holds.</summary>
+    internal int OutputCount => _outputs.Length;
+
+    /// <summary>
+    /// Readies the context for its node's run in another frame, with that frame's inputs and no
+    /// output set, so the renderer keeps one context for each node in place of one each frame.
+    /// </summary>
+    /// <param name="inputs">Input slot values gathered from connected upstream nodes.</param>
+    internal void Begin(SlotValue[] inputs)
+    {
+        _inputs = inputs;
+        Array.Clear(_outputs);
     }
 
     /// <summary>Gets the slot value at the given input index.</summary>

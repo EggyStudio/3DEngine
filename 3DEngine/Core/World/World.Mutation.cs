@@ -49,7 +49,7 @@ public sealed partial class World
     /// <param name="factory">A delegate invoked to create the resource when it does not exist.</param>
     /// <returns>The existing or newly created resource instance.</returns>
     internal T GetOrInsertResource<T>(Func<T> factory) where T : notnull =>
-        _resources.TryGetValue(typeof(T), out var found) ? (T)found : Added((T)_resources.GetOrAdd(typeof(T), _ => factory()));
+        _resources.TryGetValue(typeof(T), out var found) ? (T)found : Added((T)_resources.GetOrAdd(typeof(T), static (_, make) => make(), factory));
 
     /// <summary>
     /// Returns the existing resource of type <typeparamref name="T"/>, or creates a default instance via <c>new T()</c>,

@@ -370,7 +370,8 @@ internal sealed class Renderer : IDisposable
         {
             Logger.FrameTrace("RenderFrame: Running prepare systems...");
             var start = mark;
-            var prepareCpu = new List<(string, double)>(_prepareSystems.Count);
+            var prepareCpu = _prepareCpu[_timesTurn];
+            prepareCpu.Clear();
             foreach (var sys in _prepareSystems)
             {
                 sys.Run(RenderWorld, renderCtx);
@@ -403,6 +404,30 @@ internal sealed class Renderer : IDisposable
     /// <summary>How long the last frame's rendering took, by phase and by node.</summary>
     public RenderTimings Timings { get; } = new();
 
+    // The prepare systems' and the nodes' times of the last two frames, the lists Timings holds
+    // and the lists being filled, which swap each frame, so a frame makes no list and a reader
+    // of the last frame's times reads lists no frame is writing.
+    private readonly List<(string, double)>[] _prepareCpu = [[], []];
+    private readonly List<(string, double)>[] _nodeCpu = [[], []];
+    private int _timesTurn;
+
+    // What the graph's run keeps from frame to frame, each node's context and the outputs and
+    // image layouts of the frame, cleared as each frame begins, so a frame makes none of them.
+    private readonly Dictionary<string, RenderGraphContext> _contexts = [];
+    private readonly Dictionary<string, SlotValue[]> _outputStore = [];
+    private readonly Dictionary<IImage, ImageLayout> _layouts = [];
+    private Action<string, SlotValue[]>? _runSubGraph;
+
+    // The node's context for this frame, made the first time the node runs.
+    private RenderGraphContext ContextOf(string label, INode node, SlotValue[] inputs)
+    {
+        var outputs = node.Output().Length;
+        if (!_contexts.TryGetValue(label, out var context) || context.OutputCount != outputs)
+            _contexts[label] = context = new RenderGraphContext(inputs, outputs, _runSubGraph ??= RunSubGraph);
+        context.Begin(inputs);
+        return context;
+    }
+
     // The milliseconds since the mark, which moves to now.
     private static double Lap(ref long mark)
     {
@@ -417,8 +442,10 @@ internal sealed class Renderer : IDisposable
     private void ExecuteGraph(RenderContext renderCtx, int inFlightIndex)
     {
         var orderedNodes = Graph.TopologicalOrder();
-        var outputStore = new Dictionary<string, SlotValue[]>();
-        var layoutTracker = new Dictionary<IImage, ImageLayout>();
+        var outputStore = _outputStore;
+        var layoutTracker = _layouts;
+        outputStore.Clear();
+        layoutTracker.Clear();
 
         // A timestamp before the graph and after each node, which the GPU writes as it finishes
         // what came before, read back when this slot comes round again.
@@ -428,11 +455,14 @@ internal sealed class Renderer : IDisposable
             Timings.NodeGpu = timer.BeginTimestamps(renderCtx.CommandBuffer, inFlightIndex);
             timer.Timestamp(renderCtx.CommandBuffer, inFlightIndex, "start");
         }
-        var nodeCpu = new List<(string, double)>(orderedNodes.Count);
+        var nodeCpu = _nodeCpu[_timesTurn];
+        nodeCpu.Clear();
         var mark = Stopwatch.GetTimestamp();
 
-        foreach (var (label, node) in orderedNodes)
+        // By index, since a foreach over the order's interface would make an enumerator.
+        for (int n = 0; n < orderedNodes.Count; n++)
         {
+            var (label, node) = orderedNodes[n];
             node.Update(RenderWorld);
 
             var inputs = Graph.GatherInputs(label, outputStore);
@@ -453,7 +483,7 @@ internal sealed class Renderer : IDisposable
                 }
             }
 
-            var graphCtx = new RenderGraphContext(inputs, node.Output().Length, RunSubGraph);
+            var graphCtx = ContextOf(label, node, inputs);
             var device = renderCtx.Device as GraphicsDevice;
             device?.BeginDebugLabel(renderCtx.CommandBuffer, label);
             node.Run(graphCtx, renderCtx, RenderWorld);
@@ -477,8 +507,9 @@ internal sealed class Renderer : IDisposable
         var activePass = RenderWorld.TryGet<ActiveSwapchainPass>();
         activePass?.Dispose();
 
-        foreach (var (_, node) in orderedNodes)
-            node.AfterWindowPass(renderCtx, RenderWorld);
+        for (int n = 0; n < orderedNodes.Count; n++)
+            orderedNodes[n].Node.AfterWindowPass(renderCtx, RenderWorld);
+        _timesTurn ^= 1;
     }
 
     /// <summary>Runs a named sub-graph with forwarded slot values.</summary>

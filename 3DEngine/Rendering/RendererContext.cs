@@ -188,21 +188,35 @@ internal sealed class RendererContext : IDisposable
             }
         }
 
-        var swapchainTarget = new SwapchainTarget(
-            _graphics.SwapchainRenderPass,
-            _graphics.GetSwapchainFramebuffer(imageIndex),
-            frame.Extent)
-        {
-            ImageIndex = imageIndex,
-            Shown = _graphics.GetShownFramebuffer(imageIndex),
-            ShownExtent = _graphics.GetShownFramebuffer(imageIndex) is null ? frame.Extent : _graphics.ShownExtent,
-        };
+        // Each image's target kept, and made again where what it names changed, since a frame sets
+        // one many times a second.
+        var renderPass = _graphics.SwapchainRenderPass;
+        var framebuffer = _graphics.GetSwapchainFramebuffer(imageIndex);
+        var shown = _graphics.GetShownFramebuffer(imageIndex);
+        var shownExtent = shown is null ? frame.Extent : _graphics.ShownExtent;
+        if (_swapchainTargets.Length <= imageIndex) Array.Resize(ref _swapchainTargets, (int)imageIndex + 1);
+        if (_swapchainTargets[imageIndex] is not { } swapchainTarget || !ReferenceEquals(swapchainTarget.RenderPass, renderPass)
+            || !ReferenceEquals(swapchainTarget.Framebuffer, framebuffer) || swapchainTarget.Extent != frame.Extent
+            || !ReferenceEquals(swapchainTarget.Shown, shown) || swapchainTarget.ShownExtent != shownExtent)
+            _swapchainTargets[imageIndex] = swapchainTarget = new SwapchainTarget(renderPass, framebuffer, frame.Extent)
+            {
+                ImageIndex = imageIndex,
+                Shown = shown,
+                ShownExtent = shownExtent,
+            };
         world.Set(swapchainTarget);
-        world.Set(clear);
+        // The color read from the world where it holds one, so it is set only where it does not.
+        if (!world.Contains<ClearColor>()) world.Set(clear);
 
-        var renderCtx = new RenderContext(_graphics, frame.CommandBuffer, DynamicAllocator);
+        // One context begun again in each frame, made again for another device.
+        var renderCtx = _renderContext is { } kept && ReferenceEquals(kept.Device, _graphics)
+            ? kept.Again(frame.CommandBuffer, DynamicAllocator)
+            : _renderContext = new RenderContext(_graphics, frame.CommandBuffer, DynamicAllocator);
         return (renderCtx, frame, imageIndex);
     }
+
+    private SwapchainTarget?[] _swapchainTargets = [];
+    private RenderContext? _renderContext;
 
     /// <summary>Uploads a camera uniform struct to the specified buffer via map/write/unmap.</summary>
     /// <param name="buffer">The target uniform buffer.</param>

@@ -68,7 +68,7 @@ internal sealed partial class DynamicBufferAllocator : IDisposable
         // Uniform buffers are bound at an offset that must be a multiple of the device's
         // minUniformBufferOffsetAlignment, which Vulkan caps at 256, so every device accepts it.
         var arena = _arenas[_currentSlot];
-        return arena.Allocate(_gfx, size, usage, usage.HasFlag(BufferUsage.Uniform) ? 256ul : 16ul);
+        return arena.Allocate(_gfx, size, usage, (usage & BufferUsage.Uniform) != 0 ? 256ul : 16ul);
     }
 
     /// <summary>Maps the backing buffer of <paramref name="alloc"/> and returns a span

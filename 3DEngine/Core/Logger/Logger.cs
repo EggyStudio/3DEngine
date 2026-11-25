@@ -87,6 +87,8 @@ public sealed class Logger : ILogger
     /// <inheritdoc />
     public void FrameTrace(string message) { if (LogConfig.PerFrameLogging) Log(LogLevel.Trace, message); }
     /// <inheritdoc />
+    public void FrameTrace(ref FrameTraceHandler message) { if (message.Wanted) FrameTrace(message.ToStringAndClear()); }
+    /// <inheritdoc />
     public void Debug(string message) => Log(LogLevel.Debug, message);
     /// <inheritdoc />
     public void Info(string message) => Log(LogLevel.Info, message);

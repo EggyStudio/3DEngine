@@ -71,6 +71,9 @@ internal sealed class ReflectionProbes
     /// <summary>Each probe by the entity that holds it.</summary>
     public readonly Dictionary<int, Probe> ByEntity = [];
 
+    // The probes a sync found, kept from frame to frame.
+    private readonly HashSet<int> _seen = [];
+
     /// <summary>One probe and its capture.</summary>
     public sealed class Probe
     {
@@ -141,7 +144,8 @@ internal sealed class ReflectionProbes
     /// </summary>
     public void Sync(EcsWorld ecs, double now)
     {
-        var seen = new HashSet<int>();
+        var seen = _seen;
+        seen.Clear();
         List<LitBy>? lights = null;
         foreach (var (entity, probe) in ecs.Query<ReflectionProbe>())
         {
@@ -188,7 +192,9 @@ internal sealed class ReflectionProbes
             if (probe.Refresh > 0 && !known.Capturing && known.Passes >= Passes && now - known.CapturedAt >= probe.Refresh)
                 known.Stale = true;
         }
-        foreach (var gone in ByEntity.Keys.Where(e => !seen.Contains(e)).ToArray()) ByEntity.Remove(gone);
+        // A dictionary's entries may be removed while it is read.
+        foreach (var (entity, _) in ByEntity)
+            if (!seen.Contains(entity)) ByEntity.Remove(entity);
     }
 
     // Every light in the ECS as it is placed and aimed this frame.

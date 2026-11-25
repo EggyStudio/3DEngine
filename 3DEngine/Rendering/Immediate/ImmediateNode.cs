@@ -72,6 +72,7 @@ internal sealed class ImmediateRenderer : IDisposable
     // The program each shader's stages and sets were made from, which a shader loaded again
     // replaces under the same id.
     private readonly Dictionary<int, ShaderProgram> _madeFrom = [];
+    private readonly List<int> _shadersGone = [];
 
     // The texture the pass fills itself, engine.slang's, at binding 1. Any other a shader samples is its own.
     private static readonly string[] PassTextures = ["boundTexture"];
@@ -405,8 +406,12 @@ internal sealed class ImmediateRenderer : IDisposable
         _frame++;
         if (store is not null)
         {
-            var replaced = _madeFrom.Where(made => store.Get(made.Key) is { } now && !ReferenceEquals(now, made.Value)).Select(made => made.Key).ToArray();
-            foreach (var id in store.TakeRemovals().Concat(replaced))
+            // The ids unloaded and those loaded again, gathered in a list kept from frame to frame.
+            _shadersGone.Clear();
+            _shadersGone.AddRange(store.TakeRemovals());
+            foreach (var (id, program) in _madeFrom)
+                if (store.Get(id) is { } now && !ReferenceEquals(now, program)) _shadersGone.Add(id);
+            foreach (var id in _shadersGone)
             {
                 _madeFrom.Remove(id);
                 foreach (var held in (bool[])[false, true])

@@ -11,7 +11,7 @@ namespace Engine;
 internal sealed class TrackedRenderPass : IDisposable
 {
     private readonly IGraphicsDevice _gfx;
-    private readonly ICommandBuffer _cmd;
+    private ICommandBuffer _cmd;
     private bool _ended;
 
     /// <summary>Creates and begins a tracked render pass from the given descriptor.</summary>
@@ -19,16 +19,35 @@ internal sealed class TrackedRenderPass : IDisposable
     {
         _gfx = gfx;
         _cmd = cmd;
+        Begin(desc);
+    }
+
+    /// <summary>
+    /// Begins the pass again on <paramref name="cmd"/> where it has ended and was made on
+    /// <paramref name="gfx"/>, and says whether it did, so a node that opens one pass in every
+    /// frame makes it once.
+    /// </summary>
+    internal bool TryBeginAgain(IGraphicsDevice gfx, ICommandBuffer cmd, RenderPassDescriptor desc)
+    {
+        if (!_ended || !ReferenceEquals(gfx, _gfx)) return false;
+        _cmd = cmd;
+        _ended = false;
+        Begin(desc);
+        return true;
+    }
+
+    private void Begin(RenderPassDescriptor desc)
+    {
         Extent = desc.Extent;
 
         ClearColor? clear = desc.ColorLoadOp == LoadOp.Clear
             ? (desc.ClearColor ?? Engine.ClearColor.Black)
             : null;
-        gfx.CmdBeginRenderPass(cmd, desc.RenderPass, desc.Framebuffer, desc.Extent, clear);
+        _gfx.CmdBeginRenderPass(_cmd, desc.RenderPass, desc.Framebuffer, desc.Extent, clear);
     }
 
     /// <summary>The size of the framebuffer the pass draws into.</summary>
-    public Extent2D Extent { get; }
+    public Extent2D Extent { get; private set; }
 
     /// <summary>Binds a graphics pipeline for subsequent draw calls.</summary>
     public void SetPipeline(IPipeline pipeline) => _gfx.BindGraphicsPipeline(_cmd, pipeline);

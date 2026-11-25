@@ -172,7 +172,7 @@ internal sealed class GpuMeshes : IDisposable
             }
         }
 
-        _ringed.RemoveWhere(id => !_entries.TryGetValue(id, out var entry) || GaveBack(gfx, id, entry));
+        if (_ringed.Count > 0) GiveBackRinged(gfx);
 
         for (int i = _retired.Count - 1; i >= 0; i--)
         {
@@ -196,6 +196,11 @@ internal sealed class GpuMeshes : IDisposable
         }
         return MemoryMarshal.AsBytes(PositionsOf(vertices).AsSpan());
     }
+
+    // Apart from Update, so the lambda and what it reads are made only in a frame with meshes on
+    // their rings.
+    private void GiveBackRinged(IGraphicsDevice gfx) =>
+        _ringed.RemoveWhere(id => !_entries.TryGetValue(id, out var entry) || GaveBack(gfx, id, entry));
 
     // Gives a mesh's rings back for one buffer each holding their last write, once RetireFrames
     // frames pass with no write, the ring's buffers handed to the retired list, since a frame in

@@ -16,6 +16,11 @@ namespace Engine;
 /// </remarks>
 internal sealed class FrameEffects
 {
+    /// <summary>
+    /// The effects a frame without its own is drawn with, made once, which nothing changes.
+    /// </summary>
+    internal static FrameEffects Unset { get; } = new();
+
     /// <summary>What the scene's light is multiplied by before the curve, 1 unless set, and on top of the exposure that follows the scene when that is on.</summary>
     public float Exposure { get; set; } = 1;
 

@@ -108,16 +108,24 @@ internal sealed class ModelDrawList
         return null;
     }
 
-    /// <summary>The render targets meshes are drawn into this frame, in the order each first is, the window left out.</summary>
+    /// <summary>
+    /// The render targets meshes are drawn into this frame, in the order each first is, the window
+    /// left out.
+    /// </summary>
+    /// <remarks>
+    /// A frame drawing into no render target is given one empty list, which no caller adds to.
+    /// </remarks>
     internal List<int> Targets()
     {
-        var targets = new List<int>();
+        List<int>? targets = null;
         foreach (var draw in Span)
-            if (draw.Target != 0 && !targets.Contains(draw.Target)) targets.Add(draw.Target);
+            if (draw.Target != 0 && targets?.Contains(draw.Target) != true) (targets ??= []).Add(draw.Target);
         foreach (var group in _groups)
-            if (group.Count > 0 && group.Template.Target != 0 && !targets.Contains(group.Template.Target)) targets.Add(group.Template.Target);
-        return targets;
+            if (group.Count > 0 && group.Template.Target != 0 && targets?.Contains(group.Template.Target) != true) (targets ??= []).Add(group.Template.Target);
+        return targets ?? NoTargets;
     }
+
+    private static readonly List<int> NoTargets = [];
 
     /// <summary>
     /// Records where the camera of a view-projection the frame draws through stood and its

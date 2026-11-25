@@ -25,6 +25,7 @@ public sealed partial class Schedule
         var random = new Random(seed);
         lock (_lock)
         {
+            Changed();
             foreach (var stage in StageOrder.AllInOrder())
             {
                 var systems = _systemsByStage[stage];

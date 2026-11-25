@@ -44,6 +44,11 @@ is gone, and a program draws its whole picture every frame.
 `ClearBackground` sets the color the frame starts from. Called anywhere in the frame it clears the
 whole of it, before anything is drawn.
 
+Once its first frames have run, a frame that draws nothing new allocates nothing on the managed
+heap of the program's thread, since the engine keeps what it makes for a frame and begins it again
+in the next. A program that makes nothing new in its own frames runs without the garbage
+collector's pauses.
+
 A window has no exit key until the program sets one, and the key goes with the window as it
 closes. Where one is set, the key is handed down one order and the first taker keeps it. The
 console or the settings panel open takes it, a field of an ImGui window with the caret or an ImGui

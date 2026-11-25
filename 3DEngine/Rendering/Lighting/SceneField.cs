@@ -74,6 +74,17 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     private static readonly ILogger Logger = Log.Category("Engine.SceneField");
 
     private GpuSceneField? _field, _off;
+
+    // The binding of the field left off, made once for the field it names, since a frame without
+    // the field sets it in every frame.
+    private SceneFieldBinding? _offBinding;
+
+    private SceneFieldBinding Off(GraphicsDevice device)
+    {
+        _off ??= SceneFieldStages.Of(device).CreateSceneField(1, 1);
+        if (!ReferenceEquals(_offBinding?.Field, _off)) _offBinding = new SceneFieldBinding(_off, false);
+        return _offBinding!;
+    }
     private SceneFieldPlan? _plan;
     private (int Cascades, float CellSize, int Budget, int Triangles, float FarCell) _made;
     private readonly List<(long Frame, IDisposable Disposable)> _retired = [];
@@ -259,7 +270,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         if (settings is not { On: true })
         {
             Release();
-            renderWorld.Set(new SceneFieldBinding(_off ??= SceneFieldStages.Of(device).CreateSceneField(1, 1), false));
+            renderWorld.Set(Off(device));
             return;
         }
 
@@ -281,7 +292,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         // Left off, where its pool did not fit, until the settings change.
         if (_short && _made == wanted)
         {
-            renderWorld.Set(new SceneFieldBinding(_off ??= SceneFieldStages.Of(device).CreateSceneField(1, 1), false));
+            renderWorld.Set(Off(device));
             return;
         }
         // The field is made again where its cascades, its cell or its far cascade change, and kept
@@ -296,8 +307,12 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             _short = false;
             Release();
             _made = wanted;
+            // The cell's size read into a local of this block, so what the lambda reads is made
+            // only with a plan, where reading the frame's wanted field would make it in every
+            // frame.
+            var cellSize = wanted.CellSize;
             _plan = new SceneFieldPlan(wanted.counted, wanted.CellSize, wanted.Item3, BoundsOf, PartsOf, TintOf, wanted.Item4, TrianglesOf, farCell,
-                instance => Carried(instance, wanted.CellSize));
+                instance => Carried(instance, cellSize));
             var making = Stopwatch.GetTimestamp();
             _field = SceneFieldStages.Of(device).CreateSceneField(_plan.Cascades, SceneFieldPlan.Resolution);
             Logger.Info($"The scene's distance field made, {_plan.Cascades} cascades of {SceneFieldPlan.Resolution} cells a side, "
@@ -326,7 +341,7 @@ internal sealed partial class SceneFieldRenderer : IDisposable
             var made = _made;
             Release();
             (_short, _made) = (true, made);
-            renderWorld.Set(new SceneFieldBinding(_off ??= SceneFieldStages.Of(device).CreateSceneField(1, 1), false));
+            renderWorld.Set(Off(device));
         }
     }
 
@@ -685,55 +700,6 @@ internal sealed partial class SceneFieldRenderer : IDisposable
         return MemoryMarshal.AsBytes(values.AsSpan()).ToArray();
     }
 
-    // The frame's shapes as the RadianceCascades module's StampShape lays them out, one at least,
-    // each one's rows taking a place against the frame's origin into its box, as the info's corners
-    // are handed. The gloss a box's face is stamped with, a roughness of a half and no metal or
-    // reflectance, whose bits the field's readers take as no gloss painted (faceGloss in
-    // scenefield.slang).
-    private static readonly Vector3 ShapeGloss = new(0.5f, 0, 0);
-
-    private static IBuffer Shapes(GraphicsDevice device, List<SceneFieldPlan.Shape> shapes, RenderOrigin origin)
-    {
-        var buffer = device.CreateBuffer(new BufferDesc((ulong)Math.Max(1, shapes.Count) * 128, BufferUsage.Storage, CpuAccessMode.Write));
-        var mapped = device.Map(buffer).Cast<float>();
-        for (int s = 0; s < shapes.Count; s++)
-        {
-            var (_, center, extents, scale, color, through, emission) = shapes[s];
-            var m = StampRows(shapes[s], origin);
-            ReadOnlySpan<float> values = [m.M11, m.M21, m.M31, m.M41, m.M12, m.M22, m.M32, m.M42, m.M13, m.M23, m.M33, m.M43,
-                center.X, center.Y, center.Z, scale, extents.X, extents.Y, extents.Z, 0, color.X, color.Y, color.Z, through, emission.X, emission.Y, emission.Z, 0, ShapeGloss.X, ShapeGloss.Y, ShapeGloss.Z, 0];
-            mapped.Slice(s * 32).CopyFrom(values);
-        }
-        device.Unmap(buffer);
-        return buffer;
-    }
-
-    /// <summary>
-    /// A shape's rows as field_stamp.slang reads them, from a place against
-    /// <paramref name="origin"/> into the shape's own space, the inverse of its matrix taken
-    /// against the origin in doubles first, so the inverse holds no float of the world's size, or
-    /// nothing where it has none.
-    /// </summary>
-    internal static Matrix4x4 StampRows(SceneFieldPlan.Shape shape, RenderOrigin origin) =>
-        Matrix4x4.Invert(origin.Against(shape.World), out var toOwn) ? toOwn : default;
-
-    // Each brick as field_stamp.slang reads it, its cascade, its place packed a byte an axis, and
-    // where its run of shapes begins and how long it is, then the runs, a shape's place each, made
-    // up to a whole element of four, since the shader reads four places at a time and would read
-    // the last of a run past the buffer's end.
-    private static IBuffer Bricks(GraphicsDevice device, SceneFieldPlan plan)
-    {
-        var (bricks, ranges, shapes) = (plan.Bricks, plan.BrickRanges, plan.BrickShapes);
-        var buffer = device.CreateBuffer(new BufferDesc((ulong)(Math.Max(1, bricks.Count) * 4 + (shapes.Count + 3) / 4 * 4) * 4, BufferUsage.Storage, CpuAccessMode.Write));
-        var mapped = device.Map(buffer).Cast<uint>();
-        for (int b = 0; b < bricks.Count; b++)
-            (mapped[b * 4], mapped[b * 4 + 1], mapped[b * 4 + 2], mapped[b * 4 + 3]) =
-                ((uint)bricks[b].Cascade, (uint)(bricks[b].X | bricks[b].Y << 8 | bricks[b].Z << 16), (uint)ranges[b].First, (uint)ranges[b].Count);
-        mapped.Slice(bricks.Count * 4).CopyFrom(MemoryMarshal.Cast<int, uint>(CollectionsMarshal.AsSpan(shapes)));
-        device.Unmap(buffer);
-        return buffer;
-    }
-
     private void Hold(IDisposable disposable) => _retired.Add((_frame, disposable));
 
     // Lets the field go, once no frame in flight reads it, on a frame it is off or made again.
@@ -754,10 +720,13 @@ internal sealed partial class SceneFieldRenderer : IDisposable
     }
 
     // Lets go the counted meshes a test picks by id, their readbacks asked with them.
+    // A dictionary's entries may be removed while it is read, so the ones let go are not copied
+    // out.
     private void ForgetCounted(Func<int, bool> which)
     {
-        foreach (var (id, state) in _countedStates.Where(entry => which(entry.Key)).ToList())
+        foreach (var (id, state) in _countedStates)
         {
+            if (!which(id)) continue;
             if (state.Asked is { } asked) _device?.ReleaseReadback(asked);
             if (state.Vertices is { } vertices) _countedMeshes.Remove(vertices);
             _countedStates.Remove(id);

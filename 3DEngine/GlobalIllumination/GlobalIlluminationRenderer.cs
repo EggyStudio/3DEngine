@@ -150,9 +150,10 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         renderWorld.TryGet<TargetIllumination>()?.ByTarget.Clear();
         _switches = renderWorld.TryGet<GlobalIlluminationSettings>();
         // A target's probes not drawn the frame before are let go, since its history is not the
-        // frame before's.
-        foreach (var (id, state) in _targets.Where(entry => entry.Value.Drawn < _frame - 1).ToList())
+        // frame before's. A dictionary's entries may be removed while it is read.
+        foreach (var (id, state) in _targets)
         {
+            if (state.Drawn >= _frame - 1) continue;
             _retired.Add((_frame, state));
             _targets.Remove(id);
         }
@@ -286,8 +287,11 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         // hands it back to the traced half through the light past the first bounce, and a room
         // whose panel goes dark at Low keeps a tenth of its light ten frames on.
         var spread = !switches.SpreadOff && !Settling;
-        _halved = [.. Enumerable.Range(0, cascades).Select(c => GlobalIlluminationStages.Halved(c, cascades, far ? cascades - 2 : -1,
-            switches.FollowOff ? null : lying, spread))];
+        // In a loop, since a lambda reading the frame's locals would be made in every frame,
+        // global illumination on or off.
+        if (_halved.Length != cascades) _halved = new bool[cascades];
+        for (int c = 0; c < cascades; c++)
+            _halved[c] = GlobalIlluminationStages.Halved(c, cascades, far ? cascades - 2 : -1, switches.FollowOff ? null : lying, spread);
         PlaceLights(lights, origin, sunShadow?.Origin ?? origin);
         _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordGlobalIllumination(renderContext.CommandBuffer, _gi, field.Field, view, sampler, sunMap, sunSampler, lights, intervals, ProbeSpacing,
             switches.MergeOff, switches.Alone, switches.Shown is BounceView.Rays or BounceView.Merged, _frame, switches.FollowOff ? null : lying,

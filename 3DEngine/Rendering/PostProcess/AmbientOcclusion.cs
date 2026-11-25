@@ -262,9 +262,11 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         if (_circular is { Holds: true } && _circularUsed < _frame - 1) ReleaseCircular();
         renderWorld.TryGet<TargetOcclusion>()?.Depths.Clear();
         renderWorld.TryGet<TargetOcclusion>()?.Images.Clear();
-        // A target's images not drawn the frame before are let go.
-        foreach (var (id, (stale, _)) in _targets.Where(entry => entry.Value.Drawn < _frame - 1).ToList())
+        // A target's images not drawn the frame before are let go. A dictionary's entries may be
+        // removed while it is read.
+        foreach (var (id, (stale, drawn)) in _targets)
         {
+            if (drawn >= _frame - 1) continue;
             _retired.Add((_frame, stale));
             _targets.Remove(id);
         }

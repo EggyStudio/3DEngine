@@ -52,9 +52,9 @@ internal sealed partial class ModelRenderer
 
         // Once a frame, however many views draw models in it, the next slot's sets are handed
         // out again.
-        if (!ReferenceEquals(frame, _lastFrame))
+        if (frame.Frame != _lastFrame)
         {
-            _lastFrame = frame;
+            _lastFrame = frame.Frame;
             _lightSlot = (_lightSlot + 1) % Math.Max(1, gfx.FramesInFlight);
             while (_lightSets.Count <= _lightSlot) _lightSets.Add([]);
             _lightSetOf.Clear();
@@ -463,7 +463,10 @@ internal sealed partial class ModelRenderer
         if (_probeFaces is null)
         {
             // Half floats, so a lamp or a sunlit wall comes back as bright as it was drawn.
-            _probeFaces = [.. Enumerable.Range(0, 6).Select(_ => device.CreateRenderTarget(ProbeFaceSize, ProbeFaceSize, ImageFormat.R16G16B16A16_Float))];
+            // Made in a loop, since a lambda that reads the device would be made in every frame
+            // that captures nothing.
+            _probeFaces = new RenderTarget[6];
+            for (int f = 0; f < 6; f++) _probeFaces[f] = device.CreateRenderTarget(ProbeFaceSize, ProbeFaceSize, ImageFormat.R16G16B16A16_Float);
             _probeFacesSamples = device.Samples;
             for (int f = 0; f < 6; f++) device.Name(_probeFaces[f].ColorView.Image, $"Reflection probe face {f}");
         }

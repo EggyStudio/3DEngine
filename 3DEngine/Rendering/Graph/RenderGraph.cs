@@ -13,6 +13,8 @@ internal sealed class RenderGraph : IDisposable
     private readonly HashSet<(string From, string To)> _nodeEdges = new();
     private readonly List<SlotEdge> _slotEdges = new();
     private readonly Dictionary<string, RenderGraph> _subGraphs = new();
+    // The order last found, kept until a node or an edge is added, so a frame sorts nothing.
+    private IReadOnlyList<(string Label, INode Node)>? _order;
 
     /// <summary>Describes a data-carrying edge between an output slot and an input slot.</summary>
     private readonly record struct SlotEdge(string OutputNode, int OutputSlot, string InputNode, int InputSlot);
@@ -27,6 +29,7 @@ internal sealed class RenderGraph : IDisposable
             throw new InvalidOperationException($"Node '{label}' already exists.");
         _nodes[label] = node;
         _nodeOrder.Add(label);
+        _order = null;
     }
 
     /// <summary>Returns whether a node with the given label exists in the graph.</summary>
@@ -38,6 +41,7 @@ internal sealed class RenderGraph : IDisposable
         if (!_nodes.ContainsKey(from)) throw new ArgumentException($"Node '{from}' not found.", nameof(from));
         if (!_nodes.ContainsKey(to)) throw new ArgumentException($"Node '{to}' not found.", nameof(to));
         _nodeEdges.Add((from, to));
+        _order = null;
     }
 
     /// <summary>Adds a data-carrying slot edge. Implies ordering (output node before input node).</summary>
@@ -63,6 +67,7 @@ internal sealed class RenderGraph : IDisposable
 
         _slotEdges.Add(new SlotEdge(outputNode, outputSlot, inputNode, inputSlot));
         _nodeEdges.Add((outputNode, inputNode));
+        _order = null;
     }
 
     /// <summary>Registers a named sub-graph that can be invoked via <see cref="RenderGraphContext.RunSubGraph"/>.</summary>
@@ -71,7 +76,9 @@ internal sealed class RenderGraph : IDisposable
     /// <summary>Returns nodes in topological order using Kahn's algorithm. Throws on cycles.</summary>
     /// <returns>Labels and nodes in dependency-first execution order.</returns>
     /// <exception cref="InvalidOperationException">The graph contains a cycle.</exception>
-    public IReadOnlyList<(string Label, INode Node)> TopologicalOrder()
+    public IReadOnlyList<(string Label, INode Node)> TopologicalOrder() => _order ??= Sorted();
+
+    private List<(string Label, INode Node)> Sorted()
     {
         // Build in-degree map from all edges (node edges + implied slot edges)
         var inDegree = _nodeOrder.ToDictionary(n => n, _ => 0);
@@ -135,6 +142,7 @@ internal sealed class RenderGraph : IDisposable
         }
         _nodes.Clear();
         _nodeOrder.Clear();
+        _order = null;
         _nodeEdges.Clear();
         _slotEdges.Clear();
         foreach (var sg in _subGraphs.Values)

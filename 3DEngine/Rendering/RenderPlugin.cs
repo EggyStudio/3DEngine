@@ -29,7 +29,8 @@ internal sealed class RenderPlugin : IPlugin
         /// <inheritdoc />
         public void Run(World world, RenderWorld renderWorld)
         {
-            if (world.TryGetResource<ClearColor>(out var cc))
+            // Set only when it changes, since the render world keeps it boxed.
+            if (world.TryGetResource<ClearColor>(out var cc) && (!renderWorld.Contains<ClearColor>() || renderWorld.Get<ClearColor>() != cc))
                 renderWorld.Set(cc);
         }
     }
