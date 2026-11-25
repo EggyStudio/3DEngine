@@ -96,4 +96,49 @@ public sealed partial class GlobalIlluminationTests
         rays.Should().BeLessThan(1e-4, "the first cascade's probes stand and trace as a grid of 8 stands them");
         picture.Should().BeLessThan(1e-4, "the pixels read the first cascade's own probes as a grid of 8 holds them");
     }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void On_A_Device_That_Draws_On_Its_Cpu_Every_Cascade_Holds_8_Probes_A_Side_Unless_Set()
+    {
+        // Three cascades, the third of which holds 12 a side by default on a GPU, made on the
+        // device the suite runs on, then set to the default's counts. On lavapipe the probes are
+        // made at 8 until set and at 12 after, and on a GPU at 12 throughout.
+        Open();
+        SetSceneField(3, 0.15f, 2);
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var onCpu = ((GraphicsDevice)renderer.Context.Graphics!).AdapterInfo.DeviceType == GraphicsDeviceType.Cpu;
+        var settings = GetApp().World.Resource<GlobalIlluminationSettings>();
+        var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        int Made()
+        {
+            for (int frame = 0; frame < 10; frame++)
+            {
+                BeginDrawing();
+                ClearBackground(Color.Black);
+                BeginMode3D(new Camera3D(new Vector3(0, 1.5f, 4.5f), new Vector3(0, 1.2f, 0), Vector3.UnitY, 50));
+                DrawModel(block, Vector3.Zero, 1, Color.White);
+                EndMode3D();
+                EndDrawing();
+            }
+            return renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Probes!.Probes;
+        }
+
+        var unset = Made();
+        var read = settings.ProbesSides.ToArray();
+        settings.ProbesSides = GlobalIlluminationSettings.DefaultSides;
+        var set = Made();
+        UnloadModel(block);
+        output.WriteLine($"the device draws on its {(onCpu ? "CPU" : "GPU")}, the probes made at {unset} a side unset and {set} set to 8,8,12");
+        read.Should().Equal(onCpu ? new[] { 8 } : new[] { 8, 8, 12 });
+        unset.Should().Be(onCpu ? 8 : 12, "a device that draws on its CPU traces 8 a side in every cascade unless set");
+        set.Should().Be(12, "the counts set hold on any device");
+
+        // And the settings alone, as on a device that draws on its CPU.
+        var held = new GlobalIlluminationSettings { OnCpu = true };
+        held.ProbesSides.Should().Equal(8);
+        held.ProbesSides = [8, 12];
+        held.ProbesSides.Should().Equal(new[] { 8, 12 }, "a count set is kept on such a device");
+    }
 }

@@ -121,7 +121,7 @@ internal static partial class EngineSettings
             s => s.FootprintOff, (s, off) => s.FootprintOff = off);
         yield return Of("gi.toward", "Whether a pixel reads each of its probes' faces moved toward the surface the face's ray met as a probe's hit reads them, as they stand without it.", false,
             s => s.FacesMovedToward, (s, on) => s.FacesMovedToward = on);
-        yield return new Setting<string>("gi.side", $"How many probes a side each cascade of the world's probes holds, their spacing kept, from the first on as 8,8,12, the last count holding for the cascades past it, each even from {GlobalIlluminationSettings.LeastSide} to {GlobalIlluminationSettings.MostSide}.",
+        yield return new Setting<string>("gi.side", $"How many probes a side each cascade of the world's probes holds, their spacing kept, from the first on as 8,8,12, the last count holding for the cascades past it, 8 for every cascade on a device that draws on its CPU unless set, each even from {GlobalIlluminationSettings.LeastSide} to {GlobalIlluminationSettings.MostSide}.",
             GlobalIlluminationSettings.SidesText(GlobalIlluminationSettings.DefaultSides),
             () => GlobalIlluminationSettings.SidesText(Lit()?.ProbesSides ?? GlobalIlluminationSettings.DefaultSides),
             apply: text =>

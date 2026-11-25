@@ -137,7 +137,9 @@ their place from the field's side in, as at 8 a side, and more than 8 a side the
 reach. `gi.shell_parts 4` traces the probes past each
 cascade's inner eight a side a quarter a frame while the cascade lies where it lay, whole on a frame
 it moves, 6.11 ms in Sponza and 7.03 in the Bistro at the default, and a probe carried with its rays
-moving traces every frame.
+moving traces every frame. A device that draws on its CPU, as lavapipe does, holds 8 a side in every
+cascade unless set, since it traces the probes on its processor, where with four threads the glow
+lights' tests took 13 minutes 39 seconds at the default and take 6 minutes 58 seconds at 8.
 A cascade that point has gone past the grid of keeps the cells it holds, moved on the GPU, and
 builds the slab of cells the move brings in alone, as a clipmap does, so a walk splats a fraction of
 what building each cascade again did. One the point went half its width past or more is built again

@@ -225,9 +225,10 @@ internal sealed class GlobalIlluminationSettings
 
     /// <summary>
     /// How many probes a side each cascade of the world's probes holds, from the first on, the last
-    /// count holding for the cascades past it, as <c>gi.side</c> sets it. A cascade keeps its
-    /// probes' spacing, so more of them reach further, and its probes' box lies around the middle
-    /// of the field's cascade it stands in.
+    /// count holding for the cascades past it, as <c>gi.side</c> sets it, and unless set
+    /// <see cref="DefaultSides"/>, or <see cref="CpuSides"/> on a device that draws on its CPU. A
+    /// cascade keeps its probes' spacing, so more of them reach further, and its probes' box lies
+    /// around the middle of the field's cascade it stands in.
     /// </summary>
     /// <remarks>
     /// The probes' images are made at the most probes any cascade holds, a cascade of fewer reading
@@ -236,12 +237,35 @@ internal sealed class GlobalIlluminationSettings
     /// field's last cascade past its box see none of the scene, so the light past the probes takes
     /// their place from the field's side in, and more than 8 a side there adds time and no reach.
     /// </remarks>
-    public IReadOnlyList<int> ProbesSides { get; set; } = DefaultSides;
+    public IReadOnlyList<int> ProbesSides
+    {
+        get => _sides ?? (OnCpu ? CpuSides : DefaultSides);
+        set => _sides = value;
+    }
+
+    private IReadOnlyList<int>? _sides;
 
     /// <summary>
     /// The probes a side the cascades hold unless set, 8 for the first two and 12 past them.
     /// </summary>
     public static readonly int[] DefaultSides = [8, 8, 12];
+
+    /// <summary>
+    /// The probes a side every cascade holds unless set on a device that draws on its CPU, as
+    /// lavapipe does, 8.
+    /// </summary>
+    /// <remarks>
+    /// Such a device traces the probes on its processor, where the 12 a side past the second
+    /// cascade trace 3.4 times the probes of 8 and the frames of global illumination's tests took
+    /// so long that the suite on lavapipe passed its bound.
+    /// </remarks>
+    public static readonly int[] CpuSides = [8];
+
+    /// <summary>
+    /// Whether the device draws on its CPU, given each frame by the settings' extract from what the
+    /// renderer's part found on starting.
+    /// </summary>
+    internal bool OnCpu { get; set; }
 
     /// <summary>
     /// The fewest probes a side a cascade holds, the field's cells a side over the probes' spacing.

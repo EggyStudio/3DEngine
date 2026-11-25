@@ -179,8 +179,9 @@ surface the face's ray met, as far as the pixel lies behind the probe toward it,
 reads them, a step that stays off since a face moved so is not tested from the pixel, so light
 reaches a floor behind a thin wall, and `off` reads the faces as they stand. `gi.side 8` holds
 every cascade to 8 probes a side, `gi.side 8,8,16` the first two to 8 and the rest to 16, and
-`reset gi.side` the default of 8 for the first two and 12 past them, and `gi.shell_parts 4` traces
-the probes past each cascade's inner eight a side a quarter a frame, `0` every frame.
+`reset gi.side` 8 for the first two and 12 past them on any device, the default on a GPU, where a
+device that draws on its CPU holds 8 a side unless set, and `gi.shell_parts 4` traces the probes
+past each cascade's inner eight a side a quarter a frame, `0` every frame.
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so

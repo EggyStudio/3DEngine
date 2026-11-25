@@ -23,27 +23,38 @@ internal sealed class GlobalIlluminationPlugin : IPlugin
         if (cfg.GlobalIllumination != GlobalIllumination.Off)
             app.World.InsertResource(new GlobalIlluminationSettings { Quality = cfg.GlobalIllumination });
         var renderer = app.World.Resource<Renderer>();
-        renderer.AddExtractSystem(new SettingsExtract());
-        renderer.AddPart(new Part());
+        var extract = new SettingsExtract();
+        renderer.AddExtractSystem(extract);
+        renderer.AddPart(new Part(extract));
     }
 
-    // The settings copied into the render world each frame, or taken out where the program has none.
+    // The settings copied into the render world each frame, or taken out where the program has
+    // none, told whether the device draws on its CPU, where the cascades hold fewer probes unless
+    // set.
     private sealed class SettingsExtract : IExtractSystem
     {
+        // Whether the device draws on its CPU, as the part found it on starting.
+        public bool OnCpu { get; set; }
+
         public void Run(World world, RenderWorld renderWorld)
         {
-            if (world.TryGetResource<GlobalIlluminationSettings>(out var settings)) renderWorld.Set(settings);
+            if (world.TryGetResource<GlobalIlluminationSettings>(out var settings))
+            {
+                settings.OnCpu = OnCpu;
+                renderWorld.Set(settings);
+            }
             else renderWorld.Remove<GlobalIlluminationSettings>();
         }
     }
 
-    private sealed class Part : IRendererPart
+    private sealed class Part(SettingsExtract extract) : IRendererPart
     {
         private GlobalIlluminationRenderer? _illumination;
         private BounceViewRenderer? _view;
 
         public void Initialize(Renderer renderer, GraphicsDevice? device, AssetServer server)
         {
+            extract.OnCpu = device?.AdapterInfo.DeviceType == GraphicsDeviceType.Cpu;
             // The probes' trace and its build for a frame where no surface lets light through,
             // which leaves the crossing of such a surface out.
             if (device is not null)

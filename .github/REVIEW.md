@@ -994,3 +994,22 @@ probes under the floor's squares read their upward faces against the reference a
 of 0.531 where 0.593, and step from one to the next by 0.438 where 0.499. The march on past the end
 gives the merge two more copies of the table of cascades, 80 in the built-in shaders where 78, which
 the test counting them holds.
+
+136. The engine takes 8 a side for every cascade by itself on a device that reports a CPU, said in
+the docs, as it already leaves the ray queries and the anisotropy off there. The 12 past the second
+cascade cost any program drawn on such a device and not the suite alone, and with the engine's own
+count the suite runs on each device what a program there runs, with no count of its own. A test that
+asks for more sets it, as the side test sets 8 and 8,12, and a count set holds on any device, as
+8,8,12 does where `reset gi.side` sets it. On lavapipe with four threads on four processors under
+the required layer, the glow lights' 22 tests took 13 minutes 39 seconds at `cf0b058b` and take 6
+minutes 58 with the mend, the bounce rooms' 9 that ran in both 11 minutes 56 and 7 minutes 35, the
+origin's 31 took 3 minutes 46 and take 3 minutes 31, and the first 32 of global illumination's class
+14 minutes 45 and 9 minutes 57, where at `cf0b058b` the class passed its bound of 15 minutes and
+with the mend takes 33 minutes 48 whole. The suite whole as the Linux job runs it ends in 83 minutes
+15 seconds of its 90, 2,481 passed. Its four failures came from `2c1b9d12`, which `f472bac7` mends.
+Vulkan asks 1 and 4 samples of every device and lavapipe offers no more, so the samples test's 2 is
+drawn at 1, and the probes' faces test left the process's setting at 1, which the settings tests
+then wrote into their files where one process runs the suite whole. Both classes pass together in
+one process on lavapipe and on the GPU. The new test reads the counts the probes are made at on the
+device the suite runs on, and failed on lavapipe with the device's kind left unread. The GPU suite
+passes, 2,575 of 2,576 executed. The Windows device was not run here.
