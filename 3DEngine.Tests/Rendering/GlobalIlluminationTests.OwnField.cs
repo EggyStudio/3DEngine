@@ -19,7 +19,8 @@ public sealed partial class GlobalIlluminationTests
         // where it lay, so the second cascade's probes stand where they stood, and their merged
         // light is read settled at each. Marched from the finest cascade, the stretch of a second
         // cascade's ray within the first's box meets the slats as the first's cells hold them, so
-        // its light moves with that box.
+        // its light moves with that box. Sixty frames at each place read both changes as 240 do,
+        // to a thousandth of a percent on the devices here.
         var config = Config.Default.WithWindow("own field", 96, 64) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(3, 0.125f);
@@ -58,8 +59,8 @@ public sealed partial class GlobalIlluminationTests
         double Moved(bool own)
         {
             settings.OwnFieldMarched = own;
-            var before = Settled(0.4f, 240);
-            var after = Settled(0.6f, 240);
+            var before = Settled(0.4f, 60);
+            var after = Settled(0.6f, 60);
             double changed = 0, held = 0;
             for (int i = 0; i + 3 < before.Length; i += 4)
             {

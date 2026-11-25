@@ -1045,3 +1045,21 @@ for the whole suite, which showed the samples setting leaking into the settings 
 parts hid it, and each run is held to 105 minutes and each job to 135. The suite in order took 84
 minutes 8 seconds on lavapipe with four threads on four processors with gi.under, which leaves 21,
 and a run past 95 moves global illumination's class, 34 of those minutes, to a job of its own.
+
+138. The slats test did not hang. It drew its frames at the pace of the runner it fell on, and the
+blame hang timeout of ten minutes ended it. Run 45543995497 on 90f566a0 held it in Windows half 1,
+on an AMD EPYC 9V74, where it took 5 m 32 s. Global illumination's class deals its methods in their
+order to its four parts in turn, and the test 44953a25 added sorts near the front, so each method
+after it moved to the next part, the slats test from part 1 in half 1 to part 2 in half 2, on an
+EPYC 7763. There
+`Far_From_The_Worlds_Origin_Glow_Lights_Leave_No_More_Of_The_Land_Black_Than_Near_It`, in half 1
+before and half 2 now, took 5 m 54 s against 3 m 28 s, 1.70 times as long, which puts the slats test
+at 9 m 25 s against the bound of 10. Its log has its first frame at 3.7 s and the pipeline cache
+written at 101 s, which follows frames that made no pipeline, and no line after, the test writing
+none a frame. No Windows device is at hand here. On the RTX 4070 the test took 16.5 s with
+`gi.under` and 18.5 s without it, and on lavapipe with four threads on four processors 202 s with it
+and 212 s without, the run without it first in each and warming the process, and at 120 frames a
+place 103 s with it and 101 s without. Its figures do not move with it, the second cascade's light
+moving 0.061% marched from its own cascade and 0.754% from the finest on the RTX and 0.063% and
+0.741% on lavapipe, and they read the same at 120 and at 60 frames a place. The test now draws 60
+frames a place, 6.1 s on the RTX and 65 s on lavapipe, and the part's bound stays.
