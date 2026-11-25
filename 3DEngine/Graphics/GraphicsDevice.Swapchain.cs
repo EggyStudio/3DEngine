@@ -210,6 +210,12 @@ internal sealed unsafe partial class GraphicsDevice
     }
 
     /// <summary>
+    /// Whether the device multisamples color and depth at <paramref name="count"/> samples a pixel,
+    /// which Vulkan asks of every device for 1 and 4 alone, as lavapipe offers no more.
+    /// </summary>
+    internal bool CanSample(int count) => ChooseSamples(count) == (VkSampleCountFlags)count;
+
+    /// <summary>
     /// Makes the frame images of a run with no window, one per frame in flight, in the format a
     /// swapchain usually offers, drawable and copyable, so the passes and captures treat them as
     /// a swapchain's.

@@ -144,7 +144,8 @@ public sealed class WindowResizeTests : IDisposable
         // The window opened at 4 samples a pixel, set to 1 and to 2 as a settings screen sets
         // them, the swapchain, the window's depth and the scene's frame made again at each count
         // on the next frame. The cube is drawn unlit, so at 1 sample no pixel of its edges lies
-        // between its color and the background's, and at 2 and 4 some do.
+        // between its color and the background's, and at 2 and 4 some do. Vulkan asks every
+        // device for 1 and 4 alone, and lavapipe offers no more, so there 2 is drawn at 1.
         Open();
         var device = (GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!;
         int Mixed(Image image)
@@ -167,12 +168,14 @@ public sealed class WindowResizeTests : IDisposable
         Command("window.samples 1").Should().Be("window.samples is 1.");
         var one = Mixed(Capture());
         device.Samples.Should().Be(1, "the swapchain and the frame are made again at the count set");
-        Command("window.samples 2");
+        Command("window.samples 2").Should().Be("window.samples is 2.");
         var two = Mixed(Capture());
-        device.Samples.Should().Be(2);
+        var twoHeld = device.CanSample(2);
+        device.Samples.Should().Be(twoHeld ? 2 : 1, "a count the device lacks is rounded down to one it has");
 
         one.Should().Be(0, $"at 1 sample no pixel of the cube's edges is mixed, where at 2 and 4 {two} and {four} are");
-        two.Should().BeGreaterThan(0);
+        if (twoHeld) two.Should().BeGreaterThan(0);
+        else two.Should().Be(0, "2 is drawn at 1 where the device lacks it");
         four.Should().BeGreaterThan(0);
         GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty();
     }
@@ -219,5 +222,8 @@ public sealed class WindowResizeTests : IDisposable
         GraphicsDevice.ValidationErrors.Skip(_validationErrorsBefore).Should().BeEmpty();
         UnloadReflectionProbe(handle);
         UnloadModel(room);
+        // The setting is the process's, so its count set here would be written into the next
+        // app's file of settings.
+        Command("reset window.samples");
     }
 }
