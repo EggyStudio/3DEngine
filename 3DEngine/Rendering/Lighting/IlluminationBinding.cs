@@ -6,10 +6,11 @@ namespace Engine;
 /// what a glossy surface traces its reflection through, the window's depth, its scene the frame
 /// before where one was kept, its meshes for the device's ray tracing where it traces rays, and how
 /// many glow lights the frame's lights hold, without which the model pass draws with its build that
-/// leaves them out.
+/// leaves them out, and the window's surfaces lit by the module's gather where gi.surface asks.
 /// </summary>
 internal sealed record IlluminationBinding(GpuIllumination Probes, GpuSceneField Field, GpuScreenProbes? Screen,
-    WindowDepth? Depth = null, GpuReflectionHistory? History = null, GpuRayScene? Rays = null, int GlowLights = 0);
+    WindowDepth? Depth = null, GpuReflectionHistory? History = null, GpuRayScene? Rays = null, int GlowLights = 0,
+    GpuSurfaceGather? Surface = null);
 
 /// <summary>
 /// What the model pass reads each render target's indirect light from this frame, by the target's

@@ -78,6 +78,13 @@ internal static class Illumination
         renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: false } settings && ScreenProbesAt(settings.Quality);
 
     /// <summary>
+    /// Whether the window's pixels take the world's probes' light as the RadianceCascades module
+    /// gathers a surface point this frame (<see cref="GlobalIlluminationSettings.SurfaceGather"/>).
+    /// </summary>
+    internal static bool SurfaceGatherOn(RenderWorld renderWorld) =>
+        renderWorld.TryGet<GlobalIlluminationSettings>() is { SurfaceGather: true };
+
+    /// <summary>
     /// The size of the gather by pixel's grid where the views gather by pixel this frame, in place
     /// of the light of the screen's probes, which stand beside it for the glow lights alone, or 0
     /// where they take the probes' light or have none (<see

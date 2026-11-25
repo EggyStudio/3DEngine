@@ -237,6 +237,21 @@ internal sealed class GlobalIlluminationSettings
     public bool FacesMovedToward { get; set; }
 
     /// <summary>
+    /// Whether the model pass takes the world's probes' light at each of the window's pixels as the
+    /// RadianceCascades module gathers a surface point (<c>gi_surface.slang</c>), the point and its
+    /// normal read from the window's depth, from the finest level whose probes stand about it on
+    /// every side or within half their spacing past its edge probes, as <c>gi.surface on</c> sets
+    /// it, where the pixel otherwise reads its probes' faces.
+    /// </summary>
+    /// <remarks>
+    /// Off unless set, since once the bounce has settled it reads the top left, the top middle,
+    /// the bottom left and the bottom middle of a wall beside a door further from a path-traced
+    /// reference than the faces do, each over it, where with the bounce at zero it reads every
+    /// part nearer, and its pass costs the GPU more than the model pass saves by it.
+    /// </remarks>
+    public bool SurfaceGather { get; set; }
+
+    /// <summary>
     /// How many probes a side each cascade of the world's probes holds, from the first on, the last
     /// count holding for the cascades past it, as <c>gi.side</c> sets it, and unless set
     /// <see cref="DefaultSides"/>, or <see cref="CpuSides"/> on a device that draws on its CPU. A

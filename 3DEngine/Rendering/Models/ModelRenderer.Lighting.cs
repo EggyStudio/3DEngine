@@ -208,6 +208,9 @@ internal sealed partial class ModelRenderer
         BouncedReachBinding = 31, BouncedSkyBinding = 32, ScreenGlowBinding = 33, ScreenGlowNormalBinding = 34, ScreenGlowFarBinding = 35,
         BouncedWaysBinding = 39, BouncedAtSurfaceBinding = 41;
 
+    // Where it binds the window's surfaces lit by the module's gather.
+    private const uint SurfaceGatheredBinding = 42;
+
     // Where it binds what a glossy surface's reflection is traced through and shaded from, the
     // field, its colors, light and faces, the lights, the window's depth, and its scene and depth
     // the frame before.
@@ -219,6 +222,9 @@ internal sealed partial class ModelRenderer
     private GpuSceneField? _noBounce;
     private GpuScreenProbes? _noScreen;
     private IBuffer? _noGiLights;
+    // A texel of the module's gather holding -1, bound where the window's surfaces are not lit so,
+    // which a pixel reads its probes' faces at.
+    private GpuSurfaceGather? _noSurface;
 
     // Binds the probes' faces and their field, and what a reflection is traced through, or where
     // light does not bounce the scene's field where it is built, which subsurface.slang measures
@@ -233,6 +239,11 @@ internal sealed partial class ModelRenderer
         device.UpdateDescriptorSet(set, null, Lit(screen.Glow.LightView, screen.Sampler, ScreenGlowBinding));
         device.UpdateDescriptorSet(set, null, Lit(screen.Glow.NormalView, screen.Sampler, ScreenGlowNormalBinding));
         device.UpdateDescriptorSet(set, null, Lit(screen.Glow.FarView, screen.Sampler, ScreenGlowFarBinding));
+        if (LightsHolds(SurfaceGatheredBinding))
+        {
+            var surface = bounced?.Surface ?? (_noSurface ??= GpuSurfaceGather.Create(device, 1, 1));
+            device.UpdateDescriptorSet(set, null, Lit(surface.LightView, surface.Sampler, SurfaceGatheredBinding));
+        }
         _noScreen ??= GpuScreenProbes.Create(device, 1, 1, 1);
         var (depthView, depthSampler) = bounced?.Depth is { } depth ? (depth.View, depth.Sampler) : (_noScreen.BlendedView, _noScreen.Sampler);
         var (historyView, historySampler) = bounced?.History is { } history ? (history.View, history.Sampler) : (_noScreen.BlendedView, _noScreen.Sampler);

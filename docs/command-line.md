@@ -179,7 +179,11 @@ stays off since it lights some walls well past a path-traced reference, and `off
 first back. `gi.toward on` has a pixel read each of its probes' faces moved toward the
 surface the face's ray met, as far as the pixel lies behind the probe toward it, as a probe's hit
 reads them, a step that stays off since a face moved so is not tested from the pixel, so light
-reaches a floor behind a thin wall, and `off` reads the faces as they stand. `gi.side 8` holds
+reaches a floor behind a thin wall, and `off` reads the faces as they stand. `gi.surface on` has
+each pixel take the world's probes' light at its point of the window's depth as the
+RadianceCascades module gathers a surface point, a step that stays off since, once the bounce has
+settled, it reads four of the six parts of a wall beside a door further from a path-traced
+reference than the faces do, and `off` reads the faces. `gi.side 8` holds
 every cascade to 8 probes a side, `gi.side 8,8,16` the first two to 8 and the rest to 16, and
 `reset gi.side` 8 for the first two and 12 past them on any device, the default on a GPU, where a
 device that draws on its CPU holds 8 a side unless set, and `gi.shell_parts 4` traces the probes

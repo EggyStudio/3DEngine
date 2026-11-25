@@ -93,6 +93,16 @@ public float2 screenPlace(ModelVertexOutput input)
     return input.position.xy - lighting.ambientOcclusion.zw;
 }
 
+// The light the module's gather took at the point of the window's depth a fragment's pixel shows
+// (gi_surface.slang), or -1 where it took none.
+public float3 surfaceGatheredAt(ModelVertexOutput input)
+{
+    uint width, height;
+    surfaceGathered.GetDimensions(width, height);
+    int2 at = clamp(int2(screenPlace(input)), int2(0), int2(int(width), int(height)) - 1);
+    return surfaceGathered.Load(int3(at, 0)).rgb;
+}
+
 // The four screen probes around the pixel a fragment is at, as screenProbesHere finds them, where
 // each is, how much each counts for indirect light, 0 for one that holds no light or stands
 // on no surface like the pixel's; how much for the glow lights, the same but for the light, since
@@ -579,8 +589,13 @@ public LitLight litLight(float3 albedo, ModelVertexOutput input, float shadow = 
             // that thin.
             bool edge = screen && (bouncedHere.x < 0.0 || matched < 0.25) && probes.near[0] + probes.near[1] + probes.near[2] + probes.near[3] > 0.0
                 && byThinWallPlaced(input.place, n);
-            float3 world = edge || (!screen && byThinWallPlaced(input.place, n)) ? bouncedSeenPlaced(input.place, n)
-                : bouncedAndSkyPlaced(input.place, n, reflect(-v, n), skyHere);
+            // Where gi.surface asks, the light the module's gather took at the pixel's point of the
+            // depth, and the probes' faces where it took none. The sky along the mirror way is
+            // still read of the faces (skySeenPlaced).
+            float3 world = (switches & 128u) != 0u ? surfaceGatheredAt(input) : float3(-1.0);
+            if (world.x < 0.0)
+                world = edge || (!screen && byThinWallPlaced(input.place, n)) ? bouncedSeenPlaced(input.place, n)
+                    : bouncedAndSkyPlaced(input.place, n, reflect(-v, n), skyHere);
             if (world.x >= 0.0)
                 bouncedHere = bouncedHere.x >= 0.0 ? lerp(world, bouncedHere, near) : world;
         }

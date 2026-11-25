@@ -719,6 +719,7 @@ internal sealed partial class ModelRenderer : IDisposable
         _noEnvironment?.Dispose();
         _noBounce?.Dispose();
         _noScreen?.Dispose();
+        _noSurface?.Dispose();
         _noGiLights?.Dispose();
         _noRays?.Dispose();
         _lightLinear?.Dispose();

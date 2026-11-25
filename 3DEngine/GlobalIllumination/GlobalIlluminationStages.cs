@@ -17,8 +17,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     internal static GlobalIlluminationStages Of(GraphicsDevice device) => device.Part(static device => new GlobalIlluminationStages(device));
 
     private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4, GlowStage = 5, SolidTraceStage = 6, RayTraceStage = 7,
-        RayCrossStage = 8, GlowFacesStage = 9, RayScreenStage = 10;
-    private readonly ComputeStage[] _giStages = new ComputeStage[11];
+        RayCrossStage = 8, GlowFacesStage = 9, RayScreenStage = 10, SurfaceStage = 11;
+    private readonly ComputeStage[] _giStages = new ComputeStage[12];
 
     // The binding the screen pass's build with the device's rays takes the ray scene at, as
     // meshrays.slang has it, the screen pass's own bindings from it on moved past the scene's
@@ -132,6 +132,12 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             if (spirv.Length > GlowFacesStage && spirv[GlowFacesStage].Length > 0)
                 made.Add((GlowFacesStage, () => device.MakeComputeStage(spirv[GlowFacesStage], [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                     VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], (uint)sizeof(GlowFacesPush))));
+            // The window's surfaces lit by the module's gather (gi_surface.slang), the depth, the
+            // field's info, the view, the faces, the reach, each of five cascades' merged light,
+            // rays' distances and share of the sky, and the light it keeps.
+            if (spirv.Length > SurfaceStage && spirv[SurfaceStage] is { Length: > 0 } surface)
+                made.Add((SurfaceStage, () => device.MakeComputeStage(surface, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
+                    VkDescriptorType.UniformBuffer, .. Enumerable.Repeat(VkDescriptorType.SampledImage, 17), VkDescriptorType.StorageImage], 32)));
             made.Add((AmbientStage, () => device.MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
@@ -153,15 +159,19 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     /// trace itself where there is none, and <paramref name="glowFaces"/>, <c>glow_faces.slang</c>,
     /// which reads the glow lights' faces open or closed in the field, every face open without it,
     /// and <paramref name="rayScreen"/>, <c>gi_screen.slang</c> built with <c>RAY_QUERY</c>, whose
-    /// gather by pixel meets the meshes through the device's rays where <c>gi.gather_rays</c> asks.
+    /// gather by pixel meets the meshes through the device's rays where <c>gi.gather_rays</c> asks,
+    /// and <paramref name="surface"/>, <c>gi_surface.slang</c>, which lights the window's surfaces
+    /// by the module's gather where <c>gi.surface</c> asks.
     /// </summary>
     public void InitializeGlobalIllumination(ReadOnlySpan<byte> trace, ReadOnlySpan<byte> merge, ReadOnlySpan<byte> ambient, ReadOnlySpan<byte> screen,
         ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow, ReadOnlySpan<byte> solidTrace = default, ReadOnlySpan<byte> rayTrace = default,
-        ReadOnlySpan<byte> rayCross = default, ReadOnlySpan<byte> glowFaces = default, ReadOnlySpan<byte> rayScreen = default)
+        ReadOnlySpan<byte> rayCross = default, ReadOnlySpan<byte> glowFaces = default, ReadOnlySpan<byte> rayScreen = default,
+        ReadOnlySpan<byte> surface = default)
     {
         if (!device.IsInitialized || CanBounceLight) return;
         _giSpirv = [trace.ToArray(), merge.ToArray(), ambient.ToArray(), screen.ToArray(), filter.ToArray(), glow.ToArray(),
-            solidTrace.IsEmpty ? trace.ToArray() : solidTrace.ToArray(), rayTrace.ToArray(), rayCross.ToArray(), glowFaces.ToArray(), rayScreen.ToArray()];
+            solidTrace.IsEmpty ? trace.ToArray() : solidTrace.ToArray(), rayTrace.ToArray(), rayCross.ToArray(), glowFaces.ToArray(), rayScreen.ToArray(),
+            surface.ToArray()];
     }
 
     /// <summary>

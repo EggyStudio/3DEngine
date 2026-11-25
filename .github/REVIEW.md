@@ -1089,3 +1089,25 @@ third digit. The wall far from the origin at High took 4 m 53 s, and its High li
 reads. The page of `build/test.py` names each test past half the bound a test is given, the slowest
 first, ten at most, and the page of every system's digest names them by system, so any of the three
 past five minutes on Windows shows on a run that passes.
+
+140. Each pixel can take the world's probes' light at its point as the RadianceCascades module
+gathers a surface point, by `gi.surface on`, off by default, with the module at e042398. A pass of
+its own, `gi_surface.slang`, runs the module's gatherSurface in its sky form over the window's
+depth into an image the window's size, its levels the merged images, the reach map and each
+probe's place as it was moved, and the model pass reads that image where it reads the probes'
+faces, and the faces where the image holds no light. At the door with the screen probes off, the
+left wall's six parts over the traced reference read 1.07, 1.15 and 1.28 on top and 0.81, 1.01
+and 2.69 below with the bounce at zero, where the faces read 0.73, 0.85 and 3.88 and 0.29, 0.38
+and 4.38, every part nearer. Once settled they read 1.69, 1.80 and 2.03 and 1.49, 1.85 and 4.70,
+where the faces read 1.30, 1.47 and 4.82 and 0.78, 1.17 and 5.83, so the top left, the top
+middle, the bottom left and the bottom middle read further and the module's gather stays a
+setting. Where no probe about a point sees it within its reach and an eighth of a spacing, the
+gather gives the point no light, which shows as black points and a dither on the wall's lower
+left. With those points handed back to the faces the four parts read 1.69, 1.80, 1.49 and 1.85
+settled as before, so the miss is the gather's level, as the module's own note reads a floor in
+an open box at 1.26 times the traced light by gatherAt. The roof slab, the lintel, the open box
+and the GlowStill tests pass with it off and on. The whole suite on the RTX passed but for three
+tests that count the lights' set's bindings, the gi page's settings and the package's shaders,
+each raised for the new binding, setting and kernel, and their classes pass after, 38 tests. The
+pass takes 2.89 ms on Sponza and 3.38 ms on the Bistro and the model pass 1.40 and 2.60 ms less,
+so a frame takes 1.49 and 0.78 ms more, the passes before it as they were at 8.12 and 11.89 ms.

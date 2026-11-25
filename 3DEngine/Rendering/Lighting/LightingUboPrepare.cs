@@ -94,12 +94,13 @@ internal sealed class LightingUboPrepare : IPrepareSystem
             var tall = renderWorld.TryGet<SwapchainTarget>()?.Extent.Height ?? 1080;
             // The pixels along each side of the texel the model pass reads the screen's light from
             // first, the gather by pixel's grid's where it gathers so and the probes' tile
-            // otherwise, and 16 among the switches where the texels are the gather's.
+            // otherwise, and 16 among the switches where the texels are the gather's, and 128 where
+            // the window's pixels take the probes' light as the module gathers their points.
             var gather = Illumination.GatherAt(renderWorld);
             windowUbo.Screen = new System.Numerics.Vector4(gather > 0 ? gather : Illumination.TileAt(quality, tall),
                 Illumination.ScreenProbesOn(renderWorld) ? 1 : 0, glowOnly ? 1 : 0,
                 (settings.AlbedoOff ? 1 : 0) + (settings.SpecularOff ? 2 : 0) + (gather > 0 ? 16 : 0) + (settings.FacesMovedToward ? 32 : 0) + (settings.UnderOff ? 64 : 0)
-                + settings.Term * 256);
+                + (Illumination.SurfaceGatherOn(renderWorld) ? 128 : 0) + settings.Term * 256);
             windowUbo.ScreenGlow = new System.Numerics.Vector4(GpuScreenProbes.GlowTexelAt(tall), 0, 0, 0);
             // And a glossy surface's reflection traced through its depth and the field, looked up
             // in the frame before's picture where the renderer kept it.
@@ -166,11 +167,12 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 if (own is not null) Apply(ref targetUbo, own);
                 // And the indirect light, read from the target's own screen probes where it draws
                 // through a camera of its own, and its glossy surfaces reflecting the probes and the
-                // environment alone, since a reflection is traced through the window's depth.
+                // environment alone, since a reflection is traced through the window's depth, and
+                // its pixels reading the probes' faces, since the module's gather is the window's.
                 targetUbo.Indirect = windowUbo.Indirect;
                 if (windowUbo.Indirect.X > 0 && draws.ViewProjectionOf(target) is not null)
                 {
-                    targetUbo.Screen = windowUbo.Screen;
+                    targetUbo.Screen = windowUbo.Screen with { W = windowUbo.Screen.W - ((int)windowUbo.Screen.W & 128) };
                     targetUbo.ScreenGlow = windowUbo.ScreenGlow;
                 }
                 // And its occlusion and the sun's contact shadows, worked out from its own depth.

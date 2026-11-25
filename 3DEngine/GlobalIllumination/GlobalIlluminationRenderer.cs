@@ -336,7 +336,8 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             _lastScreen = null;
         }
 
-        renderWorld.Set(new IlluminationBinding(_gi, field.Field, _screen, renderWorld.TryGet<WindowDepth>(), _history, _rays, _glowCount));
+        GatherSurfaces(renderContext, renderWorld, device, field.Field);
+        renderWorld.Set(new IlluminationBinding(_gi, field.Field, _screen, renderWorld.TryGet<WindowDepth>(), _history, _rays, _glowCount, _surface));
     }
 
     /// <summary>
@@ -424,7 +425,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     // Each place and matrix is handed against the frame's origin, the frame before's against this
     // frame's, since the passes read them with this frame's places, and a camera whose eye the frame
     // noted (seen) from its eye, so no float of the world's size is in it.
-    private byte[] ViewBytes(Matrix4x4 viewProjection, Matrix4x4 inverse, Vector3 eye, ViewEye? seen, GpuScreenProbes screen, Extent2D depth,
+    private byte[] ViewBytes(Matrix4x4 viewProjection, Matrix4x4 inverse, Vector3 eye, ViewEye? seen, GpuScreenProbes? screen, Extent2D depth,
         Extent2D size, Vector2 jitter, (Matrix4x4 ViewProjection, Vector3 Eye, ViewEye? Seen)? last, RenderOrigin origin, GlobalIlluminationSettings? settings)
     {
         var bytes = new byte[GpuScreenProbes.ViewBytes];
@@ -434,7 +435,8 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         var floats = MemoryMarshal.Cast<byte, float>(bytes.AsSpan());
         var placed = origin.Against(eye);
         (floats[32], floats[33], floats[34], floats[35]) = (placed.X, placed.Y, placed.Z, settings?.GatherReach ?? 0);
-        (floats[36], floats[37], floats[38]) = (screen.Tile, screen.Across, screen.Down);
+        // A texel a pixel for the module's gather of the window's surfaces, which has no probes.
+        (floats[36], floats[37], floats[38]) = screen is null ? (1f, size.Width, size.Height) : ((float)screen.Tile, (float)screen.Across, (float)screen.Down);
         // What of the screen's blend is left out, the frame before's light and the neighbors'.
         floats[39] = _switches is { } off ? (off.HistoryOff ? 1 : 0) + (off.FilterOff ? 2 : 0) : 0;
         (floats[40], floats[41], floats[42], floats[43]) = (_screenReach, _gi!.Probes, ProbeSpacing, _made.Cascades);
@@ -652,9 +654,10 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         if (_screen is not null) _retired.Add((_frame, _screen));
         if (_history is not null) _retired.Add((_frame, _history));
         if (_rays is not null) _retired.Add((_frame, _rays));
+        if (_surface is not null) _retired.Add((_frame, _surface));
         foreach (var state in _targets.Values) _retired.Add((_frame, state));
         _targets.Clear();
-        (_gi, _screen, _history, _rays, _lastScreen) = (null, null, null, null, null);
+        (_gi, _screen, _history, _rays, _lastScreen, _surface) = (null, null, null, null, null, null);
         _origins = [];
         HistoryView = null;
     }
@@ -668,6 +671,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         _screen?.Dispose();
         _history?.Dispose();
         _rays?.Dispose();
+        _surface?.Dispose();
         foreach (var state in _targets.Values) state.Dispose();
         _black?.Dispose();
     }

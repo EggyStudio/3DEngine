@@ -222,6 +222,14 @@ public Texture3D bouncedWays;
 [[vk::binding(41, 1)]]
 public Texture3D bouncedAtSurface;
 
+// rgb: the light each of the window's pixels' points takes from the world's probes over pi, as the
+// RadianceCascades module gathers a surface point (gi_surface.slang), or -1 where the depth holds
+// no surface or no level of probes stands about the point, which a pixel reads in place of its
+// probes' faces where gi.surface asks, or a texel of -1 where it does not. a: the share of the
+// sky in it.
+[[vk::binding(42, 1)]]
+public Texture2D surfaceGathered;
+
 // The share of the light from all around a surface reflects by its specular lobe, the split sum's
 // scale on F0 in r and bias in g, by the cosine between the normal and the eye across and the
 // roughness down (SpecularShares), read through lightLinear.
