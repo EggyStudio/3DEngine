@@ -83,6 +83,7 @@ sealed class Engine.GraphicsDevice : IDisposable, IGraphicsDevice
   internal VkPipeline CreateComputePipeline(VkComputePipelineCreateInfo* info, ReadOnlySpan<byte> spirv)
   internal VolumeTexture CreateVolumeTexture(uint size, VkFormat format, ReadOnlySpan<byte> texels)
   internal bool AcquireWindowImage(GraphicsDevice.WindowSurface surface)
+  internal bool CanSample(int count)
   internal bool CopiesOnHost { get; }
   internal bool HasWindowSurfaces { get; }
   internal bool PipelineCacheHolds { get; }
