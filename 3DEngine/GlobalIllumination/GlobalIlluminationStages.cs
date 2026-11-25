@@ -17,8 +17,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     internal static GlobalIlluminationStages Of(GraphicsDevice device) => device.Part(static device => new GlobalIlluminationStages(device));
 
     private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4, GlowStage = 5, SolidTraceStage = 6, RayTraceStage = 7,
-        RayCrossStage = 8, GlowFacesStage = 9, RayScreenStage = 10, SurfaceStage = 11;
-    private readonly ComputeStage[] _giStages = new ComputeStage[12];
+        RayCrossStage = 8, GlowFacesStage = 9, RayScreenStage = 10, SurfaceStage = 11, CascadeStage = 12;
+    private readonly ComputeStage[] _giStages = new ComputeStage[13];
 
     // The binding the screen pass's build with the device's rays takes the ray scene at, as
     // meshrays.slang has it, the screen pass's own bindings from it on moved past the scene's
@@ -138,6 +138,16 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             if (spirv.Length > SurfaceStage && spirv[SurfaceStage] is { Length: > 0 } surface)
                 made.Add((SurfaceStage, () => device.MakeComputeStage(surface, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                     VkDescriptorType.UniformBuffer, .. Enumerable.Repeat(VkDescriptorType.SampledImage, 17), VkDescriptorType.StorageImage], 32)));
+            // The screen's cascades traced by the device's rays (gi_screen_cascades.slang), the
+            // depth, the field's distance, info, albedo and glow, the lights, the probes' faces and
+            // their light at surfaces, the light arriving at the first level's probes, the levels
+            // past it, the view, the light from all around, six bindings unbound and the ray scene.
+            if (spirv.Length > CascadeStage && spirv[CascadeStage] is { Length: > 0 } cascades && device.CanQueryRays)
+                made.Add((CascadeStage, () => device.MakeComputeStage(cascades, [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler,
+                    VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
+                    VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
+                    VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, .. Enumerable.Repeat(VkDescriptorType.SampledImage, 6),
+                    VkDescriptorType.AccelerationStructureKHR, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], 16)));
             made.Add((AmbientStage, () => device.MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
@@ -161,17 +171,19 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     /// and <paramref name="rayScreen"/>, <c>gi_screen.slang</c> built with <c>RAY_QUERY</c>, whose
     /// gather by pixel meets the meshes through the device's rays where <c>gi.gather_rays</c> asks,
     /// and <paramref name="surface"/>, <c>gi_surface.slang</c>, which lights the window's surfaces
-    /// by the module's gather where <c>gi.surface</c> asks.
+    /// by the module's gather where <c>gi.surface</c> asks, and <paramref name="cascades"/>,
+    /// <c>gi_screen_cascades.slang</c> built with <c>RAY_QUERY</c>, which traces the screen's
+    /// cascades through the device's rays where <c>gi.screen_cascades</c> asks.
     /// </summary>
     public void InitializeGlobalIllumination(ReadOnlySpan<byte> trace, ReadOnlySpan<byte> merge, ReadOnlySpan<byte> ambient, ReadOnlySpan<byte> screen,
         ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow, ReadOnlySpan<byte> solidTrace = default, ReadOnlySpan<byte> rayTrace = default,
         ReadOnlySpan<byte> rayCross = default, ReadOnlySpan<byte> glowFaces = default, ReadOnlySpan<byte> rayScreen = default,
-        ReadOnlySpan<byte> surface = default)
+        ReadOnlySpan<byte> surface = default, ReadOnlySpan<byte> cascades = default)
     {
         if (!device.IsInitialized || CanBounceLight) return;
         _giSpirv = [trace.ToArray(), merge.ToArray(), ambient.ToArray(), screen.ToArray(), filter.ToArray(), glow.ToArray(),
             solidTrace.IsEmpty ? trace.ToArray() : solidTrace.ToArray(), rayTrace.ToArray(), rayCross.ToArray(), glowFaces.ToArray(), rayScreen.ToArray(),
-            surface.ToArray()];
+            surface.ToArray(), cascades.ToArray()];
     }
 
     /// <summary>

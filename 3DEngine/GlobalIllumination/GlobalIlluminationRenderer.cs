@@ -324,16 +324,18 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             var seen = window.Turned is { } turned ? new ViewEye(window.Eye, turned * window.Back) : (ViewEye?)null;
             var bytes = ViewBytes(window.Unjittered, inverse, window.Eye, seen, _screen, depth.Extent, swapchain.Extent, jitter, _lastScreen, origin,
                 renderWorld.TryGet<GlobalIlluminationSettings>());
+            var screenCascades = ScreenCascades(renderWorld, device, !glowOnly && gather == 0, width, height, tile, view, sampler);
             _retired.Add((_frame, GlobalIlluminationStages.Of(device).RecordScreenProbes(renderContext.CommandBuffer, _gi, _screen, field.Field, depth.View, depth.Sampler, bytes, _glowCount > 0,
                 renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbe ?? -1, glowOnly,
-                renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbeNotANumber ?? false, _lightThrough, GatherRays(renderWorld))));
+                renderWorld.TryGet<GlobalIlluminationSettings>()?.LoggedScreenProbeNotANumber ?? false, _lightThrough, GatherRays(renderWorld), screenCascades)));
             _lastScreen = (window.Unjittered, window.Eye, seen);
         }
-        else if (_screen is not null)
+        else
         {
-            _retired.Add((_frame, _screen));
+            if (_screen is not null) _retired.Add((_frame, _screen));
             _screen = null;
             _lastScreen = null;
+            RetireScreenCascades();
         }
 
         GatherSurfaces(renderContext, renderWorld, device, field.Field);
@@ -655,6 +657,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         if (_history is not null) _retired.Add((_frame, _history));
         if (_rays is not null) _retired.Add((_frame, _rays));
         if (_surface is not null) _retired.Add((_frame, _surface));
+        RetireScreenCascades();
         foreach (var state in _targets.Values) _retired.Add((_frame, state));
         _targets.Clear();
         (_gi, _screen, _history, _rays, _lastScreen, _surface) = (null, null, null, null, null, null);
@@ -672,6 +675,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         _history?.Dispose();
         _rays?.Dispose();
         _surface?.Dispose();
+        _cascades?.Dispose();
         foreach (var state in _targets.Values) state.Dispose();
         _black?.Dispose();
     }

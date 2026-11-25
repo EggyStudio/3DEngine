@@ -252,6 +252,24 @@ internal sealed class GlobalIlluminationSettings
     public bool SurfaceGather { get; set; }
 
     /// <summary>
+    /// Whether the screen's probes stand in cascades of their own traced by the device's rays at
+    /// <see cref="GlobalIllumination.High"/> (<c>gi_screen_cascades.slang</c>), as
+    /// <c>gi.screen_cascades on</c> sets it, each level's probes twice as far apart as the level
+    /// before's with twice as many ways along each side, each level tracing a stretch twice as long
+    /// against the meshes and the last on to the scene's end, so no light from beyond is read from
+    /// the world's probes, which give the light at a ray's hit alone. The probes are blended within
+    /// the frame and keep nothing of the frames before.
+    /// </summary>
+    /// <remarks>
+    /// Off unless set. It reads a shaded court, a far doorway and a wall beside a door nearer a
+    /// path-traced reference than the screen probes' rays do, and a gallery's near wall further,
+    /// but with nothing kept from the frames before a turn moves the light of many more pixels,
+    /// the frame takes longer in every scene timed, and five of the nine bounce rooms at High read
+    /// further from their references than their measured bounds.
+    /// </remarks>
+    public bool ScreenCascades { get; set; }
+
+    /// <summary>
     /// How many probes a side each cascade of the world's probes holds, from the first on, the last
     /// count holding for the cascades past it, as <c>gi.side</c> sets it, and unless set
     /// <see cref="DefaultSides"/>, or <see cref="CpuSides"/> on a device that draws on its CPU. A

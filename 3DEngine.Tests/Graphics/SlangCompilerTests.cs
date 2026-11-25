@@ -403,12 +403,14 @@ public partial class SlangCompilerTests : IDisposable
         // A frame where no surface lets light through traces with the build that leaves the
         // crossing out, at High through the device's rays where gi.meshes asks, and the screen's
         // pass, whose probes cross through a flag, has the build alone whose gather by pixel meets
-        // the meshes through the device's rays where gi.gather_rays asks.
+        // the meshes through the device's rays where gi.gather_rays asks, as the screen's cascades,
+        // traced by the device's rays alone, have theirs.
         var shaders = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
         string BuildsOf(string file) =>
             string.Join(", ", SlangLoader.BuildsOf(File.ReadAllText(Path.Combine(shaders, file)), shaders).Select(build => string.Join(' ', build)));
         BuildsOf("gi_trace.slang").Should().Be("RAY_QUERY, NO_LIGHT_THROUGH, RAY_QUERY NO_LIGHT_THROUGH");
         BuildsOf("gi_screen.slang").Should().Be("RAY_QUERY");
+        BuildsOf("gi_screen_cascades.slang").Should().Be("RAY_QUERY");
     }
 
     [Fact]

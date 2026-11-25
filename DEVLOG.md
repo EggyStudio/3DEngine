@@ -6,6 +6,26 @@ under `.github/assets/readings` as WebP files named by their day, each on the da
 the notes written beside them as Markdown files named the same way. A line under Done names the item
 of .github/REVIEW.md or .github/REVIEW-ARCHIVE.md and the commit that closed it.
 
+## 2026-11-25
+
+![](.github/assets/readings/2026-11-25-item-311-under.webp)
+scenes_sponza offscreen at 800 by 450, metered, on white under its title with each panel titled,
+view 1's frames at the reference's exposure with the world's cascades alone and with the screen
+probes, at 8 probes a side for every cascade with gi.under off and at gi.side's default with it off
+and on, beside the path-traced reference, each with the far doorway's face ringed and enlarged under
+it with its figure, then view 1 as its light over the reference's with the world's cascades alone
+and gi.under off and on, red more and blue less, beside a tower in the open drawn by a test of the
+engine, with the figures for view 1 and the gallery through the field and the rays and a table of
+the step, the turn, the light tests, the gallery's back wall from each cascade alone, the ms in it
+and in scenes_bistro and the tower's face, with lines under them.
+
+![](.github/assets/readings/2026-11-25-item-313-door-gather.webp)
+scenes_sponza offscreen at 800 by 450 at the door with the screen probes off, on white under its
+title with each panel titled, the left wall boxed in its six parts with the bounce at zero and
+settled, each pixel lit by its probes' faces with gi.surface off and by the module's gather of its
+point with it on, beside the path-traced reference, each part's light over the reference's written
+under its picture.
+
 ## 2026-11-24
 
 ![](.github/assets/readings/2026-11-24-item-311-footprint.webp)
@@ -16,6 +36,32 @@ more and blue less, the two walls boxed, with their figures, the first cascade's
 -5.5 as the view turns in place both ways, the second cascade's probe at 7, 7, -5 by term against
 the reference, the gallery's back wall's light at 11 still points as the eye steps along it both
 ways, and the ms in Sponza and the Bistro, with lines under them.
+
+![](.github/assets/readings/2026-11-24-item-311-toward.webp)
+scenes_sponza offscreen at 800 by 450, metered, with the world's cascades alone through the field,
+on white under its title with each panel titled, the gallery as its light over the reference's with
+a pixel reading its probes' faces as they stand and moved toward the surfaces their rays met, and
+the second over the first, red more and blue less, the near wall's two pixels ringed, the near
+wall's figures through the field and the rays both ways, and the tests that fail with it on, with
+lines under them.
+
+![](.github/assets/readings/2026-11-24-item-311-placement-default.webp)
+scenes_sponza offscreen at 800 by 450, metered, with the world's cascades alone, on white under its
+title with each panel titled, view 1 and the gallery as their light over the reference's with
+gi.own_place off and on, its default, red more and blue less, the two walls boxed, with their
+figures, the probes that stood elsewhere after each move of cascade 0's box seen from above and
+counted by cascade, the passage's deep probe's face toward its opening off and on against its
+reference and the test's bound, and the gallery's back wall's light at 11 still points as the eye
+steps along it off and on, with lines under them.
+
+![](.github/assets/readings/2026-11-24-item-311-probes-a-side.webp)
+scenes_sponza offscreen at 800 by 450, metered, with the world's cascades alone through the field,
+on white under its title with each panel titled, view 1 and the gallery as their light over the
+reference's at 8 probes a side for every cascade, at gi.side's default of 8 for the first two and 12
+past them, and at 12 for every cascade, red more and blue less, with their figures through the field
+and the rays and a table of the step, the turn, the light tests, the gallery's back wall from each
+cascade alone, the ms in it and in scenes_bistro, the memory and what is kept, with lines under
+them.
 
 ## 2026-11-23
 
@@ -1972,7 +2018,7 @@ Where the scene pass's time goes at High in the voxel game's cherry grove, seed 
 offscreen on a scratch copy of the game at the engine's HEAD (item 96). A pixel that no screen probe
 on a surface like its own stands near, 9.1% of the grove's, its leaves, grass and far blocks, read
 the world's probes by marching the field toward each of eight, as the thin room's corner needs; a
-world of blocks has no wall thinner than a cell, so the march runs only by such a wall.
+world of blocks has no wall thinner than a cell, so the march now runs only by such a wall.
 
 | Form | scene pass, rounds of two readings |
 |---|---|
@@ -2020,36 +2066,15 @@ Done that day
 ## 2026-10-24
 
 ![](.github/assets/readings/2026-10-24-blockout-spots.webp)
-Blockout's wall under its lamp with the screen probes on and left out; the round spots are the
-probes' own, the ceiling's bright patch narrower than a texel read by a few fixed rays (item 71).
-
 ![](.github/assets/readings/2026-10-24-bounce-rooms-nine.webp)
-The nine views of the bounce rooms as the readings take them, the Cornell box, the strip, the
-corridor and the rooms with a window.
-
 ![](.github/assets/readings/2026-10-24-bounce-rooms-noise.webp)
-The bounce rooms' noise, views with the screen probes on and off beside their path-traced
-references, the still spots the sixth term's and the sunlit floor under a window its third form
-(item 71).
-
 ![](.github/assets/readings/2026-10-24-edge-leak.webp)
-The edge leak at eight times its brightness, a glow light's fan at the foot of the edge two blocks
-meet, before the mend above and after it below, the checkerboard cell held inside the field (item
-71).
-
 ![](.github/assets/readings/2026-10-24-non-number-texels.webp)
-Item 90's reading at the desert village view, the glow texels whose normal is a non-number, marked,
-which the screen probes' history keeps and spreads as black.
-
 ![](.github/assets/readings/2026-10-24-shift.webp)
-A lantern room before and after the eye steps half a block, with the screen probes on and left out;
-the sixth term's spots stand at new places after the step while the lamps move by parallax alone
-(item 71).
-
 ![](.github/assets/readings/2026-10-24-wheat-acne.webp)
-A wheat field's thin walls in the voxel game as it ships and with its lighting turned back part by
-part; the speckled stripes are the shadow map's acne on two-sided masked faces, not faces fighting
-(item 71, item 89).
+The test runner splits a part by its classes into processes of its own, and the Windows job runs
+Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
+(`98cf2ded`)
 
 ![](.github/assets/readings/2026-10-24-item-101-cave-culling.webp)
 The deep cave's tops 45 blocks in at noon, above with the game drawing only the sections its eye
@@ -2119,16 +2144,11 @@ Done that day
 ## 2026-10-23
 
 ![](.github/assets/readings/2026-10-23-blotches.webp)
-The blotches read as contour bands of the light around a small emitter at four headings, the round
-spots its near field caught by one fixed probe ray, the sixth term of where the method stops (item
-71).
-
 ![](.github/assets/readings/2026-10-23-cascade-seams.webp)
-The sun's cascades at a low sun with their seams mended, a long shadow held across them (item 83).
-
 ![](.github/assets/readings/2026-10-23-summit-horizon.webp)
-Summit before and after the sky below the horizon took the island's gray blue, so the fogged edge of
-the land meets the color it fades into (item 75).
+The test runner splits a part by its classes into processes of its own, and the Windows job runs
+Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
+(`98cf2ded`)
 
 ![](.github/assets/examples/models_edit_mesh.webp)
 The models_edit_mesh example shows the seven primitives of an edit mesh, each built into a model and
@@ -2179,8 +2199,9 @@ Done that day
 ## 2026-10-21
 
 ![](.github/assets/readings/2026-10-21-ore-glow-crops.webp)
-Ore's glowstone light in three crops, read for the glow lights of small emitters (item 71's first
-part).
+The test runner splits a part by its classes into processes of its own, and the Windows job runs
+Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
+(`98cf2ded`)
 
 ![](.github/assets/cascades/glow-only-ore.webp)
 With the screen's probes left out and a glow light lit, probes stand for the glow lights alone,
@@ -2336,12 +2357,11 @@ Done that day
 ## 2026-10-17
 
 ![](.github/assets/readings/2026-10-17-bounce-before-after-1.webp)
-The Cornell box before and after the light that bounces, and the bounce rooms after it, at the
-radiance cascades' first landing.
-
 ![](.github/assets/readings/2026-10-17-bounce-before-after-2.webp)
-
 ![](.github/assets/readings/2026-10-17-bounce-before-after-3.webp)
+The test runner splits a part by its classes into processes of its own, and the Windows job runs
+Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
+(`98cf2ded`)
 
 Done that day
 
@@ -2418,8 +2438,9 @@ Done that day
 ## 2026-10-10
 
 ![](.github/assets/readings/2026-10-10-subsurface-pair.webp)
-Subsurface scattering's first experiment, the spheres with the light under the surface on and off
-(item 3).
+The test runner splits a part by its classes into processes of its own, and the Windows job runs
+Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
+(`98cf2ded`)
 
 ![](.github/assets/bounce/cornell-ceiling.webp)
 ![](.github/assets/bounce/cornell-floor-bands.webp)
@@ -2458,8 +2479,9 @@ ended, its exit code and the crash Windows logged of it. (`e50fd247`)
 ## 2026-10-09
 
 ![](.github/assets/readings/2026-10-09-bounce-rooms.webp)
-The bounce rooms, the test scenes the global illumination is read against, each a view with its
-path-traced reference.
+The test runner splits a part by its classes into processes of its own, and the Windows job runs
+Rendering in two halves, its runners having read the part from 0.87 to 1.7 times its time on Linux.
+(`98cf2ded`)
 
 ![](.github/assets/examples/shaders_bounce_rooms.webp)
 A level of the eight rooms the light that bounces finds hardest, each with a fixed view, and a
@@ -2847,7 +2869,7 @@ core_input_gestures_testbed and core_input_virtual_controls are raylib's example
 ![](.github/assets/examples/shapes_logo_raylib_anim.webp)
 ![](.github/assets/examples/shapes_rectangle_scaling.webp)
 Nine of raylib's shapes examples are written again, shapes_basic_2d among them under raylib's name
-shapes_basic_shapes, and DrawCircleGradient takes its center as raylib's does. (`d17fb83d`)
+shapes_basic_shapes, and DrawCircleGradient takes its center as raylib's does now. (`d17fb83d`)
 
 ![](.github/assets/examples/shapes_bullet_hell.webp)
 ![](.github/assets/examples/shapes_dashed_line.webp)

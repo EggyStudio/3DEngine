@@ -1111,3 +1111,29 @@ tests that count the lights' set's bindings, the gi page's settings and the pack
 each raised for the new binding, setting and kernel, and their classes pass after, 38 tests. The
 pass takes 2.89 ms on Sponza and 3.38 ms on the Bistro and the model pass 1.40 and 2.60 ms less,
 so a frame takes 1.49 and 0.78 ms more, the passes before it as they were at 8.12 and 11.89 ms.
+
+141. The screen's probes can stand in cascades of their own traced by the device's rays, by
+`gi.screen_cascades on`, off by default. A pass of its own, `gi_screen_cascades.slang`, stands five
+levels on the window's depth, each level's probes twice as far apart with twice as many ways along
+each side from 4, each tracing a stretch twice as long through the meshes from where the screen
+probes' rays end, the last on to the scene's end with no hand over to the world's probes, which
+light a ray's hit alone. Each level merges the four probes of the next around it near its plane,
+and the first level's light is blended within the frame by the screen's filter with nothing kept
+from the frames before. A way of a coarser level that meets a face before its stretch begins holds
+no light, since without that the coarser stretches began past faces the finer probes do not see
+and the door's left wall read 22 times the traced light, where one level traced to the end reads
+1.18. In Sponza with `gi.specular off`, over the traced reference with the setting off and on,
+view 1 reads 1.03 and 1.01, its shade 1.16 and 1.05 and the far doorway 5.80 and 1.24, the door's
+left wall 1.69 and 1.15 with its six parts 1.74, 2.05, 5.04, 1.16, 1.61 and 7.38 against 1.13,
+1.20, 4.62, 0.97, 1.17 and 5.68, and the gallery 1.01 and 0.99, while the gallery's near wall reads
+1.06 and 1.28 and the court's high wall facing -z 1.05 and 0.94, the two boxes it reads further. A
+still view's frames differ by 0.0004, 0.0021 and 0.0014 of their light at the three views off and
+0.0004, 0.0029 and 0.0013 on, and no seam between the levels shows, but a turn of 0.1 degrees a
+frame moves 1.79% of the pixels by 3 levels after an 8 pixel blur where the screen probes' rays
+move 0.10%, as the probes stand on the window's tiles and keep nothing. Global illumination takes
+8.57 ms against 8.13 on Sponza, the pass 1.72 ms where the screen pass and its filter took 1.30,
+and 13.61 against 11.92 on the Bistro, where the screen pass keeps 1.35 ms for the glow lights.
+The whole suite on the RTX passed with it off, 2,579 tests and 1 skipped. With it on the slab,
+lintel and glow tests pass, the eight that read the screen pass's own rays find none, and five of
+the nine bounce rooms at High read further from their references than their bounds, 0.107, 0.201,
+0.128, 0.054 and 0.097 of their light against 0.100, 0.164, 0.106, 0.036 and 0.078.

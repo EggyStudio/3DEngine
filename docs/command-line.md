@@ -183,7 +183,14 @@ reaches a floor behind a thin wall, and `off` reads the faces as they stand. `gi
 each pixel take the world's probes' light at its point of the window's depth as the
 RadianceCascades module gathers a surface point, a step that stays off since, once the bounce has
 settled, it reads four of the six parts of a wall beside a door further from a path-traced
-reference than the faces do, and `off` reads the faces. `gi.side 8` holds
+reference than the faces do, and `off` reads the faces. `gi.screen_cascades on` has the screen's
+probes stand in cascades of their own at `High` where the device traces rays, each level's probes
+twice as far apart with twice as many ways along each side, each tracing a stretch twice as long
+through the device's rays and the last on to the scene's end, with nothing kept from the frames
+before, a step that stays off since, though it reads a shaded court, a far doorway and a wall
+beside a door nearer a path-traced reference, a turn moves the light of eighteen times as many
+pixels and the frame takes 0.44 ms more on Sponza and 1.69 ms more on the Bistro, and `off` puts
+the screen probes' rays back. `gi.side 8` holds
 every cascade to 8 probes a side, `gi.side 8,8,16` the first two to 8 and the rest to 16, and
 `reset gi.side` 8 for the first two and 12 past them on any device, the default on a GPU, where a
 device that draws on its CPU holds 8 a side unless set, and `gi.shell_parts 4` traces the probes

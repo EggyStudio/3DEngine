@@ -18,20 +18,25 @@ internal sealed unsafe partial class GlobalIlluminationStages
     /// depth's texels is made from them as it is from the whole probes. Where the screen gathers by
     /// pixel (<see cref="GpuScreenProbes.Gathered"/>) the probes stand for the glow lights alone as
     /// well, and each texel of the gather's grid sends one ray, blended with the texels around it
+    /// within the frame and keeping nothing of the frame before. With <paramref name="cascades"/>
+    /// given the probes stand for the glow lights alone as well, and the screen's cascades traced
+    /// by the device's rays give the light at their surfaces, blended with the probes around
     /// within the frame and keeping nothing of the frame before.
     /// </remarks>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordScreenProbes(ICommandBuffer commandBuffer, GpuIllumination gi, GpuScreenProbes screen, GpuSceneField field,
         IImageView depth, ISampler depthSampler, ReadOnlySpan<byte> view, bool glowLights, int loggedProbe = -1, bool glowOnly = false,
-        bool loggedNotANumber = false, bool lightThrough = false, GpuRayScene? rays = null)
+        bool loggedNotANumber = false, bool lightThrough = false, GpuRayScene? rays = null, ScreenCascadeTrace? cascades = null)
     {
         var pixels = glowOnly ? null : screen.Gathered;
-        var probesGlowOnly = glowOnly || pixels is not null;
+        var traced = !glowOnly && pixels is null && TracesScreenCascades ? cascades : null;
+        var probesGlowOnly = glowOnly || pixels is not null || traced is not null;
+        var inFrame = pixels is not null || traced is not null;
         // The gather by pixel's rays meet the meshes through the device's rays where a ray scene is
         // given and the screen pass's build for them was made.
         var rayed = pixels is not null && rays is not null && GiStages[RayScreenStage].Pipeline.Handle != 0;
         var run = new ProbeRun(this, device, commandBuffer, [(ScreenStage, pixels is null || rayed ? 1 : 2), (RayScreenStage, rayed ? 1 : 0),
-            (FilterStage, (probesGlowOnly ? 0 : 2) + (pixels is null ? 0 : 1)), (GlowStage, glowLights ? 1 : 0)]);
+            (FilterStage, (probesGlowOnly ? 0 : 2) + (inFrame ? 1 : 0)), (GlowStage, glowLights ? 1 : 0), (CascadeStage, traced is null ? 0 : 1)]);
         var cmd = run.Commands;
         var readers = VkPipelineStageFlags2.VertexShader | VkPipelineStageFlags2.FragmentShader | VkPipelineStageFlags2.ComputeShader;
         device.MemoryBarrier(cmd, readers, VkAccessFlags2.UniformRead, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite);
@@ -107,13 +112,20 @@ internal sealed unsafe partial class GlobalIlluminationStages
         if (pixels is not null)
             Screen(pixels.LightView, pixels.GeometryView, pixels.View, pixels.Across, pixels.Down, 0, 8u, rayed);
         MarkGlobalIllumination(commandBuffer, "gi_screen");
+        if (traced is { } trace)
+        {
+            RecordScreenCascades(run, gi, screen, field, depth, depthSampler, trace);
+            MarkGlobalIllumination(commandBuffer, "gi_screen_cascades");
+        }
 
         // Each probe's light kept over the frames, then blended with its neighbors' on like
         // surfaces, where they traced any, two passes of gi_screen_filter.slang, or the gather's
-        // texels blended with their neighbors' within the frame, its third.
+        // texels blended with their neighbors' within the frame, its third, as the cascades' probes
+        // are.
         device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderRead);
         (uint Pass, IImageView From, IImageView Surfaces, IImageView To, IBuffer View, int Across, int Down)[] passes = pixels is not null
             ? [(2u, pixels.LightView, pixels.GeometryView, pixels.BlendedView, pixels.View, pixels.Across, pixels.Down)]
+            : traced is not null ? [(2u, screen.IrradianceView, screen.GeometryView, screen.BlendedView, screen.View, screen.Across, screen.Down)]
             : probesGlowOnly ? []
             : [(0u, screen.IrradianceView, screen.GeometryView, screen.KeptView, screen.View, screen.Across, screen.Down),
                 (1u, screen.KeptView, screen.GeometryView, screen.BlendedView, screen.View, screen.Across, screen.Down)];
