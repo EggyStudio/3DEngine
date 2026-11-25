@@ -1037,3 +1037,11 @@ whole as the Linux job runs it ended in 84 minutes 8 seconds of its 90 with the 
 2,486 passed and none failed, where with the side mend alone it took 83 minutes 15, global
 illumination's class 34 minutes 26 where 33 minutes 47 and the light classes together 67 minutes 26
 where 66 minutes 16. The GPU suite passes, 2,576 of 2,577 executed.
+
+137. The suite runner used here wrote the surface listings and the cheatsheet's lists again before
+it built, so their tests could not fail, and it builds and tests with no step writing them, so a
+surface that changes fails at the desk as it fails on the runner. The Linux jobs stay one process
+for the whole suite, which showed the samples setting leaking into the settings tests where the
+parts hid it, and each run is held to 105 minutes and each job to 135. The suite in order took 84
+minutes 8 seconds on lavapipe with four threads on four processors with gi.under, which leaves 21,
+and a run past 95 moves global illumination's class, 34 of those minutes, to a job of its own.

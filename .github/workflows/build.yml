@@ -57,13 +57,16 @@ jobs:
     # at once, since run one after the other in one job they took 71 and 67 minutes, 141 with the
     # build, and came within nine of the job's limit of 150. A run on a slow runner can pass
     # build/test.py's own limit of 40 minutes, where the script ends it and runs its parts for as
-    # long again, so each run is held to 90 here, and each job to 120.
+    # long again, so each run is held to 105 here, and each job to 135. Each stays one process for
+    # the whole suite, which shows a setting one test leaves for another that the parts hide. The
+    # suite in order took 84 minutes on lavapipe with four threads on four processors, and a run
+    # past 95 moves global illumination's class, 34 of those minutes, to a job of its own.
     strategy:
       fail-fast: false
       matrix:
         pass: [order, shuffled]
     name: linux (${{ matrix.pass }})
-    timeout-minutes: 120
+    timeout-minutes: 135
     steps:
       - uses: actions/checkout@v7
         with:
@@ -124,9 +127,9 @@ jobs:
       # each day, and a failure names the seed that runs it again.
       - run: |
           if [ "${{ matrix.pass }}" = shuffled ]; then
-            python3 build/test.py --no-build --timeout-minutes 90 --shuffle-seed "$(date -u +%Y%m%d)" --shuffled-only
+            python3 build/test.py --no-build --timeout-minutes 105 --shuffle-seed "$(date -u +%Y%m%d)" --shuffled-only
           else
-            python3 build/test.py --no-build --timeout-minutes 90
+            python3 build/test.py --no-build --timeout-minutes 105
           fi
         env:
           E3D_REQUIRE_VALIDATION: '1'
