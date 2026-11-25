@@ -35,7 +35,7 @@ public sealed partial class GlobalIlluminationTests
         var camera = new Camera3D(new Vector3(0, 1.2f, 7), new Vector3(0, 0.2f, 0), Vector3.UnitY, 50);
         // Drawn until every cascade is built and the light has merged through all four.
         var path = Path.Combine(_folder.Path, $"{_captures++}.png");
-        for (int frame = 0; frame < 260 && !File.Exists(path); frame++)
+        for (int frame = 0; frame < 180 && !File.Exists(path); frame++)
         {
             BeginDrawing();
             ClearBackground(Color.Black);
@@ -43,7 +43,7 @@ public sealed partial class GlobalIlluminationTests
             DrawModelEx(ground, new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(30, 1, 30), new Color(128, 128, 128));
             DrawModelEx(slab, new Vector3(0, 2.5f, 0), Vector3.UnitY, 0, new Vector3(20, 1, 20), new Color(60, 90, 50));
             EndMode3D();
-            if (frame == 240) TakeScreenshot(path);
+            if (frame == 160) TakeScreenshot(path);
             EndDrawing();
         }
         File.Exists(path).Should().BeTrue("the capture is written once its frame has finished on the GPU");
@@ -57,6 +57,7 @@ public sealed partial class GlobalIlluminationTests
 
         var floor = Read(new Vector3(0, 0, 3.5f));
         var underside = Read(new Vector3(0, 2, 3));
+        output.WriteLine($"at {quality} the floor {floor:0.00000} and the underside {underside:0.00000}");
         floor.Should().BeGreaterThan(0.0003f, $"the floor takes the sky past the slab's sides, {floor:0.0000} at {quality}");
         underside.Should().BeLessThan(0.02f, $"the underside reflects little of the ambient light, {underside:0.0000} over a floor of {floor:0.0000} at {quality}");
         foreach (var model in new[] { ground, slab }) UnloadModel(model);

@@ -24,7 +24,7 @@ public sealed partial class BounceRoomsTests
             GetApp().World.Resource<GlobalIlluminationSettings>().SpreadOff = !spread;
             var rooms = new Rooms();
             var renderer = GetApp().World.Resource<Engine.Renderer>();
-            byte[] Frame()
+            void Draw()
             {
                 BeginDrawing();
                 ClearBackground(Color.Black);
@@ -32,16 +32,22 @@ public sealed partial class BounceRoomsTests
                 rooms.Draw(court);
                 EndMode3D();
                 EndDrawing();
+            }
+            // A frame read back waits for the device, so the frames that settle the light are
+            // drawn and not read.
+            byte[] Frame()
+            {
+                Draw();
                 return Srgb(((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image));
             }
-            for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 120; frame++)
-                Frame();
+            for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 40; frame++)
+                Draw();
             var settled = Frame();
             var halved = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Halved.ToArray();
             SetLightColor(rooms.Sun, Color.Black, 0);
             var after = new List<byte[]>();
             var halvedAfter = new List<bool>();
-            for (int frame = 0; frame < 30; frame++)
+            for (int frame = 0; frame < 20; frame++)
             {
                 after.Add(Frame());
                 halvedAfter.Add(renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Halved.Any(h => h));
@@ -54,6 +60,10 @@ public sealed partial class BounceRoomsTests
 
         var whole = Run(spread: false);
         var halves = Run(spread: true);
+        var after = Enumerable.Range(0, halves.After.Count).Select(f => Apart(halves.After[f], whole.After[f]).Past6).ToArray();
+        output.WriteLine($"settled {Apart(halves.Settled, whole.Settled).Past6:0.000}% apart past 6 levels, the frames after "
+            + $"{after.Max():0.000}% at most, halved {string.Join(",", halves.Halved)}, whole after the step for "
+            + $"{halves.HalvedAfter.TakeWhile(h => !h).Count()} frames");
         whole.Halved.Should().AllSatisfy(h => h.Should().BeFalse(), "with the spread off every cascade traces all its probes");
         halves.Halved.Should().Equal([false, true, true, true], "the coarser cascades lying still trace in halves, the first whole");
         Apart(halves.Settled, whole.Settled).Past6.Should().Be(0, "at rest the halves read as the whole trace");

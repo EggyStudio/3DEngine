@@ -40,7 +40,7 @@ public sealed partial class GlobalIlluminationTests
         (float[] Frame, float[] Rays, int Grid) Settled(int[] sides)
         {
             settings.ProbesSides = sides;
-            for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 240; frame++)
+            for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 60; frame++)
             {
                 BeginDrawing();
                 ClearBackground(Color.Black);

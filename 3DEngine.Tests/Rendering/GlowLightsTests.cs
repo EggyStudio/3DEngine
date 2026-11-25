@@ -442,8 +442,8 @@ public sealed class GlowLightsTests : IDisposable
                 EndDrawing();
             }
         }
-        Frames(120, false);
-        Frames(240, true);
+        Frames(30, false);
+        Frames(90, true);
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var linear = ((GraphicsDevice)renderer.Context.Graphics!).ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image);
         linear.Should().Contain(value => value > 0.1f, "the frame was drawn, which reading it back from a lost device would not give");

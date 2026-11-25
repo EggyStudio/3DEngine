@@ -35,8 +35,10 @@ part but those, so two jobs given the same labels, one with each, run the whole 
 a part added later in the second, and --system names the job on its page.
 
 The page has the run's counts, the lost processes, the failures by cause, the most frequent first,
-and the lines logged as warnings or errors, or with no level, that the output repeated most, left
-out when none repeats. It ends the log between two marking lines, and is written to
+the tests that took more than half the time a test is given before it is called hung, the slowest
+first, so a test that has grown toward that bound is named before it is lost to it, and the lines
+logged as warnings or errors, or with no level, that the output repeated most, left out when none
+repeats. It ends the log between two marking lines, and is written to
 TestResults/digest.md and digest.json. Under GitHub Actions it is also the job's summary, with a
 cause an error annotation. What the processes print goes to TestResults/output*.txt, and the log has
 a line for each process. It exits 0 when every test passed and no process was lost.
@@ -77,6 +79,7 @@ DUMP_THREADS_SHOWN = 4
 MESSAGE_LINES = 5
 TESTS_SHOWN = 4
 SLOWEST_SHOWN = 5
+NEAR_BOUND_SHOWN = 10
 REPEATED_SHOWN = 3
 PART_SIZE = 30
 SHUFFLE_SEED = "E3D_SCHEDULE_SHUFFLE_SEED"
@@ -706,7 +709,7 @@ def repeated_lines(texts):
 
 # -- The page
 
-def digest(results_dir, processes, listed, seconds):
+def digest(results_dir, processes, listed, seconds, hang_seconds):
     """What the run comes to, as the page and its annotations read it."""
     parts_ran = any(p.label != "the suite" for p in processes)
     trx = [os.path.join(results_dir, p.name + ".trx") for p in processes if p.label != "the suite" or not parts_ran] if processes \
@@ -737,6 +740,14 @@ def digest(results_dir, processes, listed, seconds):
     # A theory may be listed once by its method's name and report each case by its arguments, so a
     # listed name has a result where any case of its method has one.
     no_result = len(without_result(set(listed), results))
+    # Each test's time, a part's read after the whole run's where both ran it, and those past half
+    # the bound a test is given before it is called hung.
+    times = {}
+    for p in processes:
+        times.update(p.times)
+    for path in trx:
+        times.update(durations_of(path))
+    near = sorted(((name, round(t)) for name, t in times.items() if t > hang_seconds / 2), key=lambda n: (-n[1], n[0]))
 
     return {
         "system": SYSTEM,
@@ -748,6 +759,8 @@ def digest(results_dir, processes, listed, seconds):
                        "progress": p.progress, "dumps": p.dumps, "dump_lines": p.dump_lines} for p in as_classes(processes)],
         "causes": sorted(causes.values(), key=lambda c: (-c["count"], c["key"])),
         "repeated": repeated_lines(read_text(path) for path in outputs),
+        "hang_seconds": round(hang_seconds),
+        "near_bound": near,
     }
 
 
@@ -852,16 +865,37 @@ def page(d):
             lines += ["    " + line for line in entry(cause)]
             lines.append("")
 
+    lines += near_bound(d)
+
     if d["repeated"]:
         lines.append("### Repeated most in the output")
         lines += [f"- {count:,} × `{line}`" for line, count in d["repeated"]]
     return fit(lines)
 
 
+def near_bound(d):
+    """The section naming the tests past half the bound a test is given before it is called hung,
+    the slowest first, or nothing where none took that long."""
+    near = d.get("near_bound") or []
+    if not near:
+        return []
+    shown = near[:NEAR_BOUND_SHOWN]
+    lines = [f"### {len(near):,} test{'s' if len(near) != 1 else ''} past half the bound of {duration(d['hang_seconds'])} a test is given"]
+    lines += [f"- `{name}` {duration(seconds)}" for name, seconds in shown]
+    if len(near) > len(shown):
+        lines.append(f"({len(near) - len(shown):,} more)")
+    return lines + [""]
+
+
 def merged_page(digests):
     lines = ["## Tests by system", ""]
     lines += [f"- {head(d)}" for d in digests] or ["No system wrote a page, so each job ended before its tests did."]
     lines += [f"- Lost on {d['system']}: {p['summary']}" for d in digests for p in d["processes"] if p["lost"]]
+    for d in digests:
+        if near := d.get("near_bound"):
+            names = ", ".join(f"`{name}` {duration(seconds)}" for name, seconds in near[:NEAR_BOUND_SHOWN])
+            more = f" and {len(near) - NEAR_BOUND_SHOWN:,} more" if len(near) > NEAR_BOUND_SHOWN else ""
+            lines.append(f"- Past half the bound of {duration(d['hang_seconds'])} on {d['system']}: {names}{more}")
     causes = {}
     for d in digests:
         for cause in d["causes"]:
@@ -976,7 +1010,7 @@ def main():
         return 0
 
     if args.read:
-        d = digest(args.read, [], [], 0)
+        d = digest(args.read, [], [], 0, args.hang_minutes * 60)
         publish(page(d), annotations([], d["causes"], head(d), d["repeated"]), args.read, d)
         return 0 if d["failed"] == 0 else 1
 
@@ -1043,7 +1077,7 @@ def main():
             done.append(run(dotnet, process, args, results))
             print(process.summary(), flush=True)
 
-    d = digest(results, done, listed, time.monotonic() - started)
+    d = digest(results, done, listed, time.monotonic() - started, args.hang_minutes * 60)
     # A run whose every test has a result and none failed passes where a process was lost to its
     # time limit alone, the loss said in a notice, as a whole run on a slow runner runs out its time
     # before the parts give the rest of its tests their results, where failing it would end the
@@ -1071,7 +1105,7 @@ def shuffled(dotnet, args, results, seed):
     process = run(dotnet, Process("the suite", None), args, folder, seed)
     print(process.summary(), flush=True)
 
-    d = digest(folder, [process], [], process.seconds)
+    d = digest(folder, [process], [], process.seconds, args.hang_minutes * 60)
     d["system"] += f" shuffled by the seed {seed}"
     passed = d["failed"] == 0 and d["no_result"] == 0 and process.lost in (None, "time")
     lines = page(d)

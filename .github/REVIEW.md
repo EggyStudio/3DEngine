@@ -1063,3 +1063,29 @@ place 103 s with it and 101 s without. Its figures do not move with it, the seco
 moving 0.061% marched from its own cascade and 0.754% from the finest on the RTX and 0.063% and
 0.741% on lavapipe, and they read the same at 120 and at 60 frames a place. The test now draws 60
 frames a place, 6.1 s on the RTX and 65 s on lavapipe, and the part's bound stays.
+
+139. The light classes' times on lavapipe with four threads on four processors, read from the whole
+suite at 751e62a7, set against what run 45585734572 gave on the EPYC 7763, every test of half 1 and
+the five slowest of each part of halves 3 and 4, run 3.97 times as long there at the median of the
+35 tests that take 30 s or more on lavapipe, 4.45 at the upper quartile, and from 1.30 to 8.35, a
+short test's app start weighing more there. By the upper quartile eight would pass five minutes
+there. Five of them draw fewer frames, and each figure they print reads as before on the RTX 4070
+and on lavapipe. The grid of eight draws 68 frames a count where it drew 248, from 162 s to 46 s on
+lavapipe and from past ten minutes to about 3 m 1 s there, its rays and frame apart by 0 on lavapipe
+and 0 and 1.7e-8 on the RTX as before. The emissive block shut in a room draws 30 and 90 frames
+where 120 and 240, from 150 s to 56 s and from 8 m 38 s to about 3 m 14 s, its frame drawn. The
+coarser cascades in halves draw 48 frames to settle, not read back, where 128 each read back, and 20
+after the sun's step where 30, from 118 s to 57 s and from 7 m 8 s to about 3 m 27 s, at rest and in
+each frame after 0% apart past 6 levels, halved as before and whole for 16 frames after the step.
+The land far from the origin draws 60 frames a place where 120, from 98 s to 53 s and from 5 m 54 s
+to about 3 m 11 s, 875 and 860 pixels black near and far on the RTX where 880 and 860, and 1024 and
+1018 on lavapipe where 1026 and 1022. The floor under the solid slab is read at frame 160 where 240,
+at High from 81 s to 55 s and from 4 m 55 s to about 3 m 20 s and at Low from 59 s to 40 s, its
+floor and underside reading 0.00424 and 0.01415 at High on the RTX and 0.00502 and 0.01434 on
+lavapipe as before. Three stay. The thin wall's foot took 3 m 57 s and the pillar 3 m 53 s there,
+and at half its frames the foot read 0.9477 where 0.9831 and at 100 the pillar's line moved in its
+third digit. The wall far from the origin at High took 4 m 53 s, and its High light still rises at
+38 frames, the ceiling's rows 27.26 where 28.10 at 48, while its window's size sets the step it
+reads. The page of `build/test.py` names each test past half the bound a test is given, the slowest
+first, ten at most, and the page of every system's digest names them by system, so any of the three
+past five minutes on Windows shows on a run that passes.

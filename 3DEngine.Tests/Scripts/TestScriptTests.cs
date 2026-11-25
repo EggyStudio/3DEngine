@@ -324,6 +324,36 @@ public sealed class TestScriptTests : IDisposable
             "the stand-in gives each test seven seconds for each place it stands at in its list");
     }
 
+    /// <summary>
+    /// The page and the page of every system name each test that took more than half the time a
+    /// test is given before it is called hung, the slowest first, so a test that has grown toward
+    /// the bound is named in a run that passes, before a run is lost to it.
+    /// </summary>
+    [NeedsPythonFact]
+    public void The_Tests_Past_Half_The_Bound_A_Test_Is_Given_Are_Named_The_Slowest_First()
+    {
+        File.WriteAllText(_folder.File("results.trx"),
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?><TestRun xmlns=\"http://microsoft.com/schemas/VisualStudio/TeamTest/2010\"><Results>"
+            + "<UnitTestResult testName=\"Engine.Tests.Area.Class.Slow\" outcome=\"Passed\" duration=\"00:04:00.0000000\" />"
+            + "<UnitTestResult testName=\"Engine.Tests.Area.Class.Slower\" outcome=\"Passed\" duration=\"00:05:30.2000000\" />"
+            + "<UnitTestResult testName=\"Engine.Tests.Area.Class.Slowest\" outcome=\"Passed\" duration=\"00:09:00.0000000\" />"
+            + "</Results></TestRun>");
+
+        var (exit, _) = Script("--read", _folder.Path, "--hang-minutes", "10");
+
+        exit.Should().Be(0, "every test passed");
+        var page = File.ReadAllLines(_folder.File("digest.md"));
+        page.Should().ContainInConsecutiveOrder(
+            "### 2 tests past half the bound of 10 m 0 s a test is given",
+            "- `Engine.Tests.Area.Class.Slowest` 9 m 0 s",
+            "- `Engine.Tests.Area.Class.Slower` 5 m 30 s");
+        page.Should().NotContain(line => line.Contains("Class.Slow`"), "four minutes is less than half of ten");
+
+        var (_, log) = Script("--digest", _folder.Path);
+        Lines(log).Should().Contain(line => line.StartsWith("- Past half the bound of 10 m 0 s on ", StringComparison.Ordinal)
+            && line.EndsWith(": `Engine.Tests.Area.Class.Slowest` 9 m 0 s, `Engine.Tests.Area.Class.Slower` 5 m 30 s", StringComparison.Ordinal));
+    }
+
     [NeedsPythonFact]
     public void A_Suite_That_Failed_In_The_Order_Added_Is_Not_Run_Again_Shuffled()
     {

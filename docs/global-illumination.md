@@ -468,6 +468,13 @@ meshes in 1.23 MB, built again each frame in some 0.02 ms.
   light, but a gap thinner than a cell is closed to it. A double-sided face is held by its plane in
   the cells it is nearest, so two of them two cells apart, as a field of crops, leave the gap
   between them open.
+- **The screen's probes at a far doorway.** In Sponza's view 1 at the default the face of the far
+  doorway beside the floor reads 5.80 times its path-traced reference's light with the screen's
+  probes, where 1.81 with the world's cascades alone, for two causes. A screen probe's ray that
+  meets a surface far off takes the normal of the field's coarse cell there, which at a corner
+  points through the wall, and given the true normal at each hit the face reads 1.70 times. A pixel
+  takes the light of a screen probe that stands far from it along its own plane, so the gray floor
+  at the doorway's foot reads 5.03 times, where the world's cascades alone give it 1.26.
 
 The terms of the method that stand unmended, each with its cause, the room and the figure that
 show it and the forms read against it, are under Where the method stops in

@@ -2,6 +2,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using FluentAssertions;
+using Xunit.Abstractions;
 using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
@@ -22,7 +23,7 @@ namespace Engine.Tests.Rendering;
 /// </remarks>
 [Collection("E3D")]
 [Trait("Category", "Render")]
-public sealed partial class BounceRoomsTests : IDisposable
+public sealed partial class BounceRoomsTests(ITestOutputHelper output) : IDisposable
 {
     public void Dispose()
     {

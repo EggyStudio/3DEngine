@@ -134,7 +134,7 @@ public sealed partial class GlobalIlluminationTests
             float pitch = -18 * MathF.PI / 180;
             var camera = new Camera3D(eye, eye + new Vector3(0, MathF.Sin(pitch), -MathF.Cos(pitch)), Vector3.UnitY, 40);
             var sand = new Color(219, 207, 163);
-            for (int frame = 0; frame < 120; frame++)
+            for (int frame = 0; frame < 60; frame++)
             {
                 BeginDrawing();
                 ClearBackground(new Color(150, 195, 240));
@@ -161,6 +161,7 @@ public sealed partial class GlobalIlluminationTests
         // of the frame, a count and not a share, since the share of the black near the origin
         // shrinks as the torches light more of the land while the excess does not.
         var (near, far) = (Black(0), Black(10_000));
+        output.WriteLine($"{near} pixels black near the origin and {far} far from it");
         far.Should().BeLessThan(near + 600, $"the land far from the origin is as lit as near it, {far} pixels black where {near}");
     }
 
