@@ -211,6 +211,19 @@ internal sealed class GlobalIlluminationSettings
     public bool FootprintOff { get; set; }
 
     /// <summary>
+    /// Whether a probe below every surface, most of its downward face's rays meeting nothing, keeps
+    /// a twentieth of its weight at a surface that does not see it, as every probe it does not see
+    /// keeps, as <c>gi.under off</c> sets it, where it otherwise lends that surface nothing.
+    /// </summary>
+    /// <remarks>
+    /// Kept so, the probes in the open under the floor of a sunlit court lit the face of a doorway
+    /// beside the floor at 5.29 times a path-traced reference's light with the world's probes
+    /// alone, and at 28.3 times with 8 probes a side in every cascade. Left out, it reads 1.81 and
+    /// 6.88 times. With the screen probes it reads 5.80 times where 5.90.
+    /// </remarks>
+    public bool UnderOff { get; set; }
+
+    /// <summary>
     /// Whether the model pass's pixels read each of their probes' faces moved toward its light at
     /// the surface the face's ray met, as far as the pixel lies behind the probe toward it, as a
     /// probe's hit reads them, as <c>gi.toward on</c> sets it, where they otherwise read the faces

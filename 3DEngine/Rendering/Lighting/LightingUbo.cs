@@ -98,8 +98,9 @@ internal struct LightingUbo
     /// where they stand for the glow lights alone, whose light on the depth's texels is read. w: the
     /// switches a reading sets, 1 every surface white, 2 the reflection of the indirect light left
     /// out and 4 the materials' normal maps left out (<c>gi.albedo</c>, <c>gi.specular</c> and
-    /// <c>gi.normals</c>), and 8 the surfaces' roughness left unwidened, where specular
-    /// antialiasing is off (<c>SetSpecularAntialiasing</c>).
+    /// <c>gi.normals</c>), 8 the surfaces' roughness left unwidened, where specular antialiasing
+    /// is off (<c>SetSpecularAntialiasing</c>), and 64 a pixel's probes below every surface that it
+    /// does not see kept at a twentieth of their weight (<c>gi.under off</c>).
     /// </summary>
     public Vector4 Screen;
 

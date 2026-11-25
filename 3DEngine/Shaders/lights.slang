@@ -478,6 +478,13 @@ public float screenHoldPlaced(float3 p, float3 n)
     return probesHold(bouncedField, p, n, lighting.indirect.y, cascades - (bouncedField.counts.w > 0.5 ? 2 : 1), cascades);
 }
 
+// Whether a surface's probes below every surface that it does not see lend it nothing, where
+// gi.under off has them keep a twentieth of their weight (bouncedIn).
+bool probesUnder()
+{
+    return (uint(lighting.screen.w + 0.5) & 64u) == 0u;
+}
+
 // The indirect light reaching a surface at p facing n, irradiance over pi, from the world's probes
 // around it as gi.slang blends them, or -1 where no cascade of probes holds p.
 public float3 bouncedPlaced(float3 p, float3 n)
@@ -485,7 +492,8 @@ public float3 bouncedPlaced(float3 p, float3 n)
     int c = fieldCascade(bouncedField, p, 1.0, int(lighting.indirect.w));
     if (c < 0 || c >= int(lighting.indirect.w))
         return float3(-1.0);
-    return bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) / 3.14159265;
+    return bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, p, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w,
+        probesUnder()) / 3.14159265;
 }
 
 // The light bounced gives with the share of the sky the surface sees along r as skySeen gives it,
@@ -499,7 +507,8 @@ public float3 bouncedAndSkyPlaced(float3 p, float3 n, float3 r, out float sky)
         return float3(-1.0);
     bool toward = (uint(lighting.screen.w + 0.5) & 32u) != 0u;
     return bouncedAndSkyAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedAtSurface, lightNearest), SplitVolume(bouncedSky, lightNearest),
-        SplitVolume(bouncedReach, lightNearest), bouncedField, p, n, r, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w, toward, sky) / 3.14159265;
+        SplitVolume(bouncedReach, lightNearest), bouncedField, p, n, r, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w, toward,
+        probesUnder(), sky) / 3.14159265;
 }
 
 // Whether a surface at p facing n lies by a wall thinner than a cell, whose probes beyond it the
@@ -629,7 +638,7 @@ public float4 tracedReflectionPlaced(float3 p, float3 n, float3 r, float roughne
         }
         hit = start + r * t;
     }
-    float3 shaded = shadeHit<SplitVolume, Glowing>(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), reflectFaces, SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), hit, probes, spacing, cascades);
+    float3 shaded = shadeHit<SplitVolume, Glowing>(SplitVolume(reflectField, lightLinear), bouncedField, SplitVolume(reflectAlbedo, lightLinear), reflectFaces, SplitVolume(reflectGlow, lightLinear), reflectLights, SplitVolume(bouncedLight, lightLinear), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), hit, probes, spacing, cascades, probesUnder());
     if (!onScreen)
         return float4(shaded, 1.0);
     float4 last = mul(lighting.reflectLastViewProjection, float4(hit, 1.0));
@@ -739,7 +748,8 @@ float4 rayReflection(float3 p, float3 way)
     // model pass takes it (bouncedHold).
     float held = bouncedHold(bouncedField, hit, n, lighting.indirect.y, lighting.indirect.w);
     if (held > 0.0)
-        arrived += bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, hit, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w) * held;
+        arrived += bouncedAt(SplitVolume(bouncedLight, lightNearest), SplitVolume(bouncedSky, lightNearest), SplitVolume(bouncedReach, lightNearest), bouncedField, hit, n, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w,
+            probesUnder()) * held;
     arrived += (lighting.environment.z > 0.0 ? environmentIrradiance(n) * lighting.environment.x * lighting.environmentLight.rgb * Pi : reflectLights.sky.rgb * Pi) * (1.0 - held);
     // The copy's color times its mesh's vertices' colors at the hit, as the model pass blends them.
     float2 between = query.CommittedTriangleBarycentrics();

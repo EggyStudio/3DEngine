@@ -1013,3 +1013,27 @@ then wrote into their files where one process runs the suite whole. Both classes
 one process on lavapipe and on the GPU. The new test reads the counts the probes are made at on the
 device the suite runs on, and failed on lavapipe with the device's kind left unread. The GPU suite
 passes, 2,575 of 2,576 executed. The Windows device was not run here.
+
+311. A probe below every surface, most of its downward face's rays meeting nothing in any cascade,
+lends a surface that does not see it nothing, where it kept a twentieth of its weight as every probe
+a surface does not see, and a surface whose probes left are all such sees none of the sky.
+`gi.under off` keeps the twentieth. Kept, the twentieths of the probes in the open under the floor
+gave a surface that sees few of its probes the light the sky gives the walls below it. In Sponza's
+view 1 with the world's cascades alone the far doorway's face takes 1.81 of the reference's light
+through the field where 5.29 and 1.68 through the rays where 5.37, and with 8 probes a side in every
+cascade 6.88 and 1.08 where 28.3 and 25.5, the view's shade 1.150 where 1.161. With the screen
+probes as the game runs the face takes 5.80 where 5.90, and 18.7 at 8 a side without the mend, so
+the mend barely moves the game's default there, whose excess is not yet split by its source. The
+gallery's back wall reads as before from every cascade and from each alone, the step's and the
+turn's medians move by a tenth of a percent at most and their largest fall, and a tower 60 high in
+the open with the ground 300 below lights its face as before, since its face sees the probes beside
+it. The scene's pass in Sponza took 3.30 ms where 3.23 in each of three sessions, the cascades'
+passes 6.82 where 6.80. The new test closes two rooms on a floor with the open under it and a
+doorway through a wall 3 thick between them, and reads the jamb beside the floor alike under a
+bright sky and a black one to the fifth place, where kept at a twentieth it reads 2.46 times as much
+under the bright one, the same at 20 frames past the settling as at 90, so it draws 20. On lavapipe
+with four threads on four processors under the required layer it takes 16 seconds alone. The suite
+whole as the Linux job runs it ended in 84 minutes 8 seconds of its 90 with the test at 90 frames,
+2,486 passed and none failed, where with the side mend alone it took 83 minutes 15, global
+illumination's class 34 minutes 26 where 33 minutes 47 and the light classes together 67 minutes 26
+where 66 minutes 16. The GPU suite passes, 2,576 of 2,577 executed.

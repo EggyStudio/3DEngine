@@ -12,8 +12,10 @@ import gi;
 // The two cascades are read in a loop kept from unrolling, so a shader holds one read of a
 // cascade. The probes are found where the field's cascades they stand in lie (cascadeAt). With the
 // share of the sky each probe's faces saw (skies), a probe the surface does not see lends none of
-// the sky its rays reached (bouncedIn), as the model pass reads them.
-public float3 bouncedAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades)
+// the sky its rays reached (bouncedIn), as the model pass reads them, and with under none at all
+// where it stands below every surface.
+public float3 bouncedAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float probes, float spacing, float cascades,
+    bool under)
 {
     int c = fieldCascade(info, p, 1.0, int(cascades));
     if (c < 0 || c >= int(cascades))
@@ -27,7 +29,7 @@ public float3 bouncedAt<V : IVolume>(V cubes, V skies, V reach, SceneFieldInfo i
         if (share > 0.0)
         {
             float sky;
-            light += bouncedIn<V, true, false>(cubes, cubes, skies, reach, info, p, n, n, probes, spacing, c + k, int(cascades), sky) * share;
+            light += bouncedIn<V, true, false>(cubes, cubes, skies, reach, info, p, n, n, probes, spacing, c + k, int(cascades), sky, false, under) * share;
         }
     }
     return light;
@@ -135,7 +137,7 @@ public float3 bouncedHitAt<V : IVolume>(V cubes, V cubesAt, V reach, SceneFieldI
 // along the face's axis on both faces of it. Read apart, the share would take a second gather of
 // the eight probes.
 public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V cubesAt, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes,
-    float spacing, float cascades, bool toward, out float sky)
+    float spacing, float cascades, bool toward, bool under, out float sky)
 {
     sky = 1.0;
     int c = fieldCascade(info, p, 1.0, int(cascades));
@@ -151,7 +153,7 @@ public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V cubesAt, V skies, V reach,
         if (k == 0 || share > 0.0)
         {
             float seen;
-            light += bouncedIn<V, true, false>(cubes, cubesAt, skies, reach, info, p, n, r, probes, spacing, c + k, int(cascades), seen, toward) * share;
+            light += bouncedIn<V, true, false>(cubes, cubesAt, skies, reach, info, p, n, r, probes, spacing, c + k, int(cascades), seen, toward, under) * share;
             if (k == 0)
                 sky = seen;
         }
@@ -179,9 +181,15 @@ public float3 bouncedAndSkyAt<V : IVolume>(V cubes, V cubesAt, V skies, V reach,
 // dark foot and the rest pixel by pixel. The probes' own hits (At) take the probes they see alone
 // so as well, since a hit on a floor would take a twentieth of the light of the probes under the
 // floor's slab, in the open under it, and light the probe above it far brighter in its downward
-// face than it is lit.
+// face than it is lit. With Sky and under, a probe the surface does not see that stands below every
+// surface, most of its downward face's rays having met nothing, lends it nothing at all, and the
+// surface sees none of the sky where every probe left is such a one (gi.under). Kept at a
+// twentieth, the probes in the open under the floor of a sunlit court lit the face of a doorway
+// beside the floor at 5.29 times a path-traced reference's light, the world's probes alone through
+// the field, and at 28.3 times with 8 probes a side in every cascade, where left out it reads 1.81
+// and 6.88 times.
 float3 bouncedIn<V : IVolume, let Sky : bool, let At : bool>(V cubes, V cubesAt, V skies, V reach, SceneFieldInfo info, float3 p, float3 n, float3 r, float probes, float spacing, int c,
-    int cascades, out float sky, bool toward = false)
+    int cascades, out float sky, bool toward = false, bool under = false)
 {
     float4 oc = cascadeAt(info, c, cascades);
     float2 span = probeSpan(info, c, probes);
@@ -192,7 +200,7 @@ float3 bouncedIn<V : IVolume, let Sky : bool, let At : bool>(V cubes, V cubesAt,
     float3 r2 = r * r;
     float3 sum = float3(0.0), seenSum = float3(0.0);
     float skySum = 0.0;
-    float weights = 0.0, seenWeights = 0.0, allWeights = 0.0;
+    float weights = 0.0, seenWeights = 0.0, allWeights = 0.0, dropped = 0.0;
     for (int corner = 0; corner < 8; corner++)
     {
         int3 offset = int3(corner & 1, (corner >> 1) & 1, corner >> 2);
@@ -203,6 +211,10 @@ float3 bouncedIn<V : IVolume, let Sky : bool, let At : bool>(V cubes, V cubesAt,
         float valid = 1.0;
         float3 moved = float3(0.0);
         float skyward = 0.0;
+        // 1 where most of the probe's downward face's rays met nothing, below every surface.
+        float below = 0.0;
+        if (Sky && under)
+            below = skies.loadAt(int3(3 * int(probes) + at.x, at.y, c * int(probes) + at.z)).x > 0.5 ? 1.0 : 0.0;
         for (int axis = 0; axis < 3; axis++)
         {
             int face = axis * 2 + (n[axis] < 0.0 ? 1 : 0);
@@ -223,8 +235,10 @@ float3 bouncedIn<V : IVolume, let Sky : bool, let At : bool>(V cubes, V cubesAt,
         float sees = probeSees(reach, p, n, probe, at, c, probes, oc.w * spacing);
         seenSum += light * weight * sees;
         seenWeights += weight * sees;
-        allWeights += weight;
-        weight *= lerp(0.05, 1.0, sees);
+        float kept = lerp(1.0 - below, 1.0, sees);
+        dropped += weight * (1.0 - kept);
+        allWeights += weight * kept;
+        weight *= lerp(0.05, 1.0, sees) * kept;
         if (Sky)
         {
             light *= lerp(1.0 - saturate(skyward), 1.0, sees);
@@ -234,7 +248,7 @@ float3 bouncedIn<V : IVolume, let Sky : bool, let At : bool>(V cubes, V cubesAt,
         skySum += seen * weight;
         weights += weight;
     }
-    sky = weights > 1e-5 ? skySum / weights : 1.0;
+    sky = weights > 1e-5 ? skySum / weights : dropped > 1e-5 ? 0.0 : 1.0;
     float3 blended = weights > 1e-5 ? sum / weights : float3(0.0);
     if ((Sky || At) && seenWeights > 1e-5)
         return lerp(blended, seenSum / seenWeights, saturate(seenWeights / max(0.05 * allWeights, 1e-5)));
@@ -562,12 +576,12 @@ public float3 shadeProbeHitAt<V : IVolume, Sun : ISunShadow>(V field, SceneField
 // it so (Glowing in lights). It is a parameter of the build, since a constant argument leaves them
 // in the SPIR-V.
 public float3 shadeHit<V : IVolume, let Glowing : bool>(V field, SceneFieldInfo info, V albedo, Texture3D<uint> faces, V glow, GiLights lights, V cubes,
-    V skies, V reach, float3 p, float probes, float spacing, float cascades)
+    V skies, V reach, float3 p, float probes, float spacing, float cascades, bool under)
 {
     float3 n = fieldNormal(field, info, p);
     float3 color = surfaceAlbedoFacing(faces, albedo, info, p, n);
     float3 arrived = (directLight(field, info, lights, p, n) - hiddenLampLight(field, info, lights, p, n)) * Pi
-        + bouncedAt(cubes, skies, reach, info, p, n, probes, spacing, cascades) * lights.counts.z;
+        + bouncedAt(cubes, skies, reach, info, p, n, probes, spacing, cascades, under) * lights.counts.z;
     if (Glowing)
         arrived += glowLightsAt(field, info, lights, p, n, 1, false, float3(0.0));
     return color / Pi * arrived + surfaceGlow(glow, albedo, info, p);

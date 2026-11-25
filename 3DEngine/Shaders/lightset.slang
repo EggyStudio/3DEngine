@@ -81,8 +81,10 @@ public struct Lighting
     // (gi.albedo off), 2 where the reflection of the indirect light is left out (gi.specular off)
     // and 4 where the materials' normal maps are, the faces lit by their own normals (gi.normals
     // off), set with global illumination off as well. 8 where the surfaces' roughness is left as
-    // the materials give it, 16 where the screen's texels are the gather by pixel's, and 32 where a
-    // pixel reads its probes' faces moved toward the surfaces their rays met (gi.toward).
+    // the materials give it, 16 where the screen's texels are the gather by pixel's, 32 where a
+    // pixel reads its probes' faces moved toward the surfaces their rays met (gi.toward), and 64
+    // where its probes below every surface that it does not see keep a twentieth of their weight
+    // (gi.under off).
     public float4 screen;
     // The window's camera this frame, a place to clip space and back, and the frame before's, both
     // ways, which a glossy surface's reflection is traced through the window's depth with and
