@@ -1363,3 +1363,23 @@ and 0.778 at the bottom left, 1.886 and 1.167 at the bottom middle, and 13.276 a
 bottom right. The top left alone lies within 0.10 of the grid's, as in reply 146. The validation
 layer read no error in the door's runs or the views'. On the RTX 4070 with the layer required,
 the whole suite on this tree passed 2,591 tests and skipped 1, none failing.
+
+150. Item 318, a correction to 149. The views of 149's sheet were read with the screen's probes on,
+as the scene starts them, and where they hold a pixel whole the model pass takes their light and
+reads neither the grid's probes nor the split's gather, so both of its columns showed the screen's
+probes and read alike. The cold read of the door turned them off, which is why it read the grid's
+wall at 1.231 where the sheet read 1.69. The sheet is read again with gi.screen off and replaces the
+first under the same name. Split against the grid, it reads view 1 at 1.09 of the reference against
+1.03, its shade at 1.46 against 1.15 and the far doorway at 2.31 against 1.81. It reads the door's
+left wall at 1.59 against 1.16, its top right at 6.45 against 4.50 and its bottom right at 11.78
+against 4.91, and the gallery at 1.01 as the grid does and its near wall at 1.02 against 1.66. The
+split changes 84% of view 1's pixels by more than 5% against the grid, 93% of the door's and 88% of
+the gallery's. Its pictures show dark specks on the door's wall at the bottom left and on the
+gallery's columns and right wall, which the grid's do not. The validation layer read no error in the
+views' runs. The times of 149 were read with the screen's probes on, which take 2.84 to 2.92 ms of
+them on Sponza and 9.45 to 9.67 ms on the Bistro under either layout, and the split's passes and its
+trace are as 149 gives them. At 1920 by 1080 on Sponza the trace sends a ray from each of 2,073,600
+points and a second from the 577,056 of them in a level's overlap, in 4.69 million parts each one
+ray query, 2.60 million of which meet a face, into 174 standing probes, and on the Bistro from
+1,994,040 points with 111,872 second rays, in 4.58 million parts, 1.71 million meeting a face, into
+280 probes, as a scratch counter that is not committed read them once.
