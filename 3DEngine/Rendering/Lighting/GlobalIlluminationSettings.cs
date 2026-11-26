@@ -389,7 +389,8 @@ internal sealed class GlobalIlluminationSettings
     /// each spot, as <c>gi.own_place off</c> sets it, where they are otherwise placed by the field
     /// from the cascade they stand in outward, so a probe stands where it stood when a finer
     /// cascade's box moves with the eye. A probe above the first cascade beside a wall then stays
-    /// on its side of it.
+    /// on its side of it, and one in a wall thinner than its cascade's cells, which read it as
+    /// open, is placed by the finest cascade that holds it.
     /// </summary>
     /// <remarks>
     /// Placed from the cascade they stand in, a probe of the first cascade deep in a passage a unit

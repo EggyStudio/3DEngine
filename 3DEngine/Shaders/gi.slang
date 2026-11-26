@@ -436,13 +436,6 @@ public bool seesThrough<V : IVolume>(V field, SceneFieldInfo info, float3 a, flo
     return length <= clearance * 2.0 || traceField(field, info, a, toward / length, clearance, length - clearance) < 0.0;
 }
 
-// How near a surface a probe may stand, and the most it is moved from its spot in the grid to stand
-// so far off one or out of a mesh, in its spacing, so a probe in the plane of a wall or a ceiling
-// stands in the room before it rather than inside it. A probe moved stays within half the spacing
-// of its spot, so the probes keep their order.
-public static const float Clearance = 0.1;
-public static const float MostMoved = 0.45;
-
 // What a probe's faces carry in alpha, read as a face of each axis, whether the probe holds light,
 // 0 where it stands inside a mesh, and where it does, two more than its move along the axis in its
 // spacing, which gi_ambient.slang writes from the place gi_trace.slang moved it to.

@@ -1416,7 +1416,7 @@ behind the surface's plane next to nothing, how near taken from a point half the
 the surface along its normal (`Lean` in `gi.slang`), so a wall lying in a plane of probes takes the
 light of the row in front of it as well as theirs. A probe nearer a surface than a tenth of its
 spacing, or inside a mesh, is moved along the field's normal to stand that far off it, half its
-spacing at most, as DDGI moves its probes (`placed` in `gi_trace.slang`), so the probes in a wall's
+spacing at most, as DDGI moves its probes (`placed` in `scenefield.slang`), so probes in a wall's
 or a ceiling's plane stand in the room before it; the trace moves each probe before its rays leave,
 the merge reads where it moved them, and the gather writes each probe's move into its faces' alpha,
 two more than its move along each face's axis in its spacing and 0 for a probe that holds nothing,
@@ -4912,7 +4912,7 @@ BounceRoomsTests with its bounds at zero), or cost more than it gave, or left th
   above lit its probes to 86% under where 100%, the view moving by 0.005 at most, at 0.01 to 0.06
   ms. Since 2026-10-31 a spot of the cascades above the first, in or beside a wall between a space
   narrower than the spacing along two axes and a wider one, goes into the narrow one through the
-  wall's farther face (`placed` in `gi_trace.slang`), and a probe of a cascade below the last that
+  wall's farther face (`placed` in `scenefield.slang`), and a probe of a cascade below the last that
   sees none of the cascade above's carries its rays on to the field's edge, which takes the
   corridor's walls to 54 and 53% under at `Low` and 60 and 62% at `High`, its view 5% nearer its
   reference at `Low` and 25% at `High`, every other room as it was (the readings below).

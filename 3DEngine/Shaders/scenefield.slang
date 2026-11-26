@@ -558,6 +558,84 @@ public bool narrowAt<S : ISheetVolume>(S sheets, SceneFieldInfo info, float3 p, 
     return narrow >= 2;
 }
 
+// How near a surface a probe may stand, and the most it is moved from its spot in the grid to stand
+// so far off one or out of a mesh, in its spacing, so a probe in the plane of a wall or a ceiling
+// stands in the room before it rather than inside it. A probe moved stays within half the spacing
+// of its spot, so the probes keep their order.
+public static const float Clearance = 0.1;
+public static const float MostMoved = 0.45;
+
+// Where the probe whose spot in the grid is at stands, moved off a surface nearer than Clearance of
+// the spacing, or out of a mesh, along the field's normal, by MostMoved of the spacing at most, as
+// its move in its spacing, with w 1 where it then stands outside every mesh. The field is read from
+// the finest cascade holding the spot, so a probe by a face of a finer cascade's box stands
+// elsewhere each time that box moves with the eye, or where own holds (gi.own_place) from the
+// probe's own cascade outward (fieldOfProbes), so where it stands follows the world alone. Above
+// the first cascade, a spot in or beside a wall, or where own holds in it alone, between a space
+// narrower than the spacing and a wider one goes into the narrow one, through the wall's farther
+// face, since the wider holds the probes beside it and the narrow one would hold none. Moved out
+// through their nearer faces, the spots in the walls of a corridor narrower than the spacing leave
+// it no probe of the cascades above the first, and the walls by its open end, past the first
+// cascade's reach, take no light past the first bounce. The first cascade's probes are not moved
+// so, and a space narrow along one axis alone does not draw a probe in (narrowAt), since either
+// moves a room's light further from the light it receives. Where own holds, a spot its own
+// cascade's cells read as open and the finest cascade holding it reads inside a mesh stands in a
+// wall thinner than its cells, and is placed by the finest cascade's reading, so it goes into the
+// narrow space as above. Placed by its own cells, which read the wall as a surface near and no
+// more, a spot in a corridor's wall is moved off it to the side it lies nearer, and those past the
+// wall's middle leave the corridor none of their cascade's probes (CascadeEdgeTests). A spot no
+// finer cascade holds is placed by its own cells all the same, until a finer box comes over it.
+public float4 placed<S : ISheetVolume>(S sheets, SceneFieldInfo info, float3 at, float apart, bool aboveFirst, bool own, int ownFloor)
+{
+    int floorBefore = fieldFloor;
+    fieldFloor = own ? ownFloor : fieldFloor;
+    float3 p = at;
+    float d = fieldDistanceSheet(sheets, info, p);
+    if (own && d > 0.0 && ownFloor != floorBefore)
+    {
+        fieldFloor = floorBefore;
+        float finest = fieldDistanceSheet(sheets, info, p);
+        if (finest <= 0.0)
+            d = finest;
+        else
+            fieldFloor = ownFloor;
+    }
+    float least = d;
+    float3 normal = fieldNormalSheet(sheets, info, p);
+    bool near = d < Clearance * apart;
+    for (int step = 0; step < 4 && d < Clearance * apart; step++)
+    {
+        p += fieldNormalSheet(sheets, info, p) * (Clearance * apart - d);
+        float3 move = p - at;
+        float length = length(move);
+        if (length > MostMoved * apart)
+            p = at + move * (MostMoved * apart / length);
+        d = fieldDistanceSheet(sheets, info, p);
+    }
+    if (near && aboveFirst && (!own || least <= 0.0))
+    {
+        // Past the farther side of what the spot stands in or beside, the first point clear by
+        // Clearance once the way has crossed a surface.
+        for (int k = 1; k <= 8; k++)
+        {
+            float3 q = at - normal * (MostMoved * apart * float(k) / 8.0);
+            float dq = fieldDistanceSheet(sheets, info, q);
+            least = min(least, dq);
+            if (least <= 0.0 && dq >= Clearance * apart)
+            {
+                if (narrowAt(sheets, info, q, apart) && !narrowAt(sheets, info, p, apart))
+                {
+                    p = q;
+                    d = dq;
+                }
+                break;
+            }
+        }
+    }
+    fieldFloor = floorBefore;
+    return float4((p - at) / apart, d >= 0.0 ? 1.0 : 0.0);
+}
+
 // The way a face looks from its eight bits (wayCode, the RadianceCascades module's), four along
 // each side of the octahedron the sphere is folded onto, enough to tell faces that look apart from
 // faces that meet square.

@@ -1168,3 +1168,27 @@ command kept out of the tree, and the worst swing is 1.55 at x 4.7 as cascade 0'
 99th part 0.65 and the median 0.046, the largest step 0.93 at cascade 0's snaps, 0.71 at cascade
 1's, 0.03 at cascade 2's and 0.05 between them. The placement that empties the corridor is the
 engine's `placed`, not the module's.
+
+143. A spot of a cascade above the first that its own cascade's cells read as open, where the finest
+cascade holding it reads inside a mesh, stands in a wall thinner than its own cells, and `placed`
+places it by the finest cascade's reading, so it goes into the narrow space beside the wall as a
+spot inside a wall does. In the corridor cascade 2's spots in the 0.5 walls go into it where cascade
+1's box holds them, and the largest step at cascade 1's snaps falls from 19.0 of a point's mean to
+2.65, the worst swing from 19.53 to 1.65 at High and from 20.05 to 1.66 at Low, on the right wall at
+z -13 as cascade 1's box snaps over the spots beside it. Past cascade 1's box no finer cascade reads
+the walls' inside, so the spots there stand outside the corridor until that box comes over them. The
+99th part of all swings stays at 1.51, held by cascade 2's outer band, across which the light past
+the probes, the sky's and the sun's on the ground, fades in as though the corridor were open, the
+dense grid's leak left to the module's split design. The largest step at cascade 0's snaps is 0.43
+of the mean and between snaps 0.0015. At the walk's end at High the points the first two cascades
+hold read 0.76 to 1.39 of the traced light, the lintel 1.46 to 1.95, those at z -15 to -17 0.56 to
+2.63 and those at z -18 none. The test holds the worst swing under 1.75 and the 99th part under 1.6,
+and without the mend it fails at 19.53. Moving the spots beside such a wall as well, as
+`gi.own_place off` does, brings the corridor's worst to 1.38 and the step at cascade 1's snaps to
+0.46, and brightens the gallery's wall by a median 7.6% and raises its worst swing from 1.54 to
+1.79, so a spot beside a wall stays on its side. In Sponza's gallery the walk reads as without the
+mend, the worst swing 1.548, the 99th part 0.643 and the median 0.0455 against 1.541, 0.648 and
+0.0455. The passage's skipped test reads 0.01678 with and without the mend, where its reason names
+0.01590. With the mend gi_trace.slang passed 800 lines, so `placed` moved with Clearance and
+MostMoved into scenefield.slang beside narrowAt, its field passed in. The sheet
+`2026-11-26-item-317-thin-walls.webp` shows the same four plots.

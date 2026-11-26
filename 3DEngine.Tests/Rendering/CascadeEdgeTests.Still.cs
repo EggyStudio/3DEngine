@@ -175,11 +175,15 @@ public sealed partial class CascadeEdgeTests
         still.Should().BeLessThan(0.02, string.Create(CultureInfo.InvariantCulture,
             $"the world probes' light at each point holds within a fiftieth between the cascades' snaps, where the {points[stillAt].Name}'s moved by {still:0.0000} in a step"));
 
-        // Where a snap changes the cascade that reads a point, the cascades' light there differs,
-        // so the swing is held to what it reads until they agree within a fiftieth.
+        // Where a snap changes the cascade that reads a point, the cascades' light there differs.
+        // Past the second cascade's box nothing finer than the last cascade's cells reads the
+        // walls' inside, so the last cascade's probes in them stand outside the corridor until the
+        // second's box comes over them, and across the last cascade's outer band the light past the
+        // probes, the sky's and the sun's on the ground, fades in as though the corridor were open.
+        // The swing is held to what it reads until they agree within a fiftieth.
         var swung = string.Create(CultureInfo.InvariantCulture,
             $"the {points[worst].Name} swung by {swings[worst].Max():0.0000} at the walk's step {worstStep} as {(level.Length > 0 ? level : "no cascade")} snapped, the 99th part of all swings {ninetyNinth:0.0000}");
-        swings[worst].Max().Should().BeLessThan(21, swung);
+        swings[worst].Max().Should().BeLessThan(1.75, swung);
         ninetyNinth.Should().BeLessThan(1.6, swung);
 
         // A point the first two cascades hold at the walk's end reads near the traced light, so a

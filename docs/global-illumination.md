@@ -113,14 +113,16 @@ cells, and that cascade's light at a still surface steps where the finer box mov
 `gi.own_field on` marches them from the cascade they stand in outward, which holds that light, and
 stays off since the coarser cells light some walls well past a path-traced reference, the wall of
 Sponza's ground floor arcade by the door at three and a half times its light.
-Each cascade's probes stand where the field from the cascade they stand in outward places them, so
-a probe stands still when a finer cascade's box moves with the eye. Placed by the finest cascade
-holding each spot, as `gi.own_place off` places them, a probe by a face of a finer cascade's box
-stands elsewhere each time that box moves, and the light it gives steps. A probe of the first
-cascade deep in a passage a unit wide reads the sunlit court through its opening at 0.62 of a
-path-traced reference, as the passage's test in `GlobalIlluminationTests.Passage.cs` measures it,
-the probes above it, moved out of the passage's walls into it, giving it less of the court's light
-than its own rays carried on bring, a fault still open.
+Each cascade's probes stand where the field from the cascade they stand in outward places them, so a
+probe stands still when a finer cascade's box moves with the eye. A spot in a wall thinner than its
+cascade's cells, which read it as open, is placed by the finest cascade holding it, so the probes of
+a corridor's walls go into the corridor rather than out of it. Placed by the finest cascade holding
+each spot, as `gi.own_place off` places them, a probe by a face of a finer cascade's box stands
+elsewhere each time that box moves, and the light it gives steps. A probe of the first cascade deep
+in a passage a unit wide reads the sunlit court through its opening at 0.62 of a path-traced
+reference, as the passage's test in `GlobalIlluminationTests.Passage.cs` measures it, the probes
+above it, moved out of the passage's walls into it, giving it less of the court's light than its own
+rays carried on bring, a fault still open.
 Each cascade holds as many probes a side as `gi.side` says from the first on, 8 for the first two
 and 12 for the rest unless set, the last count given holding for the cascades past it, each even
 from 8 to 24. A cascade keeps its probes eight cells apart, so 12 a side reach two probes past its
