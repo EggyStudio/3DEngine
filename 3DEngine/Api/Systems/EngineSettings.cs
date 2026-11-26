@@ -1,6 +1,7 @@
 using System.Runtime.CompilerServices;
 using Diagnostics;
 using ImGuiNET;
+using RadianceCascades;
 using SDL3;
 
 namespace Engine;
@@ -125,6 +126,8 @@ internal static partial class EngineSettings
             s => s.FacesMovedToward, (s, on) => s.FacesMovedToward = on);
         yield return Of("gi.surface", "Whether a pixel takes the world's probes' light at its point of the window's depth as the RadianceCascades module gathers a surface point, from the finest level whose probes stand about it within half their spacing, as it reads its probes' faces without it.", false,
             s => s.SurfaceGather, (s, on) => s.SurfaceGather = on);
+        yield return Of("gi.layout", "How the probes a pixel takes the world's light from are laid out, dense on a grid about the eye, or split, the RadianceCascades module's cascades kept near the points of the window's depth the eye sees, each traced by a ray a point a frame and gathered at each pixel's point.", ProbeLayout.Dense,
+            s => s.Layout, (s, layout) => s.Layout = layout);
         yield return Of("gi.screen_cascades", "Whether the screen's probes stand in cascades of their own traced by the device's own rays at High, where it has it, each level's probes twice as far apart with twice as many ways along each side as the level before's, the last reaching the scene's end, in place of the screen probes' rays through the window's depth and the field.", false,
             s => s.ScreenCascades, (s, on) => s.ScreenCascades = on);
         yield return new Setting<string>("gi.side", $"How many probes a side each cascade of the world's probes holds, their spacing kept, from the first on as 8,8,12, the last count holding for the cascades past it, 8 for every cascade on a device that draws on its CPU unless set, each even from {GlobalIlluminationSettings.LeastSide} to {GlobalIlluminationSettings.MostSide}.",

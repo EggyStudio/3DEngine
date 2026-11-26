@@ -1,4 +1,5 @@
 using System.Numerics;
+using RadianceCascades;
 
 namespace Engine;
 
@@ -79,10 +80,11 @@ internal static class Illumination
 
     /// <summary>
     /// Whether the window's pixels take the world's probes' light as the RadianceCascades module
-    /// gathers a surface point this frame (<see cref="GlobalIlluminationSettings.SurfaceGather"/>).
+    /// gathers a surface point this frame (<see cref="GlobalIlluminationSettings.SurfaceGather"/>),
+    /// or the light of its split cascades (<see cref="GlobalIlluminationSettings.Layout"/>).
     /// </summary>
     internal static bool SurfaceGatherOn(RenderWorld renderWorld) =>
-        renderWorld.TryGet<GlobalIlluminationSettings>() is { SurfaceGather: true };
+        renderWorld.TryGet<GlobalIlluminationSettings>() is { SurfaceGather: true } or { Layout: ProbeLayout.Split };
 
     /// <summary>
     /// The size of the gather by pixel's grid where the views gather by pixel this frame, in place

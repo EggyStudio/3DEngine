@@ -129,6 +129,39 @@ internal sealed unsafe partial class GlobalIlluminationStages
     }
 
     // A buffer of half floats read as floats.
+    /// <summary>
+    /// The light the window's surfaces gathered, four floats a pixel, row by row, read back for a
+    /// test with the frames in flight finished.
+    /// </summary>
+    internal float[] ReadSurfaceGather(GpuSurfaceGather surface)
+    {
+        device.FlushUploads();
+        device.Api.vkDeviceWaitIdle().CheckResult();
+        var image = ((VulkanImage)surface.Light).Image;
+        var buffer = (VulkanBuffer)device.CreateBuffer(new BufferDesc(8UL * surface.Width * surface.Height, BufferUsage.TransferDst, CpuAccessMode.Read));
+        try
+        {
+            var cmd = device.BeginSingleTimeCommands();
+            var whole = ColorLevels(0, 1);
+            device.PipelineBarrier(cmd, ImageBarrier(image, whole, VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.TransferSrcOptimal,
+                VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead));
+            var region = new VkBufferImageCopy
+            {
+                imageSubresource = new VkImageSubresourceLayers(VkImageAspectFlags.Color, 0, 0, 1),
+                imageExtent = new VkExtent3D(surface.Width, surface.Height, 1),
+            };
+            device.Api.vkCmdCopyImageToBuffer(cmd, image, VkImageLayout.TransferSrcOptimal, buffer.Buffer, 1, &region);
+            device.PipelineBarrier(cmd, ImageBarrier(image, whole, VkImageLayout.TransferSrcOptimal, VkImageLayout.ShaderReadOnlyOptimal,
+                VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferRead, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead));
+            device.EndSingleTimeCommands(cmd);
+            return Halves(buffer);
+        }
+        finally
+        {
+            buffer.Dispose();
+        }
+    }
+
     private float[] Halves(VulkanBuffer buffer)
     {
         var halves = MemoryMarshal.Cast<byte, Half>(device.Read(buffer));

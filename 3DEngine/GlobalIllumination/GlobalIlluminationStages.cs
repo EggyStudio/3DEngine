@@ -17,8 +17,8 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     internal static GlobalIlluminationStages Of(GraphicsDevice device) => device.Part(static device => new GlobalIlluminationStages(device));
 
     private const int TraceStage = 0, MergeStage = 1, AmbientStage = 2, ScreenStage = 3, FilterStage = 4, GlowStage = 5, SolidTraceStage = 6, RayTraceStage = 7,
-        RayCrossStage = 8, GlowFacesStage = 9, RayScreenStage = 10, SurfaceStage = 11, CascadeStage = 12;
-    private readonly ComputeStage[] _giStages = new ComputeStage[13];
+        RayCrossStage = 8, GlowFacesStage = 9, RayScreenStage = 10, SurfaceStage = 11, CascadeStage = 12, SplitStage = 13, RaySplitStage = 14;
+    private readonly ComputeStage[] _giStages = new ComputeStage[15];
 
     // The binding the screen pass's build with the device's rays takes the ray scene at, as
     // meshrays.slang has it, the screen pass's own bindings from it on moved past the scene's
@@ -148,6 +148,21 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
                     VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
                     VkDescriptorType.UniformBuffer, VkDescriptorType.CombinedImageSampler, .. Enumerable.Repeat(VkDescriptorType.SampledImage, 6),
                     VkDescriptorType.AccelerationStructureKHR, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], 16)));
+            // The module's split cascades over the window (gi_split.slang), the depth, the field's
+            // distance, info, albedo and glow, the lights, the probes' faces and their light at
+            // surfaces, the view, the light from all around, the field's second sheets and faces,
+            // the store's uints and light and the light it gathers, and the build with the device's
+            // rays the ray scene after three bindings unbound.
+            VkDescriptorType[] split = [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
+                VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
+                VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
+                VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageBuffer,
+                VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage];
+            if (spirv.Length > SplitStage && spirv[SplitStage] is { Length: > 0 } fieldSplit)
+                made.Add((SplitStage, () => device.MakeComputeStage(fieldSplit, split, SplitPushBytes)));
+            if (spirv.Length > RaySplitStage && spirv[RaySplitStage] is { Length: > 0 } raySplit && device.CanQueryRays)
+                made.Add((RaySplitStage, () => device.MakeComputeStage(raySplit, [.. split, .. Enumerable.Repeat(VkDescriptorType.SampledImage, 3),
+                    VkDescriptorType.AccelerationStructureKHR, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], SplitPushBytes)));
             made.Add((AmbientStage, () => device.MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,
@@ -173,17 +188,21 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
     /// and <paramref name="surface"/>, <c>gi_surface.slang</c>, which lights the window's surfaces
     /// by the module's gather where <c>gi.surface</c> asks, and <paramref name="cascades"/>,
     /// <c>gi_screen_cascades.slang</c> built with <c>RAY_QUERY</c>, which traces the screen's
-    /// cascades through the device's rays where <c>gi.screen_cascades</c> asks.
+    /// cascades through the device's rays where <c>gi.screen_cascades</c> asks, and
+    /// <paramref name="split"/>, <c>gi_split.slang</c>, which runs the module's split cascades
+    /// over the window where <c>gi.layout split</c> asks, and <paramref name="raySplit"/>, its
+    /// build with <c>RAY_QUERY</c>, whose rays meet the meshes through the device's rays.
     /// </summary>
     public void InitializeGlobalIllumination(ReadOnlySpan<byte> trace, ReadOnlySpan<byte> merge, ReadOnlySpan<byte> ambient, ReadOnlySpan<byte> screen,
         ReadOnlySpan<byte> filter, ReadOnlySpan<byte> glow, ReadOnlySpan<byte> solidTrace = default, ReadOnlySpan<byte> rayTrace = default,
         ReadOnlySpan<byte> rayCross = default, ReadOnlySpan<byte> glowFaces = default, ReadOnlySpan<byte> rayScreen = default,
-        ReadOnlySpan<byte> surface = default, ReadOnlySpan<byte> cascades = default)
+        ReadOnlySpan<byte> surface = default, ReadOnlySpan<byte> cascades = default, ReadOnlySpan<byte> split = default,
+        ReadOnlySpan<byte> raySplit = default)
     {
         if (!device.IsInitialized || CanBounceLight) return;
         _giSpirv = [trace.ToArray(), merge.ToArray(), ambient.ToArray(), screen.ToArray(), filter.ToArray(), glow.ToArray(),
             solidTrace.IsEmpty ? trace.ToArray() : solidTrace.ToArray(), rayTrace.ToArray(), rayCross.ToArray(), glowFaces.ToArray(), rayScreen.ToArray(),
-            surface.ToArray(), cascades.ToArray()];
+            surface.ToArray(), cascades.ToArray(), split.ToArray(), raySplit.ToArray()];
     }
 
     /// <summary>

@@ -7,6 +7,12 @@
         <Description>Global illumination, cascades of light probes over the scene's distance field and probes on the window's surfaces, traced, merged and gathered on the GPU, with its path-traced reference.</Description>
     </PropertyGroup>
 
+    <!-- The RadianceCascades module, whose split cascades' store the renderer lays out by its
+         shape. -->
+    <ItemGroup>
+        <ProjectReference Include="..\..\modules\RadianceCascades\RadianceCascades\RadianceCascades.csproj" PrivateAssets="all" />
+    </ItemGroup>
+
     <!-- The Diagnostics module, whose registry the lighting's console commands are added to. -->
     <ItemGroup>
         <ProjectReference Include="..\..\modules\Diagnostics\Diagnostics\Diagnostics.csproj" PrivateAssets="all" />

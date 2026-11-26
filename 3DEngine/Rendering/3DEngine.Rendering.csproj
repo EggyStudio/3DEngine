@@ -13,6 +13,12 @@
         <ProjectReference Include="..\..\modules\Atmosphere\Atmosphere\Atmosphere.csproj" PrivateAssets="all" />
     </ItemGroup>
 
+    <!-- The RadianceCascades module, whose layout of the world's probes the settings of global
+         illumination take. -->
+    <ItemGroup>
+        <ProjectReference Include="..\..\modules\RadianceCascades\RadianceCascades\RadianceCascades.csproj" PrivateAssets="all" />
+    </ItemGroup>
+
     <!-- The Diagnostics module, whose registry the renderer's console commands are added to. -->
     <ItemGroup>
         <ProjectReference Include="..\..\modules\Diagnostics\Diagnostics\Diagnostics.csproj" PrivateAssets="all" />

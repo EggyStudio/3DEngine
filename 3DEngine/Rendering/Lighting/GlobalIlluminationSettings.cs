@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Numerics;
+using RadianceCascades;
 
 namespace Engine;
 
@@ -250,6 +251,16 @@ internal sealed class GlobalIlluminationSettings
     /// part nearer, and its pass costs the GPU more than the model pass saves by it.
     /// </remarks>
     public bool SurfaceGather { get; set; }
+
+    /// <summary>
+    /// How the probes the window's pixels take the world's light from are laid out, as
+    /// <c>gi.layout</c> sets it, <see cref="ProbeLayout.Dense"/> for the levels of probes on a grid
+    /// about the eye, or <see cref="ProbeLayout.Split"/> for the RadianceCascades module's split
+    /// cascades, kept near the points of the window's depth the eye sees, each traced by a ray a
+    /// point a frame and gathered at each pixel's point (<c>gi_split.slang</c>), the grid's probes
+    /// still lighting what those rays meet.
+    /// </summary>
+    public ProbeLayout Layout { get; set; } = ProbeLayout.Dense;
 
     /// <summary>
     /// Whether the screen's probes stand in cascades of their own traced by the device's rays at

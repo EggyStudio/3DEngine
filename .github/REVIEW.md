@@ -1249,3 +1249,37 @@ slowest before its window and collects halfway through it, and found 19,152 byte
 mends, the two together. A unit test of the profile stalls a frame after frames of forty values and
 found 4,408 bytes without its mend. Both pass with the mends on lavapipe and on the RTX 4070. The
 whole ordered run was not read on lavapipe here.
+
+146. Item 318, its second part. `gi.layout` (`GlobalIlluminationSettings.Layout`, the module's
+`ProbeLayout`) selects the split cascades, the grid staying the default. Under `split` the renderer
+keeps a `GpuSplitStore` of `SplitStoreShape`'s defaults from frame to frame, 43 MB of uints and
+67 MB of light, and after the world's probes are merged records gi_split.slang's eight passes over
+the window in the module's order, its build with the device's rays at High where the device traces
+them, each pixel's gathered light written into the surface gather's image the model pass reads,
+the grid's probes still lighting what the rays meet. The store's places are the frame's against an
+origin of the store's own, the frame's origin rounded to the keys' repeat of 512 of the coarsest
+spacing, 16,384 along each axis, so a probe keeps its key and its light as the frame's origin
+moves with the eye and the store is never made again. The module's split gather weighs each way's
+light by its cosine over the cosines' sum (`splitLevelLight`), which gives 1 under a sky of 1, the
+light a point takes over pi, where the comment of `ISurfacePoints.keepTaken` says it keeps
+`lightTaken`, pi under that sky. The kernel keeps the gather as it comes. Read dividing by pi as
+gi_surface.slang does for the grid, the floor under a sky of 1 gathered 0.318, which the floor test
+fails at. The comment or the gather goes to the module's session as an ask.
+Read on the RTX 4070, the floor under a sky of 1 gathers 0.9995 to 1.0000 at Low through the
+field's march and at High through the device's rays, the bound a thousandth, and the sky's pixels
+gather none. A closed room of black walls that glow gathers a mean of 0.745 at Low and 0.771 at
+High where the module's gather over the grid's probes reads 0.733 at both, so the split's rays
+shade what they meet as the grid's probes do, the bound 8% over the 5% measured. A unit test moves
+the frame's origin across half a repeat and finds every level's and cascade's key kept.
+At the door with the screen probes off, read as 304 reads it on this tree, the left wall stands at
+0.630 of the reference on the grid and 0.877 split with the bounce at zero, and at 1.232 and 1.685
+settled. Settled, its parts read 1.301 and 1.377 at the top left, 1.473 and 2.625 at the top
+middle, 4.814 and 5.709 at the top right, 0.779 and 1.027 at the bottom left, 1.169 and 1.890 at the
+bottom middle, and 5.835 and 10.877 at the bottom right. One part of six, the top left, lies within
+0.10 of the grid's and the mark is missed, the bottom left nearer the reference and the other five
+further. With the bounce at zero the top left and the bottom left lie within 0.10. The cold read
+empties the split store with the grid's images, and the validation layer read no error in either
+run. Both guides name `gi.layout`, and the package carries the module's assembly and its
+documentation (PackageContentsTests). The surface gather's image is made to be copied from as well,
+as the tests read it. On the RTX 4070 with the layer required, the whole suite on this tree passed
+2,590 tests and skipped 1, none failing.

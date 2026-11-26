@@ -70,7 +70,9 @@ internal sealed class GlobalIlluminationPlugin : IPlugin
                     server.LoadSync<ShaderProgram>("shaders/glow_faces.slang").Compute,
                     device.CanQueryRays ? Renderer.Build("gi_screen.slang", ["RAY_QUERY"], "The gather by pixel's rays are traced through the field alone")?.Compute : default,
                     server.LoadSync<ShaderProgram>("shaders/gi_surface.slang").Compute,
-                    device.CanQueryRays ? Renderer.Build("gi_screen_cascades.slang", ["RAY_QUERY"], "The screen's cascades are not traced")?.Compute : default);
+                    device.CanQueryRays ? Renderer.Build("gi_screen_cascades.slang", ["RAY_QUERY"], "The screen's cascades are not traced")?.Compute : default,
+                    server.LoadSync<ShaderProgram>("shaders/gi_split.slang").Compute,
+                    device.CanQueryRays ? Renderer.Build("gi_split.slang", ["RAY_QUERY"], "The split cascades' rays are traced through the field alone")?.Compute : default);
             _illumination = new GlobalIlluminationRenderer();
             renderer.RenderWorld.Set(_illumination);
             renderer.RenderWorld.Set<IIlluminationPasses>(_illumination);

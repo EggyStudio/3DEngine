@@ -44,8 +44,9 @@ internal sealed unsafe class GpuSurfaceGather : IDisposable
     /// </summary>
     public static GpuSurfaceGather Create(GraphicsDevice device, uint width, uint height)
     {
+        // Copied out too, where a test reads what each pixel gathered.
         var light = device.CreateImage(new ImageDesc(new Extent2D(width, height), ImageFormat.R16G16B16A16_Float,
-            ImageUsage.Sampled | ImageUsage.Storage | ImageUsage.TransferDst));
+            ImageUsage.Sampled | ImageUsage.Storage | ImageUsage.TransferDst | ImageUsage.TransferSrc));
         device.Name(light, "Surfaces' light as the module gathers it");
         var lightView = device.CreateImageView(light);
         var view = device.CreateBuffer(new BufferDesc(GpuScreenProbes.ViewBytes, BufferUsage.Uniform | BufferUsage.TransferDst));

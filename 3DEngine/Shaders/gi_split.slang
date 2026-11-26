@@ -3,8 +3,9 @@
 // gathered back onto the pixels, every pass of a frame one dispatch of this kernel picked by the
 // push (rc_split.slang). The rays meet the window's meshes where the device traces rays and the
 // field's march where it does not, and a face they meet is shaded as the screen's probes shade it
-// (gi_screen_cascades.slang). No stage runs it yet, its tests compiling it with and without the
-// device's rays.
+// (gi_screen_cascades.slang). The store's places are the frame's taken against an origin of the
+// store's own, which moves by whole repeats of the probes' keys, so a probe keeps its key and its
+// light as the frame's origin moves with the eye (GpuSplitStore).
 import gi;
 import probelight;
 import scenefield;
@@ -75,6 +76,9 @@ struct SplitPush
     uint4 shape;
     // x: the finest level's spacing. y: how far the finest level reaches from the eye.
     float4 spacing;
+    // xyz: the frame's origin against the store's, added to a place of the frame to give the
+    // store's place.
+    float4 origin;
 };
 
 [[vk::push_constant]]
@@ -97,7 +101,7 @@ struct DepthPoints : IVisiblePoints
 
     bool seenAt(uint index) { return depthOf(index) < 1.0; }
 
-    float3 placeAt(uint index) { return screenWorld(camera(), uvOf(index), depthOf(index)); }
+    float3 placeAt(uint index) { return screenWorld(camera(), uvOf(index), depthOf(index)) + push.origin.xyz; }
 
     float3 normalAt(uint index)
     {
@@ -105,7 +109,9 @@ struct DepthPoints : IVisiblePoints
         return depthNormal(uv, fromEyeAt(uv, depthOf(index)));
     }
 
-    void keepTaken(uint index, float3 taken) { gathered[pixelOf(index)] = float4(taken / Pi, 0.0); }
+    // The split gather keeps its probes' light along their ways weighed by each way's cosine off
+    // the normal over their sum (splitLevelLight), which is the light the point takes over pi.
+    void keepTaken(uint index, float3 taken) { gathered[pixelOf(index)] = float4(taken, 0.0); }
 }
 
 ScreenCamera camera()
@@ -144,8 +150,10 @@ float3 depthNormal(float2 uv, float3 fromEye)
 // left the world, the field's march not saying where.
 struct WindowHits : IRayHits
 {
-    ProbeRay along(float3 origin, float3 way, float start, float end)
+    ProbeRay along(float3 from, float3 way, float start, float end)
     {
+        // The ray's start in the frame's places, as the meshes and the field stand in them.
+        float3 origin = from - push.origin.xyz;
         ProbeRay ray;
         ray.ended = RayPast;
         ray.t = end;
@@ -199,7 +207,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
 {
     uint index = id.y * 65536u + id.x;
     uint pass = push.pass.x, cascade = push.pass.y;
-    SplitFrame at = { view.eye.xyz, uint(lights.counts.y) };
+    SplitFrame at = { view.eye.xyz + push.origin.xyz, uint(lights.counts.y) };
     SplitStore shape = { push.shape.x, push.spacing.x, push.shape.y, push.shape.z, push.spacing.y, push.shape.w };
     StoreUints store = { uints };
     StoreLight kept = { light };

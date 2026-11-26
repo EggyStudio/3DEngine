@@ -338,7 +338,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             RetireScreenCascades();
         }
 
-        GatherSurfaces(renderContext, renderWorld, device, field.Field);
+        GatherSurfaces(renderContext, renderWorld, device, field.Field, view, sampler);
         renderWorld.Set(new IlluminationBinding(_gi, field.Field, _screen, renderWorld.TryGet<WindowDepth>(), _history, _rays, _glowCount, _surface));
     }
 
@@ -658,6 +658,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         if (_rays is not null) _retired.Add((_frame, _rays));
         if (_surface is not null) _retired.Add((_frame, _surface));
         RetireScreenCascades();
+        RetireSplit();
         foreach (var state in _targets.Values) _retired.Add((_frame, state));
         _targets.Clear();
         (_gi, _screen, _history, _rays, _lastScreen, _surface) = (null, null, null, null, null, null);
@@ -675,6 +676,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         _history?.Dispose();
         _rays?.Dispose();
         _surface?.Dispose();
+        _split?.Dispose();
         _cascades?.Dispose();
         foreach (var state in _targets.Values) state.Dispose();
         _black?.Dispose();

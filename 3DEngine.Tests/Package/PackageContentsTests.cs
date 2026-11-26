@@ -35,10 +35,12 @@ public sealed class PackageContentsTests
         // The modules under modules/, no packages of their own, carried beside the areas with
         // their documentation, so a game compiles against the Atmosphere module's types the API
         // takes and marks its commands with the Diagnostics module's attribute, and the module's
-        // ImGui drawers draw its console and panel.
+        // ImGui drawers draw its console and panel, and the RadianceCascades module's layout of
+        // the world's probes the renderer reads.
         Entries(package).Should().Contain(["lib/net10.0/3DEngine.Atmosphere.dll", "lib/net10.0/3DEngine.Atmosphere.xml",
             "lib/net10.0/3DEngine.Diagnostics.dll", "lib/net10.0/3DEngine.Diagnostics.xml",
-            "lib/net10.0/3DEngine.Diagnostics.ImGui.dll", "lib/net10.0/3DEngine.Diagnostics.ImGui.xml"]);
+            "lib/net10.0/3DEngine.Diagnostics.ImGui.dll", "lib/net10.0/3DEngine.Diagnostics.ImGui.xml",
+            "lib/net10.0/3DEngine.RadianceCascades.dll", "lib/net10.0/3DEngine.RadianceCascades.xml"]);
     }
 
     [NeedsPackageFact]

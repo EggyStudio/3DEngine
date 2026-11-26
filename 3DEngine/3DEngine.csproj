@@ -92,6 +92,9 @@
         <!-- And the module's ImGui drawers, which draw its console and settings panel in the
              engine's ImGui frame, carried in the package too. -->
         <ProjectReference Include="..\modules\Diagnostics\Diagnostics.ImGui\Diagnostics.ImGui.csproj" PrivateAssets="all" />
+        <!-- The RadianceCascades module's, whose layout of the world's probes gi.layout takes,
+             carried in the package too. -->
+        <ProjectReference Include="..\modules\RadianceCascades\RadianceCascades\RadianceCascades.csproj" PrivateAssets="all" />
     </ItemGroup>
 
     <!-- The packages from outside that the areas build on, named again here, since a package
