@@ -64,9 +64,10 @@ public sealed partial class GlobalIlluminationTests
             output.WriteLine($"{quality} rays {lit.Rays is not null} floor {floor.Min():F4} to {floor.Max():F4} sky {sky.Min():F4} to {sky.Max():F4}");
             sky.Should().AllSatisfy(v => v.Should().Be(-1, "a pixel of the sky holds no surface"));
             // Within the gathered light's half floats' steps about 1, a two-thousandth below it,
-            // and at Low, where the field's march loses a share of the sky the device's rays keep,
-            // within 0.003 over the 0.0024 this test measured.
-            var bound = quality == GlobalIllumination.Low ? 0.003f : 0.001f;
+            // and where the field's march carries the light, at Low or where the device traces no
+            // rays, as on its CPU, losing a share of the sky the device's rays keep, within 0.003
+            // over the 0.0024 this test measured.
+            var bound = quality == GlobalIllumination.Low || lit.Rays is null ? 0.003f : 0.001f;
             floor.Should().AllSatisfy(v => v.Should().BeApproximately(1, bound, $"a pixel of the floor gathers the sky at {quality}"));
             settings.Layout = ProbeLayout.Dense;
             Capture(Floor);

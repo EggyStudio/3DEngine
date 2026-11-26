@@ -1309,3 +1309,29 @@ and 0.7966 at High against the grid's 0.7327, 8.7% over it, the bound 10%. The s
 the hold on 3c43c5e, 5dec8d3 and 3d9cbfc gives 0.795 to 0.797 at both, so the module's commits did
 not move it and the 8.7% is the split's own against the grid. The whole suite on this tree passed
 2,590 tests and skipped 1, none failing.
+
+148. Verdict 141. The run's minidump was not read here, gh holding no login for its artifacts, so
+the crash was made again on the Mesa the Linux job installs, lavapipe of Mesa 25.2.8 with LLVM 20
+in an Ubuntu 24.04 container on four cores with four of its threads, and read from the dump that
+run wrote. There SplitStoreTests' even sky and closed room and its rays' parts added atomically
+each end the process alone, with signal 11, and the store's tests that trace no rays pass. The
+crashing thread is in lavapipe's compiled shader of the kernel, reading a buffer's descriptor at
+address 8 through a null pointer taken from its table of each lane's descriptors. It is neither
+the atomics nor the rays' hits the device lacks. With the boxes' loop taken out it still ends, a
+write to the store's uints ends it the same whether atomic or not, and a write of each kind in a
+loop, under a branch or after the table's search, in a kernel of its own, runs. Copies of the
+module's walk in the kernel, cut a part at a time, place it in the table's search in the walk's
+second level, under the branch to it that a point in the overlap takes. The walk with that branch
+always taken runs, as does the walk with its two levels traced as the turns of one loop, and
+lavapipe of Mesa 26.3.1 with LLVM 23 here runs the walk as it is. The two tests now take
+`NeedsSplitTraceFact`, which skips them with that reason on lavapipe before Mesa 26.3, read from
+the driver's number lavapipe gives as Mesa's, as `NeedsRayQueryFact` skips where the device lacks
+its rays, and a test reads the rule for 25.2.8, 26.3.1 and a GPU. With the crash gone the engine's
+own split tests ran on 25.2.8, and the floor under a sky of 1 failed at High at 0.9980 to 0.9985.
+On a CPU the device traces no rays, so the field's march carries the light at High as at Low, and
+the floor's bound is now Low's 0.003 wherever the device traces none. On 25.2.8 the GI
+filter, the split store's tests among them, passed 152 tests and skipped 27, none failing and
+none ending the process, the two above and those that need the device's rays among the skipped.
+On the host's lavapipe of Mesa 26.3.1 the split store's and the split tests ran all eight and
+passed. On the RTX 4070 with the layer required, the whole suite on this tree passed 2,591 tests
+and skipped 1, none failing.

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 
 [assembly: Engine.Tests.RequiredDeviceAttribute]
@@ -90,6 +91,22 @@ public sealed class NeedsRayQueryTheoryAttribute : TheoryAttribute
     }
 }
 
+/// <summary>
+/// Skipped as <see cref="NeedsVulkanFactAttribute"/> is, and on lavapipe before Mesa 26.3, whose
+/// compiled shader of the split store's trace ends the process
+/// (<see cref="Probes.SplitTraceFaults"/>).
+/// </summary>
+public sealed class NeedsSplitTraceFactAttribute : FactAttribute
+{
+    public NeedsSplitTraceFactAttribute()
+    {
+        if (new NeedsVulkanFactAttribute().Skip is { } skip) Skip = skip;
+        else if (Probes.Adapter.Value is { } adapter && Probes.SplitTraceFaults(adapter))
+            Skip = $"The Vulkan device here, {adapter.Name} of Mesa {adapter.Driver}, ends the process in the split store's trace, "
+                   + "its compiled shader reading a buffer's descriptor through a null address, as lavapipe before Mesa 26.3 does.";
+    }
+}
+
 /// <summary>Skipped where SDL opens no audio device, not even its dummy driver's.</summary>
 public sealed class NeedsAudioDeviceFactAttribute : FactAttribute
 {
@@ -179,6 +196,27 @@ internal static class Probes
         device.Initialize(new OffscreenSurface(1, 1), "probe");
         return device.CanQueryRays;
     });
+
+    // The device's adapter, its name, kind and driver's version, or null where none started.
+    public static readonly Lazy<GraphicsAdapterInfo?> Adapter = new(() =>
+    {
+        if (!Vulkan.Value) return null;
+        using var device = new GraphicsDevice();
+        device.Initialize(new OffscreenSurface(1, 1), "probe");
+        return device.AdapterInfo;
+    });
+
+    // Whether the adapter is lavapipe before Mesa 26.3, which numbers its driver as Mesa is
+    // numbered. Mesa 25.2.8's compiles the split store's trace to a shader that reads a buffer's
+    // descriptor through a null address in the walk's second level, under the branch to it, and
+    // the process ends, where 26.3.1's runs it.
+    public static bool SplitTraceFaults(GraphicsAdapterInfo adapter)
+    {
+        if (adapter.DeviceType != GraphicsDeviceType.Cpu || !adapter.Name.StartsWith("llvmpipe", StringComparison.Ordinal)) return false;
+        var parts = adapter.Driver.Split('.');
+        return parts.Length >= 2 && int.TryParse(parts[0], CultureInfo.InvariantCulture, out var major)
+            && int.TryParse(parts[1], CultureInfo.InvariantCulture, out var minor) && major * 100 + minor < 2603;
+    }
 
     // The name Python runs by, python3 where it is, as on Linux and macOS, and python on Windows.
     public static readonly Lazy<string?> Python = new(() =>

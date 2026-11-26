@@ -34,6 +34,18 @@ public sealed class SplitStoreTests : IDisposable
         UseApp(null);
     }
 
+    [Fact]
+    public void The_Trace_s_Tests_Skip_On_Lavapipe_Before_Mesa_26_3_And_Run_On_Its_Later_Mesa_And_A_GPU()
+    {
+        // lavapipe numbers its driver as Mesa is numbered, Mesa 25.2.8's ending the process in the
+        // trace and 26.3.1's running it, and a GPU's driver runs it whatever its number.
+        static GraphicsAdapterInfo Lavapipe(string mesa) => new("llvmpipe (LLVM 20.1.2, 256 bits)", 0x10005, 0, GraphicsDeviceType.Cpu, mesa, "1.4.318");
+        Probes.SplitTraceFaults(Lavapipe("25.2.8")).Should().BeTrue("Mesa 25.2.8's lavapipe ends the process in the trace");
+        Probes.SplitTraceFaults(Lavapipe("26.3.1")).Should().BeFalse("Mesa 26.3.1's lavapipe runs the trace");
+        Probes.SplitTraceFaults(new("NVIDIA GeForce RTX 4070", 0x10DE, 0x2786, GraphicsDeviceType.DiscreteGpu, "25.2.8.0", "1.4.312"))
+            .Should().BeFalse("a GPU runs the trace whatever its driver's number");
+    }
+
     // The module's tests' store, its finest level's probes half a unit apart reaching 4 spacings.
     private static readonly SplitStoreShape Shape = new() { Slots = 4096, Spacing = 0.5f, Levels = 4, Cascades = 4, Reach = 2, Age = 8 };
 
@@ -405,7 +417,7 @@ public sealed class SplitStoreTests : IDisposable
         (kept, fresh, moved).Should().Be((8852, 368, 0), said);
     }
 
-    [NeedsVulkanFact]
+    [NeedsSplitTraceFact]
     public void Each_Part_Of_A_Ray_On_The_Device_Is_Added_Atomically_To_The_Probe_Of_Its_Interval()
     {
         // One frame's rays from the corridor's points in the lit corridor add each part to the
@@ -460,7 +472,7 @@ public sealed class SplitStoreTests : IDisposable
         reached.Should().Equal([20997, 7184, 871, 242], said);
     }
 
-    [NeedsVulkanFact]
+    [NeedsSplitTraceFact]
     public void The_Store_On_The_Device_Gathers_An_Even_Sky_And_A_Closed_Rooms_One_Light()
     {
         // The corridor's points with nothing about them under a sky of 1 gather its irradiance of
