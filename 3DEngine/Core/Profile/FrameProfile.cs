@@ -27,7 +27,9 @@ internal sealed class FrameProfile
     private readonly Dictionary<string, double> _values = new(StringComparer.Ordinal);
     private readonly Lock _lock = new();
     // Every value of the frame being measured, and of the slowest frame since it was last read,
-    // since a stall of one frame is lost in the averages.
+    // since a stall of one frame is lost in the averages. The two trade places as a frame is the
+    // slowest, so each holds room for every name measured, or the frame after a stall would fill
+    // the one that held an early frame's few values and grow it.
     private Dictionary<string, double> _frame = new(StringComparer.Ordinal);
     private Dictionary<string, double> _slowest = new(StringComparer.Ordinal);
     // The program's values set over a window, each one's samples with the time each was set,
@@ -93,7 +95,14 @@ internal sealed class FrameProfile
     {
         lock (_lock)
         {
-            _averages[name] = _averages.TryGetValue(name, out var average) ? average + (milliseconds - average) * Weight : milliseconds;
+            if (_averages.TryGetValue(name, out var average))
+                _averages[name] = average + (milliseconds - average) * Weight;
+            else
+            {
+                _averages[name] = milliseconds;
+                _frame.EnsureCapacity(_averages.Count);
+                _slowest.EnsureCapacity(_averages.Count);
+            }
             _frame[name] = _frame.GetValueOrDefault(name) + milliseconds;
         }
     }

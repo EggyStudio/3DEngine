@@ -40,12 +40,18 @@ public sealed class IdleFrameAllocationTests : IDisposable
             // once 120 frames make no pipeline, has been written.
             Frames(600);
 
+            // On a busy machine the frames measured meet a collection, which lets go what the
+            // runtime keeps of a type, as its name and an enum's names, and a frame that stalls,
+            // the slowest since the profile's slowest was last read, so they hold both.
+            GetApp().World.Resource<FrameProfile>().Slowest();
             var before = GC.GetAllocatedBytesForCurrentThread();
-            Frames(300);
+            Frames(150);
+            GC.Collect();
+            Frames(150);
             var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
 
             allocated.Should().Be(0, "each frame begins the objects it keeps again, sets what is unchanged once, "
-                + "makes no lambda it does not run, and copies no list it only reads");
+                + "makes no lambda it does not run, copies no list it only reads, and reads no type's names");
         }
         finally
         {

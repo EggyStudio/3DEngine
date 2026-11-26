@@ -84,6 +84,21 @@ internal sealed class ScreenshotKey
         }
     }
 
+    // The setting's text the key was last read from, and the key it names. The runtime keeps an
+    // enum's names with its type where a collection lets them go, so a frame that read them each
+    // time would make them again after one.
+    private string? _keyText;
+    private Key _key;
+
+    // The key the setting's text names, or Key.Null for none the engine has, read again only as
+    // the text changes.
+    private Key Named(string text)
+    {
+        if (!string.Equals(text, _keyText, StringComparison.Ordinal))
+            (_keyText, _key) = (text, Enum.TryParse<Key>(text, ignoreCase: true, out var key) ? key : Key.Null);
+        return _key;
+    }
+
     /// <summary>
     /// Records while the screenshot key is held past <see cref="RecordAfterSeconds"/>, with a line
     /// in the log saying where.
@@ -95,8 +110,9 @@ internal sealed class ScreenshotKey
     internal static void Run(World world)
     {
         if (!world.TryGetResource<ScreenshotKey>(out var keys) || !world.TryGetResource<DiagnosticsBinding>(out var binding)
-            || !Enum.TryParse<Key>(binding.Keys.KeyOf(KeyAction.Screenshot).Text, ignoreCase: true, out var key) || key == Key.Null
             || !world.TryGetResource<Input>(out var input)) return;
+        var key = keys.Named(binding.Keys.KeyOf(KeyAction.Screenshot).Text);
+        if (key == Key.Null) return;
         var now = world.TryGetResource<Time>(out var time) ? time.ElapsedSeconds : 0;
         // The key as it stands, which a panel that holds the program's input does not hold.
         var held = input.KeysDown.Contains(key);

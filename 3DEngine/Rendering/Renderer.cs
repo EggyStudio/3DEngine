@@ -26,6 +26,9 @@ internal sealed class Renderer : IDisposable
 
     private readonly List<IExtractSystem> _extractSystems = new();
     private readonly List<IPrepareSystem> _prepareSystems = new();
+    // Each prepare system's name in the frame's timings, taken once as it is added, since the
+    // runtime keeps a type's name where a collection lets it go and a frame would make it again.
+    private readonly List<string> _prepareNames = new();
 
     /// <summary>The render-thread resource container.</summary>
     public RenderWorld RenderWorld { get; } = new();
@@ -321,7 +324,11 @@ internal sealed class Renderer : IDisposable
 
     /// <summary>Registers a prepare system that runs before graph execution each frame.</summary>
     /// <param name="sys">The prepare system to add.</param>
-    public void AddPrepareSystem(IPrepareSystem sys) => _prepareSystems.Add(sys);
+    public void AddPrepareSystem(IPrepareSystem sys)
+    {
+        _prepareSystems.Add(sys);
+        _prepareNames.Add(sys.GetType().Name);
+    }
 
     /// <summary>Executes one full render frame, extract → begin frame → prepare → graph execution →
     /// end frame.</summary>
@@ -372,10 +379,10 @@ internal sealed class Renderer : IDisposable
             var start = mark;
             var prepareCpu = _prepareCpu[_timesTurn];
             prepareCpu.Clear();
-            foreach (var sys in _prepareSystems)
+            for (int i = 0; i < _prepareSystems.Count; i++)
             {
-                sys.Run(RenderWorld, renderCtx);
-                prepareCpu.Add((sys.GetType().Name, Lap(ref mark)));
+                _prepareSystems[i].Run(RenderWorld, renderCtx);
+                prepareCpu.Add((_prepareNames[i], Lap(ref mark)));
             }
             Timings.PrepareCpu = prepareCpu;
             Timings.PrepareMs = Stopwatch.GetElapsedTime(start, mark).TotalMilliseconds;
@@ -579,6 +586,7 @@ internal sealed class Renderer : IDisposable
         }
 
         DisposeSystems(_prepareSystems);
+        _prepareNames.Clear();
         DisposeSystems(_extractSystems);
         Logger.Debug("Render systems disposed.");
 

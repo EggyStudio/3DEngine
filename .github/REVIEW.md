@@ -1231,3 +1231,21 @@ classes' 43. The built-in shaders' copies of the table of cascades rise from 80 
 the shading of a face, the copies gi_trace.slang and gi_screen.slang make for theirs. Its faces'
 image says its format, and the package test had read a package made before the new files, made
 again by build/pack.sh.
+
+145. Item 140. The 5,568 bytes are the frame profile's. Its slowest frame's values and those of the
+frame it measures trade places as a frame is the slowest since the profile's slowest was read, and
+the frame after then fills the values the first frame left, which held its time alone, so they grew
+to the forty and more the profile measures. A frame that stalls past every frame before it, as one
+does on a busy machine while other tests run beside it, takes that path. A lone run on lavapipe
+with a pause of 200 ms before one frame found the frame after it allocating 5,568 bytes. Each of
+the two now holds room for every name the profile has measured, made as a name is first measured.
+A collection in the window found more, 13,584 bytes in the frame after it, 12,656 of them in the
+screenshot key's system, which parsed the setting's key name in every frame, and 928 in the
+renderer, which named each prepare system by its type in every frame. The runtime keeps an enum's
+names and a type's name in a cache of the type that a collection lets go, so the first frame after
+one made them again. The screenshot key parses the setting's text only as it changes, and the
+renderer takes each prepare system's name once as it is added. The idle test reads the profile's
+slowest before its window and collects halfway through it, and found 19,152 bytes without the
+mends, the two together. A unit test of the profile stalls a frame after frames of forty values and
+found 4,408 bytes without its mend. Both pass with the mends on lavapipe and on the RTX 4070. The
+whole ordered run was not read on lavapipe here.

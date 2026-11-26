@@ -62,6 +62,33 @@ public class FrameProfileTests
     }
 
     [Fact]
+    public void The_Frame_After_A_Stall_Measures_Its_Values_Without_Allocating()
+    {
+        // The first frame measures its time alone and is the slowest, the frames after measure
+        // forty systems' times, and a stall then trades the slowest frame's values for the frame's,
+        // so the frame after fills the values the first frame held.
+        var profile = new FrameProfile();
+        var systems = Enumerable.Range(0, 40).Select(i => $"system.Update.{i}").ToArray();
+        void Frame(double frame)
+        {
+            profile.Add("frame", frame);
+            foreach (var system in systems) profile.Add(system, 0.1);
+            profile.EndFrame();
+        }
+
+        profile.Add("frame", 100);
+        profile.EndFrame();
+        Frame(16);
+        Frame(16);
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        Frame(250);
+        Frame(16);
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+        allocated.Should().Be(0, "each of the frame's values has room in the values it is measured into, which a frame that is the slowest trades");
+        profile.Slowest().Should().StartWith("frame 250.000 ms");
+    }
+
+    [Fact]
     public void The_Command_Reports_The_Programs_Values_And_The_Averages_And_Resets_Them()
     {
         var app = new App();
