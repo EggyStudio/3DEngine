@@ -1137,3 +1137,34 @@ The whole suite on the RTX passed with it off, 2,579 tests and 1 skipped. With i
 lintel and glow tests pass, the eight that read the screen pass's own rays find none, and five of
 the nine bounce rooms at High read further from their references than their bounds, 0.107, 0.201,
 0.128, 0.054 and 0.097 of their light against 0.100, 0.164, 0.106, 0.036 and 0.078.
+
+142. Item 317's corridor holds the eye still at its mouth and walks the field's middle six units
+down it in steps of 0.03, from half a step on so that no step falls on a snap, and reads each step
+the light the surfaces gather at 69 fixed points on its floor, walls, ceiling and lintel, the
+probes' term with the two that take its place past them, on white. Between the cascades' snaps a
+point's light holds, its largest step 0.0030 of its mean at High and none at Low more than twelve
+steps from a snap, and after a snap the probes settle within ten steps. Every swing comes where a
+box snaps on by a spacing of its probes and so changes the cascade that reads a point near its end.
+The worst point's swing is 19.53 at High and 20.05 at Low, the left wall at z -14 as cascade 1's box
+snaps at the walk's end, and the 99th part of all swings 1.51 at both, against the bound of 0.02.
+The largest step at cascade 0's snaps is 0.52 of the mean, on the right wall at z -9 beside the
+lamp, at cascade 1's 19.0 and at cascade 2's 2.51. Cascade 1's end into cascade 2 holds the large
+ones, as cascade 2 leaves the corridor no probe. Its spots by the corridor fall in the walls at x
+2.4 either side, and with gi.own_place on, as by default, each is placed by cascade 2's own field,
+whose cells of 0.6 read the 0.5 wall as open, so `placed` in gi_trace.slang skips the move into the
+narrower space and pushes the probe out through the wall's outer face, where it reads the sky's
+light. The corridor past cascade 1 then takes nothing of cascade 2, the points at z -17 and -18 0.04
+of the traced light at most. With gi.own_place off the probes stand in the corridor, the step at
+cascade 1's snaps falls from 19.0 to 0.46 of the mean and the worst swing to 1.38. Cascade 2's outer
+band into the light past the probes holds the next, the environment's and the sun's share of the
+ground's read as open sky in a closed corridor, 2.51 of the mean on the left wall at z -18 before
+cascade 2 comes over it and none after. At the walk's end at High the points the first two cascades
+hold read 0.76 to 1.46 of the traced light and the lintel 1.62 to 2.13, the points under the
+ceiling's opening 1.19 to 1.76. The test holds the light between snaps within 0.02, the swing at its
+reading, the worst under 21 and the 99th part under 1.6, and the points the first two cascades hold
+within 0.7 and 2.3 of the traced light. In Sponza's gallery the camera stays at the gallery view and
+the field's middle walks the same way along -x, read on 88 points of its wall through a console
+command kept out of the tree, and the worst swing is 1.55 at x 4.7 as cascade 0's end passes it, the
+99th part 0.65 and the median 0.046, the largest step 0.93 at cascade 0's snaps, 0.71 at cascade
+1's, 0.03 at cascade 2's and 0.05 between them. The placement that empties the corridor is the
+engine's `placed`, not the module's.
