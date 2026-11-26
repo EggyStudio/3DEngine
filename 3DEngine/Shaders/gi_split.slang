@@ -109,9 +109,9 @@ struct DepthPoints : IVisiblePoints
         return depthNormal(uv, fromEyeAt(uv, depthOf(index)));
     }
 
-    // The split gather keeps its probes' light along their ways weighed by each way's cosine off
-    // the normal over their sum (splitLevelLight), which is the light the point takes over pi.
-    void keepTaken(uint index, float3 taken) { gathered[pixelOf(index)] = float4(taken, 0.0); }
+    // The split gather keeps the light the point takes, the irradiance, as the dense gather does,
+    // and the model pass reads it over pi.
+    void keepTaken(uint index, float3 taken) { gathered[pixelOf(index)] = float4(taken / Pi, 0.0); }
 }
 
 ScreenCamera camera()
@@ -172,7 +172,10 @@ struct WindowHits : IRayHits
                 n, color, gloss, way, view.trace.y, view.trace.z, view.trace.w, float3(1.0), MeshSun(), own);
         }
 #else
-        float t = traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, origin, way, start, end);
+        // The field's march meets the surface a ray leaves within a band of the field's own about
+        // it, which the module's start off the surface does not know, so the march begins one of
+        // the field's cells along the way at least.
+        float t = traceFieldSheets(SheetVolume(sceneField, fieldSecond), fieldInfo, origin, way, max(start, fieldCell(fieldInfo, origin)), end);
         if (t >= 0.0)
         {
             float3 n;

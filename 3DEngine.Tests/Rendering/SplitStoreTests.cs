@@ -163,7 +163,7 @@ public sealed class SplitStoreTests : IDisposable
                 {
                     uint first = index * 10u + j * 5u;
                     uint l = level + j;
-                    ProbeRay whole = hits.along(splitRayOrigin(shape, l, p, n), way, 0.0, splitIntervalEnd(shape, l, shape.cascades - 1u));
+                    ProbeRay whole = hits.along(splitRayOrigin(at, shape, p, n), way, 0.0, splitIntervalEnd(shape, l, shape.cascades - 1u));
                     float3 met = whole.light + (whole.ended == RayLeft ? whole.carried * even.skyAlong(way) : float3(0.0));
                     taken[first] = float4(met, float(whole.ended));
                     int3 cell = splitNearestCell(shape, l, 0u, p);
@@ -457,15 +457,16 @@ public sealed class SplitStoreTests : IDisposable
             + $"{missing} parts finding no probe and {off} of the sums' uints off the rays traced whole";
         _output.WriteLine(said);
         (rays, missing, off).Should().Be((20997, 0, 0), said);
-        reached.Should().Equal([20997, 6909, 855, 239], said);
+        reached.Should().Equal([20997, 7184, 871, 242], said);
     }
 
     [NeedsVulkanFact]
     public void The_Store_On_The_Device_Gathers_An_Even_Sky_And_A_Closed_Rooms_One_Light()
     {
-        // The corridor's points with nothing about them under a sky of 1 gather 1 after four
-        // frames, and in a closed room whose walls all send 0.3, which a ray's part holds as 307 of
-        // 1024, every point gathers that light, each within the module's bound of a ten thousandth.
+        // The corridor's points with nothing about them under a sky of 1 gather its irradiance of
+        // pi after four frames, and in a closed room whose walls all send 0.3, which a ray's part
+        // holds as 307 of 1024, every point gathers pi times that light, each within the module's
+        // bound of a ten thousandth.
         var corridor = CorridorFaces();
         var eye = new Vector3(0, 1.5f, 0);
         using (var store = new Store(corridor))
@@ -473,8 +474,8 @@ public sealed class SplitStoreTests : IDisposable
             for (uint frame = 1; frame <= 4; frame++)
                 store.Frame(eye, frame, rays: true);
             var taken = store.Taken(7, eye, 4);
-            var worst = Enumerable.Range(0, corridor.Length / 8).Max(k => MathF.Abs(taken[4 * k] - 1));
-            _output.WriteLine(string.Create(CultureInfo.InvariantCulture, $"{corridor.Length / 8} points under a sky of 1 gather it within {worst:0.000000}"));
+            var worst = Enumerable.Range(0, corridor.Length / 8).Max(k => MathF.Abs(taken[4 * k] / MathF.PI - 1));
+            _output.WriteLine(string.Create(CultureInfo.InvariantCulture, $"{corridor.Length / 8} points under a sky of 1 gather pi times it within {worst:0.000000}"));
             worst.Should().BeLessThan(1e-4f);
         }
 
@@ -486,8 +487,8 @@ public sealed class SplitStoreTests : IDisposable
                 store.Frame(inRoom, frame, rays: true);
             var held = 307 / 1024f;
             var taken = store.Taken(7, inRoom, 4);
-            var worst = Enumerable.Range(0, points.Length / 8).Max(k => MathF.Abs(taken[4 * k] - held) / held);
-            _output.WriteLine(string.Create(CultureInfo.InvariantCulture, $"{points.Length / 8} points in the room gather its walls' light within {worst:0.000000} of it"));
+            var worst = Enumerable.Range(0, points.Length / 8).Max(k => MathF.Abs(taken[4 * k] / MathF.PI - held) / held);
+            _output.WriteLine(string.Create(CultureInfo.InvariantCulture, $"{points.Length / 8} points in the room gather pi times its walls' light within {worst:0.000000} of it"));
             worst.Should().BeLessThan(1e-4f);
         }
     }

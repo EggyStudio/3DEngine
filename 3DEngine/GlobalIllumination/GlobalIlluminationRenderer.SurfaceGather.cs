@@ -34,7 +34,11 @@ internal sealed partial class GlobalIlluminationRenderer
         var settings = renderWorld.TryGet<GlobalIlluminationSettings>();
         var split = settings is { Layout: ProbeLayout.Split } && stages.SplitsCascades;
         if (!split) RetireSplit();
-        if (_gi is not null && SurfaceGatherOn(renderWorld) && (split || stages.GathersSurfaces) && renderWorld.TryGet<WindowDepth>() is { } depth
+        // A way of the split's keeps the mean of its rays, and a ray marched through a field that
+        // does not yet hold the scene meets none of it, so the store is made once the field is
+        // whole, the grid's probes lighting the window until then.
+        var waits = split && _split is null && renderWorld.TryGet<SceneFieldRenderer>()?.Plan is not { Whole: true };
+        if (_gi is not null && SurfaceGatherOn(renderWorld) && (split || stages.GathersSurfaces) && !waits && renderWorld.TryGet<WindowDepth>() is { } depth
             && renderWorld.TryGet<WindowView>() is { } window && renderWorld.TryGet<SwapchainTarget>() is { } swapchain
             && Matrix4x4.Invert(window.Unjittered, out var inverse))
         {

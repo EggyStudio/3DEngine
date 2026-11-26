@@ -1283,3 +1283,29 @@ run. Both guides name `gi.layout`, and the package carries the module's assembly
 documentation (PackageContentsTests). The surface gather's image is made to be copied from as well,
 as the tests read it. On the RTX 4070 with the layer required, the whole suite on this tree passed
 2,590 tests and skipped 1, none failing.
+
+147. Item 318, the module's 0d3f67d. The engine's `modules/RadianceCascades` moves from 3c43c5e
+to 0d3f67d, which takes in the mean of a way's rays counted up to 256 (5dec8d3), one start off the
+surface for both split levels by the point's distance from the eye (3d9cbfc), the corridor's walk
+in the build's run (4bbcd0d) and the split gather keeping the irradiance as the dense gather does
+(0d3f67d). The binding multiplied by no pi of its own, so there was none to drop, and
+gi_split.slang's `keepTaken` writes the irradiance over pi, as gi_surface.slang writes the grid's
+for the model pass. The device store's test reads its corridor under a sky of 1 and its closed room
+over pi as the module's own test does, and its parts move with the new start to 20,997, 7,184, 871
+and 242, the sums still equal.
+Under 3d9cbfc's start the field's march met the floor a ray leaves, and the floor under a sky of 1
+read 0.92 at Low. As the review asked, the march through the field begins at least one of the
+field's cells along the way, the comment naming the band as the field's own. The store is also held
+until the field holds the scene (`SceneFieldPlan.Whole`), the grid's probes lighting the window
+until then. It had kept the mean of rays marched through a field still building in the first
+frames, and a way keeps its mean, so the closed room of glowing black walls read 0.50 at Low
+without the hold, and reply 145's 0.745 and 0.771 were diluted by those frames.
+Read on the RTX 4070 with the layer required, the floor gathers 0.9995 to 1.0000 at High through
+the device's rays and 0.9976 to 0.9985 at Low through the field's march. A second cell of skip gave
+0.9985 to 0.9990, so most of what is left at Low is not the floor's band. The bound at Low is 0.003
+over the 0.0024 measured, a thousandth at High. The floor's bottom row of pixels, outside the rows
+the test reads, gathers about 0.75 at Low, and this part leaves it. The room gathers 0.7960 at Low
+and 0.7966 at High against the grid's 0.7327, 8.7% over it, the bound 10%. The same room read with
+the hold on 3c43c5e, 5dec8d3 and 3d9cbfc gives 0.795 to 0.797 at both, so the module's commits did
+not move it and the 8.7% is the split's own against the grid. The whole suite on this tree passed
+2,590 tests and skipped 1, none failing.
