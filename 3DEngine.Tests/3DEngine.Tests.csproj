@@ -25,6 +25,12 @@
         <ProjectReference Include="..\modules\Materials\Materials\Materials.csproj" />
     </ItemGroup>
 
+    <!-- The RadianceCascades module's library, whose split store's shape the tests lay the
+         device's store out by. -->
+    <ItemGroup>
+        <ProjectReference Include="..\modules\RadianceCascades\RadianceCascades\RadianceCascades.csproj" />
+    </ItemGroup>
+
     <!-- The Diagnostics module, whose registry the tests run console lines through and whose
          [Command] marks their own commands. -->
     <ItemGroup>

@@ -1192,3 +1192,42 @@ mend, the worst swing 1.548, the 99th part 0.643 and the median 0.0455 against 1
 0.01590. With the mend gi_trace.slang passed 800 lines, so `placed` moved with Clearance and
 MostMoved into scenefield.slang beside narrowAt, its field passed in. The sheet
 `2026-11-26-item-317-thin-walls.webp` shows the same four plots.
+
+144. Item 318, its first part. `gi_split_store.slang` gives the module's `IStoreUints` over a buffer
+of `Atomic<uint>` and `IStoreLight` over a buffer of float4, and `gi_split.slang` gives the rest of
+the hand over the window, which no stage runs yet. Its points read a pixel's place and normal from
+the window's depth as gi_surface.slang's WindowPoints reads them, `seenAt` where the depth lies
+nearer than the far plane. Its rays meet the window's meshes through `meshHit` where the device
+traces rays, a hit shaded by `shadeProbeHitAt` as the screen's cascades shade one, and else the
+field's march through `traceFieldSheets`, a hit shaded by `shadeProbeHitN` as the probes' trace
+shades one. The march gives below zero both where a part ends and where it leaves every cascade of
+the field, so a part that meets nothing and ends past every cascade (`fieldCascade`) is `RayLeft`
+and any other `RayPast`. Through the meshes no part leaves, and past the coarsest cascade's last
+interval the merge's sky stands. `SplitFrame` takes the eye from `ScreenView.eye` and the whole
+frame count from `GiLights.counts.y`, which the renderer writes as the frame's number. One change
+from the module's map. It put `seenAt` on gi_surface.slang's WindowPoints and `IRayHits` in
+gi_trace.slang, whose structs read their own kernels' bindings, and gi_surface binds its sky images
+and `gathered` at 18 to 20, where meshrays.slang binds the device's rays. So one kernel holds the
+points, the rays and the sky, its points reading the depth as WindowPoints does.
+
+Read on the RTX 4070 (`dotnet test --filter FullyQualifiedName~SplitStoreTests`, four tests in 8
+seconds), the module's passes run by the device's atomics over the engine's store read what the
+module's CPU tests read. The corridor's points seen from (0.3, 1.5, 0) stand 322, 108, 46 and 28
+probes by cascade, each counted standing, and the store's layout on the device is
+`SplitStoreShape`'s. Over the walk of 16 quarter steps 8,852 probes keep their entries, 368 are
+taken and none moves, though which free entry a new probe takes turns on the order the threads run
+in. In the lit corridor one frame's 20,997 rays add 29,000 parts, 20,997, 6,909, 855 and 239
+reaching each cascade from the finest, every part finding its probe, and each of the sums' uints is
+the one the same rays traced whole give. Under a sky of 1 the corridor's 18,985 points gather 1
+after four frames, and the closed room's 3,328 points gather the walls' 307/1024, each within a
+millionth against the module's bound of a ten thousandth. The split kernel compiles in both its
+builds (SlangCompilerTests). The test project references the module's library for the store's
+shape, and the module's gitlink moves from e042398 to 3c43c5e, which brings its merge by reach
+sight marching a ray whose far cascade ends at the field's edge on to twice where it ended, and its
+gather taking the level above's light for a point no probe of its level sees. The whole suite on
+the RTX 4070 read 2,583 passing, 1 skipped and 3 failing, the three mended and passing among their
+classes' 43. The built-in shaders' copies of the table of cascades rise from 80 to 96
+(FieldReadCopiesTests), gi_split.slang's field build copying it 4 times for its march and 12 for
+the shading of a face, the copies gi_trace.slang and gi_screen.slang make for theirs. Its faces'
+image says its format, and the package test had read a package made before the new files, made
+again by build/pack.sh.

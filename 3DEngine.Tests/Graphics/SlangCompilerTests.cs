@@ -413,6 +413,18 @@ public partial class SlangCompilerTests : IDisposable
         BuildsOf("gi_screen_cascades.slang").Should().Be("RAY_QUERY");
     }
 
+    [NeedsSlangFact]
+    public void The_Split_Cascades_Pass_Compiles_Through_The_Field_And_Through_The_Device_s_Rays()
+    {
+        // The module's split passes over the window's points, the store and the rays meeting the
+        // field or the meshes compile through the engine's compiler in each of their two builds.
+        var shaders = Path.Combine(AppContext.BaseDirectory, "source", "shaders");
+        var source = File.ReadAllText(Path.Combine(shaders, "gi_split.slang"));
+        SlangLoader.BuildsOf(source, shaders).Select(build => string.Join(' ', build)).Should().Equal("RAY_QUERY");
+        foreach (var defines in new[] { Array.Empty<string>(), ["RAY_QUERY"] })
+            new SlangLoader(_folder.Path, shaders).Compile(source, "gi_split.slang", defines).Stages.Keys.Should().Equal([ShaderStage.Compute], string.Join(' ', defines));
+    }
+
     [Fact]
     public void Layouts_Merge_By_Binding_The_First_Giving_The_Kind_And_Each_Its_Stages()
     {
