@@ -1335,3 +1335,31 @@ none ending the process, the two above and those that need the device's rays amo
 On the host's lavapipe of Mesa 26.3.1 the split store's and the split tests ran all eight and
 passed. On the RTX 4070 with the layer required, the whole suite on this tree passed 2,591 tests
 and skipped 1, none failing.
+
+149. Item 318, its third part, read at the module's 0d3f67d. Where gi.passes asks, the split
+cascades' passes are timed apart, the clear, the keep, the ask, the cascades' asks, the trace, the
+light, the merges and the gather (gi_split_clear to gi_split_gather), and a test finds each of them
+named under the split layout.
+Read on the RTX 4070 at 1920 by 1080 with no layer, five sessions each, global illumination takes
+10.08 ms a frame on the grid and 71.58 ms split on Sponza, and 18.12 and 82.87 ms on the Bistro.
+The split's passes take 61.71 and 64.40 ms of it, the trace 54.55 and 57.23 ms, the gather 6.40
+and 6.41 ms, and each of the rest 0.4 ms or less. The model pass (hdr_scene) reads the gathered
+image in place of the probes' faces and takes 6.66 ms split against the grid's 11.81 on Sponza and
+25.53 against 31.27 on the Bistro, so the frame's marks together go from 24.28 to 80.62 ms on
+Sponza and from 52.12 to 111.36 ms on the Bistro. The store holds 43 MB of uints and 67 MB of
+light, its shape's rule the same on 0d3f67d.
+The sheet sets view 1, the door and the gallery lit by the grid and split beside the traced
+reference, as 316's sheet did. The split changes 11% of view 1's pixels by more than 5% against
+the grid, 3% of the door's and 8% of the gallery's. It reads view 1 at 1.04 of the reference
+against the grid's 1.03, its shade at 1.20 against 1.16 and the far doorway at 5.86 against 5.80.
+It reads the door's left wall at 1.69 as the grid does, its top right at 4.63 against 5.03 and its
+bottom right at 11.29 against 7.38, and the gallery as the grid does, the view at 1.01 and the near
+wall at 1.06.
+Reread on 0d3f67d with the cold read 304 uses, the door's left wall stands at 0.800 of the
+reference split and 0.630 on the grid with the bounce at zero, and at 1.677 and 1.231 settled,
+where reply 146 read 0.877 and 1.685 split. Settled, its parts read 1.309 split and 1.301 on the
+grid at the top left, 2.706 and 1.473 at the top middle, 6.806 and 4.814 at the top right, 0.996
+and 0.778 at the bottom left, 1.886 and 1.167 at the bottom middle, and 13.276 and 5.829 at the
+bottom right. The top left alone lies within 0.10 of the grid's, as in reply 146. The validation
+layer read no error in the door's runs or the views'. On the RTX 4070 with the layer required,
+the whole suite on this tree passed 2,591 tests and skipped 1, none failing.

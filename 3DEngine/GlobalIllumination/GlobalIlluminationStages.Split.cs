@@ -101,17 +101,25 @@ internal sealed unsafe partial class GlobalIlluminationStages
             device.MemoryBarrier(cmd, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, VkPipelineStageFlags2.ComputeShader,
                 VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
         }
+        // Each pass timed apart where gi.passes asks, the cascades' asks and merges each as one.
         Pass(0, 0, 4L * shape.Slots);
+        MarkGlobalIllumination(commandBuffer, "gi_split_clear");
         Pass(1, 0, shape.Entries);
+        MarkGlobalIllumination(commandBuffer, "gi_split_keep");
         Pass(2, 0, points);
+        MarkGlobalIllumination(commandBuffer, "gi_split_ask");
         for (int c = 0; c + 1 < shape.Cascades; c++)
             Pass(3, c, shape.PoolProbes(c));
+        MarkGlobalIllumination(commandBuffer, "gi_split_ask_cascades");
         Pass(4, 0, points);
+        MarkGlobalIllumination(commandBuffer, "gi_split_trace");
         Pass(5, 0, (long)shape.Cascades * SplitStoreShape.BaseWays * shape.Slots);
+        MarkGlobalIllumination(commandBuffer, "gi_split_light");
         for (int c = shape.Cascades - 1; c >= 0; c--)
             Pass(6, c, (long)SplitStoreShape.BaseWays * shape.Slots);
+        MarkGlobalIllumination(commandBuffer, "gi_split_merge");
         Pass(7, 0, points);
-        MarkGlobalIllumination(commandBuffer, "gi_split");
+        MarkGlobalIllumination(commandBuffer, "gi_split_gather");
 
         device.PipelineBarrier(cmd, [ImageBarrier(light, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, readers, VkAccessFlags2.ShaderRead)]);

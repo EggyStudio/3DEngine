@@ -1,5 +1,6 @@
 using System.Numerics;
 using FluentAssertions;
+using RadianceCascades;
 using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
@@ -40,6 +41,13 @@ public sealed partial class GlobalIlluminationTests
             "the passes are timed whole unless asked");
         settings.PassesTimed = true;
         Named(10).Should().Contain(["gi_glow_faces", "gi_trace0", "gi_trace1", "gi_merge", "gi_gather"], "each pass is timed apart once asked");
+        // The split cascades' passes each apart under the split layout, the frames recorded before
+        // the change let pass.
+        settings.Layout = ProbeLayout.Split;
+        Named(5);
+        Named(10).Should().Contain(["gi_split_clear", "gi_split_keep", "gi_split_ask", "gi_split_ask_cascades", "gi_split_trace",
+            "gi_split_light", "gi_split_merge", "gi_split_gather"], "each of the split cascades' passes is timed apart");
+        settings.Layout = ProbeLayout.Dense;
         // A frame's times are read back once the frames in flight after it have finished, so those
         // recorded before the change are let pass.
         settings.PassesTimed = false;
