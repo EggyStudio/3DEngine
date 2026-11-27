@@ -1416,3 +1416,47 @@ the layer required, the whole suite passed 2,591 tests and skipped 1, none faili
 the classes touched passed 250 and skipped 51, the two reference frames and the fog test among the
 passed and none failing. Comments alone changed after the suite, and the norms', the shaders', the
 settings', the glow tier's and the reference frames' tests passed again on that build.
+
+152. Item 318, the module's 10c530a. The engine's `modules/RadianceCascades` moves from 0d3f67d to
+10c530a, the module's items 19 and 20, whose split cascades stand on grids fixed in the world, the
+finest at the store's spacing and each above at twice the spacing below it, with no levels, reach or
+age, six cascades by default and an entry of 8 uints. gi_split.slang's push carries the store's
+slots, its cascades and the finest cascade's spacing, and its table is emptied with the frame.
+`GpuSplitStore.Repeat` is 512 of the coarsest cascade's spacing, a whole count of every finer one's,
+so an origin moved by it keeps every probe's key, and since an entry keeps its probe's whole cell, a
+step of the origin by a repeat makes the store fill again from the points seen. The device store's
+tests read the module's CPU figures at 10c530a, 1,164, 348, 78 and 28 probes by cascade, the walk's
+25,888 kept with none taken or moved, every probe standing on a grid fixed in the world, and 18,985
+rays reaching 18,985, 15,517, 3,316 and 359 probes from the finest, none finding no probe and no sum
+off. The table copies go from 118 to 102, 22 of them the split's kernel.
+Under a sky of 1 the floor holds 0.9995 at High. At Low, and wherever the device traces no rays, the
+row nearest the eye reads 0.9873 at the capture frame and 0.9927 to 0.9966 over the 300 frames
+after, never settling. Four cascades read as six, and the start off the surface, larger at 10c530a,
+is not its cause. The field's march loses a share of the sky in that row, which may be the field's
+band the module's walk names, and its cause is not yet found. The bound there is 0.015 over the
+0.0127 measured, where 0d3f67d held 0.003. In the closed room the split's mean reads 0.7825 against
+the grid's 0.7327 at Low and 0.7794 against 0.7326 at High, every pixel lit and the least 0.545 and
+0.561, 6.8% and 6.4% over where 0d3f67d read 8.6% and 8.7%, and its bound stays 10%.
+Read with no screen layer, the door's left wall settled reads 1.37 of the reference, where the grid
+reads 1.23, 0d3f67d 1.68 and bc1e297 1.58. Its parts read 1.47, 1.56 and 2.27 along the top and
+1.04, 1.24 and 3.86 along the bottom, against the grid's 1.30, 1.47, 4.81, 0.78, 1.17 and 5.83,
+three of the six further from the reference. With the bounce at zero the wall reads 0.67 against the
+grid's 0.63. The command-line guide gives this read's figures, the layout still off. On the views'
+sheet view 1 reads 1.01 of the reference against the grid's 1.03 and 0d3f67d's 1.09, its shade 1.10
+against 1.15 and 1.46, and the far doorway 1.41 against 1.81 and 2.31. The door view's wall reads
+1.31 against 1.16 and 1.59, the gallery 1.00 against 1.01 and 1.01, and its near wall 0.96 against
+1.66 and 1.02. Of the pixels the reference lights above a fiftieth of its mean, those under a fifth
+of the reference number 1,857 in view 1, where the grid has 548, 0d3f67d 736 and bc1e297 2,635,
+1,595 at the door against 865, 1,528 and 1,814, and 4,274 in the gallery against 1,106, 3,915 and
+5,572. The sheets show them as a lattice of dark specks on the pillar's face at the door and on the
+gallery's near column and its right wall. The ledge at the door view's right reads green split where
+the grid and the reference read it gray. The store holds 64 MB of uints and 101 MB of light at six
+cascades, against 43 and 67 at 0d3f67d.
+The passes were not timed again, the machine taken for play. Of the runs that finished, two a layout
+on the Bistro at 1920 by 1080, the scene pass took 185.2 ms on the grid and 183.3 split with no
+screen layer, where 0d3f67d's timing with the screen layer on read 31.27 and 25.53, while global
+illumination's own passes read as before. Its cause is not checked. On the RTX 4070 with the layer
+required, the whole suite passed 2,591 tests and skipped 1, none failing, and lavapipe of Mesa
+26.3.1 passed the store's, the split's and the copies' 11 tests. After the suite only comments and
+the guide changed, and the global illumination, norms and docs tests passed 240 and skipped 1 on
+that build.

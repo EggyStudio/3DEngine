@@ -14,10 +14,10 @@ internal sealed unsafe partial class GlobalIlluminationStages
     private struct SplitPush
     {
         public uint Pass, Cascade, Unused0, Unused1;
-        public uint Slots, Levels, Cascades, Age;
-        public float Spacing, Reach, Unused2, Unused3;
+        public uint Slots, Cascades, Unused2, Unused3;
+        public float Spacing, Unused4, Unused5, Unused6;
         public Vector3 Origin;
-        public float Unused4;
+        public float Unused7;
     }
 
     private const uint SplitPushBytes = 64;
@@ -85,8 +85,7 @@ internal sealed unsafe partial class GlobalIlluminationStages
         var shape = store.Shape;
         var push = new SplitPush
         {
-            Slots = (uint)shape.Slots, Levels = (uint)shape.Levels, Cascades = (uint)shape.Cascades, Age = (uint)shape.Age,
-            Spacing = shape.Spacing, Reach = shape.Reach, Origin = origin,
+            Slots = (uint)shape.Slots, Cascades = (uint)shape.Cascades, Spacing = shape.Spacing, Origin = origin,
         };
         var points = (long)surface.Width * surface.Height;
         void Pass(uint pass, int cascade, long threads)

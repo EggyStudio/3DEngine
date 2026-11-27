@@ -189,8 +189,8 @@ reference than the faces do, and `off` reads the faces. `gi.layout split` lays t
 takes the world's light from out as the RadianceCascades module's split cascades, kept near the
 points of the window's depth the eye sees, each traced by a ray a point a frame and gathered at each
 pixel's point, the grid's probes still lighting what those rays meet, a layout that stays off
-since, once the bounce has settled, it reads a wall beside a door at 1.69 of a path-traced
-reference where the grid reads 1.23, five of its six parts further from it, and `dense` puts the
+since, once the bounce has settled, it reads a wall beside a door at 1.37 of a path-traced
+reference where the grid reads 1.23, three of its six parts further from it, and `dense` puts the
 grid back. `gi.screen_cascades on` has the screen's
 probes stand in cascades of their own at `High` where the device traces rays, each level's probes
 twice as far apart with twice as many ways along each side, each tracing a stretch twice as long

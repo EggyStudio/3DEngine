@@ -71,10 +71,9 @@ struct SplitPush
 {
     // x: the pass, as computeMain numbers them. y: the cascade the pass runs over.
     uint4 pass;
-    // x: the most probes the store holds. y: its levels. z: its cascades. w: how many frames a
-    // probe no point asks for is kept.
+    // x: the most probes of the finest cascade the store holds. y: its cascades.
     uint4 shape;
-    // x: the finest level's spacing. y: how far the finest level reaches from the eye.
+    // x: the finest cascade's spacing.
     float4 spacing;
     // xyz: the frame's origin against the store's, added to a place of the frame to give the
     // store's place.
@@ -142,12 +141,12 @@ float3 depthNormal(float2 uv, float3 fromEye)
     return dot(n, -fromEye) < 0.0 ? -n : n;
 }
 
-// A part of a point's ray, the first of the window's meshes it meets where the device traces rays
-// and else the first surface of the field it marches to, the face shaded by its own normal, color
-// and gloss or by the field's, its indirect light from the world's probes' bounce. Through the
-// meshes a part that meets none passes, as the coarsest cascade's sky stands past its last
-// interval. Through the field a part that meets none and ends past every cascade of the field has
-// left the world, the field's march not saying where.
+// A part of a point's ray, or a ray by which a point or a probe sees a probe about it, the first of
+// the window's meshes it meets where the device traces rays and else the first surface of the field
+// it marches to, the face shaded by its own normal, color and gloss or by the field's, its indirect
+// light from the world's probes' bounce. Through the meshes a part that meets none passes, as the
+// coarsest cascade's sky stands past its last interval. Through the field a part that meets none
+// and ends past every cascade of the field has left the world, the field's march not saying where.
 struct WindowHits : IRayHits
 {
     ProbeRay along(float3 from, float3 way, float start, float end)
@@ -199,11 +198,14 @@ struct WindowSky : ISky
 }
 
 // The passes of a frame in the order the module runs them, each a thread an index of what it runs
-// over, 1024 groups of 64 a row of the dispatch: 0 empties the table over four slots a probe, 1
-// keeps the probes still asked for over the entries, 2 asks for the seen points' probes over the
-// pixels, 3 asks for a cascade's probes from the one below over that cascade's entries, 4 traces
-// the seen points' rays over the pixels, 5 keeps the ways' light over every cascade's ways, 6
-// merges a cascade's light over its ways from the coarsest down, and 7 gathers onto the pixels.
+// over, 1024 groups of 64 a row of the dispatch. Pass 0 empties the table over four slots a probe
+// and counts the probes by how long ago each was asked for, 1 keeps those asked for within the
+// frames their pool has room for over the entries, 2 asks for the finest probe each seen point
+// adds its rays to over the pixels, 3 asks for a cascade's probes from the one below over that
+// cascade's entries and keeps how much of each the probe below sees, 4 traces the seen points'
+// rays over the pixels, 5 keeps the ways' light over every cascade's ways, 6 merges a cascade's
+// light over its ways from the coarsest down, and 7 gathers onto the pixels from the finest
+// probes.
 [shader("compute")]
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID)
@@ -211,7 +213,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     uint index = id.y * 65536u + id.x;
     uint pass = push.pass.x, cascade = push.pass.y;
     SplitFrame at = { view.eye.xyz + push.origin.xyz, uint(lights.counts.y) };
-    SplitStore shape = { push.shape.x, push.spacing.x, push.shape.y, push.shape.z, push.spacing.y, push.shape.w };
+    SplitStore shape = { push.shape.x, push.spacing.x, push.shape.y };
     StoreUints store = { uints };
     StoreLight kept = { light };
     DepthPoints points;
@@ -219,13 +221,13 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     WindowSky sky;
     bool pixel = index < uint(view.sizes.z) * uint(view.sizes.w);
     if (pass == 0u)
-        clearSplitTable(store, shape, index);
+        clearSplitTable(store, at, shape, index);
     else if (pass == 1u)
         keepSplitProbes(store, at, shape, index);
     else if (pass == 2u && pixel)
-        askSeenProbes(points, store, at, shape, index);
+        askSeenProbes(points, hits, store, at, shape, index);
     else if (pass == 3u)
-        askCascadeProbes(store, at, shape, cascade, index);
+        askCascadeProbes(hits, store, at, shape, cascade, index);
     else if (pass == 4u && pixel)
         traceSeenRays(points, hits, sky, store, at, shape, index);
     else if (pass == 5u)
@@ -237,6 +239,6 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         if (!points.seenAt(index) || !splitHolds(at, shape, points.placeAt(index)))
             gathered[points.pixelOf(index)] = float4(-1.0);
         else
-            gatherSurface(store, kept, at, shape, points, index);
+            gatherSurface(store, kept, hits, at, shape, points, index);
     }
 }

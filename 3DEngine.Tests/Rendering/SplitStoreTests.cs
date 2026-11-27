@@ -46,8 +46,8 @@ public sealed class SplitStoreTests : IDisposable
             .Should().BeFalse("a GPU runs the trace whatever its driver's number");
     }
 
-    // The module's tests' store, its finest level's probes half a unit apart reaching 4 spacings.
-    private static readonly SplitStoreShape Shape = new() { Slots = 4096, Spacing = 0.5f, Levels = 4, Cascades = 4, Reach = 2, Age = 8 };
+    // The module's tests' store, its finest cascade's probes half a unit apart.
+    private static readonly SplitStoreShape Shape = new() { Slots = 4096, Spacing = 0.5f, Cascades = 4 };
 
     // The module's passes over the engine's store, one a dispatch picked by pass, the seen points
     // and the boxes the rays meet as the module's CPU kernel gives them, each point its place with
@@ -65,10 +65,7 @@ public sealed class SplitStoreTests : IDisposable
         uniform float sky;
         uniform uint slots;
         uniform float spacing;
-        uniform uint levels;
         uniform uint cascades;
-        uniform float reach;
-        uniform uint age;
 
         StructuredBuffer<float4> points;
         RWStructuredBuffer<Atomic<uint>> uints;
@@ -137,7 +134,7 @@ public sealed class SplitStoreTests : IDisposable
         void computeMain(uint3 id : SV_DispatchThreadID)
         {
             SplitFrame at = { eye, frame };
-            SplitStore shape = { slots, spacing, levels, cascades, reach, age };
+            SplitStore shape = { slots, spacing, cascades };
             uint index = id.x;
             BufferPoints seen;
             StoreUints store = { uints };
@@ -145,13 +142,13 @@ public sealed class SplitStoreTests : IDisposable
             BoxHits hits;
             EvenSky even;
             if (pass == 0u)
-                clearSplitTable(store, shape, index);
+                clearSplitTable(store, at, shape, index);
             else if (pass == 1u)
                 keepSplitProbes(store, at, shape, index);
             else if (pass == 2u && index < count)
-                askSeenProbes(seen, store, at, shape, index);
+                askSeenProbes(seen, hits, store, at, shape, index);
             else if (pass == 3u)
-                askCascadeProbes(store, at, shape, cascade, index);
+                askCascadeProbes(hits, store, at, shape, cascade, index);
             else if (pass == 4u && index < count)
                 traceSeenRays(seen, hits, even, store, at, shape, index);
             else if (pass == 5u)
@@ -159,33 +156,27 @@ public sealed class SplitStoreTests : IDisposable
             else if (pass == 6u)
                 mergeSplitCascade(store, kept, even, at, shape, cascade, index);
             else if (pass == 7u && index < count)
-                gatherSurface(store, kept, at, shape, seen, index);
+                gatherSurface(store, kept, hits, at, shape, seen, index);
             else if (pass == 8u && index < count)
             {
-                // Each point's ray of the frame traced whole across every interval of its level
-                // and of the next, five float4 a level, its light and how it ended, then the entry
-                // and the way of each cascade's probe its parts go to with the end of that
-                // cascade's interval, the finest's w where the ray ended, the next level's entries
-                // -2 where the point stands outside the overlap.
-                float next;
+                // Each point's ray of the frame traced whole across every interval, a float4 and
+                // one a cascade, its light and how it ended, then the entry and the way of each
+                // cascade's probe its parts go to with the end of that cascade's interval, the
+                // finest's w where the ray ended.
                 float3 p = seen.placeAt(index), n = seen.normalAt(index);
-                uint level = splitLevelAt(at, shape, p, next);
                 float3 way = splitRayWay(n, index, frame);
-                for (uint j = 0u; j < 2u; j++)
+                float3 origin = splitRayOrigin(at, shape, p, n);
+                uint first = index * (1u + shape.cascades);
+                ProbeRay whole = hits.along(origin, way, 0.0, splitIntervalEnd(shape, shape.cascades - 1u));
+                float3 met = whole.light + (whole.ended == RayLeft ? whole.carried * even.skyAlong(way) : float3(0.0));
+                taken[first] = float4(met, float(whole.ended));
+                int3 cell = splitSeenCell(hits, shape, p, origin);
+                for (uint c = 0u; c < shape.cascades; c++)
                 {
-                    uint first = index * 10u + j * 5u;
-                    uint l = level + j;
-                    ProbeRay whole = hits.along(splitRayOrigin(at, shape, p, n), way, 0.0, splitIntervalEnd(shape, l, shape.cascades - 1u));
-                    float3 met = whole.light + (whole.ended == RayLeft ? whole.carried * even.skyAlong(way) : float3(0.0));
-                    taken[first] = float4(met, float(whole.ended));
-                    int3 cell = splitNearestCell(shape, l, 0u, p);
-                    for (uint c = 0u; c < shape.cascades; c++)
-                    {
-                        uint entry = findSplitProbe(store, shape, splitKey(l, c, cell));
-                        float name = j == 1u && !(next > 0.0) ? -2.0 : entry == SplitNone ? -1.0 : float(entry);
-                        taken[first + 1u + c] = float4(name, float(splitWayOf(c, way)), splitIntervalEnd(shape, l, c), c == 0u ? whole.t : 0.0);
-                        cell = (cell + 1) >> 1;
-                    }
+                    uint entry = findSplitProbe(store, shape, splitKey(c, cell));
+                    taken[first + 1u + c] = float4(entry == SplitNone ? -1.0 : float(entry), float(splitWayOf(c, way)), splitIntervalEnd(shape, c),
+                        c == 0u ? whole.t : 0.0);
+                    cell = (cell + 1) >> 1;
                 }
             }
             else if (pass == 9u && index == 0u)
@@ -210,7 +201,7 @@ public sealed class SplitStoreTests : IDisposable
             _points = LoadShaderBuffer<float>(points.Length == 0 ? new float[8] : points);
             _uints = LoadShaderBuffer(4 * Shape.Uints);
             _light = LoadShaderBuffer(16 * Shape.Lights);
-            _taken = LoadShaderBuffer(16 * Math.Max(10 * _count, Shape.Entries));
+            _taken = LoadShaderBuffer(16 * TakenCount);
             _boxes = LoadShaderBuffer<float>(lit);
             foreach (var (name, buffer) in new[] { ("points", _points), ("uints", _uints), ("light", _light), ("taken", _taken), ("boxes", _boxes) })
                 SetShaderValueBuffer(_shader, GetShaderLocation(_shader, name), buffer);
@@ -219,11 +210,12 @@ public sealed class SplitStoreTests : IDisposable
             SetShaderValue(_shader, GetShaderLocation(_shader, "sky"), 1f);
             Set("slots", Shape.Slots);
             SetShaderValue(_shader, GetShaderLocation(_shader, "spacing"), Shape.Spacing);
-            Set("levels", Shape.Levels);
             Set("cascades", Shape.Cascades);
-            SetShaderValue(_shader, GetShaderLocation(_shader, "reach"), Shape.Reach);
-            Set("age", Shape.Age);
         }
+
+        // The float4 the taken buffer holds, a ray traced whole for each point or a place for each
+        // entry.
+        private int TakenCount => Math.Max((1 + Shape.Cascades) * _count, Shape.Entries);
 
         private void Set(string name, int value) => SetShaderValue(_shader, GetShaderLocation(_shader, name), value);
 
@@ -266,7 +258,7 @@ public sealed class SplitStoreTests : IDisposable
         public float[] Taken(int pass, Vector3 eye, uint frame)
         {
             Run(pass, eye, frame, Math.Max(_count, 1));
-            var taken = new float[4 * Math.Max(10 * _count, Shape.Entries)];
+            var taken = new float[4 * TakenCount];
             ReadShaderBuffer<float>(_taken, taken);
             return taken;
         }
@@ -279,12 +271,20 @@ public sealed class SplitStoreTests : IDisposable
         }
     }
 
-    // The first uint of the pools, after the counts and the table of four slots a finest entry.
-    private static int PoolAt => 16 + 2 * 4 * Shape.Slots;
+    // The first uint of the pools, after the counts, each cascade's ages' counts for the frames of
+    // even count and of odd, and the table of two uints a slot and four slots a finest entry.
+    private static int PoolAt => 32 + 2 * SplitStoreShape.AgeBins * Shape.Cascades + 2 * 4 * Shape.Slots;
+
+    // The first uint of the sums, after the pools and the free lists of one uint an entry.
+    private static int SumsAt => PoolAt + (SplitStoreShape.EntryUints + 1) * Shape.Entries;
 
     // Each entry's key and the frame it was taken, by key.
-    private static Dictionary<uint, (int Entry, uint Taken)> Keys(uint[] uints) =>
-        Enumerable.Range(0, Shape.Entries).Where(e => uints[PoolAt + 3 * e] != 0).ToDictionary(e => uints[PoolAt + 3 * e], e => (e, uints[PoolAt + 3 * e + 2]));
+    private static Dictionary<uint, (int Entry, uint Taken)> Keys(uint[] uints)
+    {
+        const int stride = SplitStoreShape.EntryUints;
+        return Enumerable.Range(0, Shape.Entries).Where(e => uints[PoolAt + stride * e] != 0)
+            .ToDictionary(e => uints[PoolAt + stride * e], e => (e, uints[PoolAt + stride * e + 2]));
+    }
 
     // Where the light of entry's probe of cascade along its way lies, as splitLightAt lays it.
     private static int LightAt(int cascade, int entry, int way) =>
@@ -375,23 +375,25 @@ public sealed class SplitStoreTests : IDisposable
         var eye = new Vector3(0.3f, 1.5f, 0);
         using var store = new Store(points);
         var layout = store.Taken(9, eye, 1);
-        ((int)layout[0], (int)layout[1], (int)layout[2]).Should().Be((Shape.Uints, Shape.Lights, PoolAt), "the store's layout on the device is the library's");
+        ((int)layout[0], (int)layout[1], (int)layout[2], (int)layout[3]).Should().Be((Shape.Uints, Shape.Lights, PoolAt, SumsAt),
+            "the store's layout on the device is the library's");
         store.Frame(eye, 1);
         var uints = store.Uints();
         var keys = Keys(uints);
-        var counts = Enumerable.Range(0, Shape.Cascades).Select(c => keys.Keys.Count(k => (k >> 27 & 3) == c)).ToArray();
+        var counts = Enumerable.Range(0, Shape.Cascades).Select(c => keys.Keys.Count(k => (k >> 27) - 1 == c)).ToArray();
         var standing = Enumerable.Range(0, Shape.Cascades).Select(c => (int)uints[4 * c + 2]).ToArray();
         _output.WriteLine($"the store holds {string.Join(", ", counts)} probes by cascade, {string.Join(", ", standing)} counted standing");
         standing.Should().Equal(counts);
-        counts.Should().Equal([322, 108, 46, 28], "the corridor's points ask for the probes the module's CPU run stands");
+        counts.Should().Equal([1164, 348, 78, 28], "the corridor's points ask for the probes the module's CPU run stands");
     }
 
     [NeedsVulkanFact]
     public void A_Probe_On_The_Device_Keeps_Its_Entry_While_The_Eye_Walks()
     {
         // The eye walks the corridor in quarter steps, as the module's walk does, and a probe asked
-        // for at one step and the next keeps its key, its entry and the frame it was taken, though
-        // which free entry a new probe takes turns on the order the device's threads run in.
+        // for at one step and the next keeps its key, its entry and the frame it was taken. Every
+        // probe stands on a grid fixed in the world, so the points ask for the same probes from
+        // every step and none is taken after the first, as on the CPU.
         var points = CorridorFaces();
         using var store = new Store(points);
         Dictionary<uint, (int Entry, uint Taken)>? before = null;
@@ -414,7 +416,7 @@ public sealed class SplitStoreTests : IDisposable
         }
         var said = $"over 16 steps of the eye {kept} probes kept their entries, {fresh} were taken and {moved} moved";
         _output.WriteLine(said);
-        (kept, fresh, moved).Should().Be((8852, 368, 0), said);
+        (kept, fresh, moved).Should().Be((25888, 0, 0), said);
     }
 
     [NeedsSplitTraceFact]
@@ -431,45 +433,41 @@ public sealed class SplitStoreTests : IDisposable
         store.Frame(eye, 1, rays: true, keep: false);
         var whole = store.Taken(8, eye, 1);
         var uints = store.Uints();
-        var sumsAt = 16 + 2 * 4 * Shape.Slots + 4 * Shape.Entries;
         var span = SplitStoreShape.BaseWays * Shape.Slots;
         var expected = new uint[5 * Shape.Cascades * span];
         var (rays, missing) = (0, 0);
         var reached = new int[Shape.Cascades];
         static uint Parts(float light) => (uint)(Math.Clamp(light, 0, 16384) * 1024 + 0.5f);
         for (int k = 0; k < count; k++)
-            for (int j = 0; j < 2; j++)
+        {
+            var at = 4 * (1 + Shape.Cascades) * k;
+            rays++;
+            var (ended, t) = ((uint)whole[at + 3], whole[at + 7]);
+            for (int c = 0; c < Shape.Cascades; c++)
             {
-                var at = 4 * (10 * k + 5 * j);
-                if (whole[at + 4] == -2)
-                    continue;
-                rays++;
-                var (ended, t) = ((uint)whole[at + 3], whole[at + 7]);
-                for (int c = 0; c < Shape.Cascades; c++)
+                var (entry, way, end) = ((int)whole[at + 4 + 4 * c], (int)whole[at + 5 + 4 * c], whole[at + 6 + 4 * c]);
+                var passed = ended == 1 || t >= end;
+                reached[c]++;
+                if (entry < 0)
+                    missing++;
+                else
                 {
-                    var (entry, way, end) = ((int)whole[at + 4 + 4 * c], (int)whole[at + 5 + 4 * c], whole[at + 6 + 4 * c]);
-                    var passed = ended == 1 || t >= end;
-                    reached[c]++;
-                    if (entry < 0)
-                        missing++;
-                    else
-                    {
-                        var sums = 5 * LightAt(c, entry, way);
-                        for (int i = 0; i < 3; i++)
-                            expected[sums + i] += passed ? 0 : Parts(whole[at + i]);
-                        expected[sums + 3] += passed ? 1024u : 0;
-                        expected[sums + 4]++;
-                    }
-                    if (!passed)
-                        break;
+                    var sums = 5 * LightAt(c, entry, way);
+                    for (int i = 0; i < 3; i++)
+                        expected[sums + i] += passed ? 0 : Parts(whole[at + i]);
+                    expected[sums + 3] += passed ? 1024u : 0;
+                    expected[sums + 4]++;
                 }
+                if (!passed)
+                    break;
             }
-        var off = Enumerable.Range(0, expected.Length).Count(i => uints[sumsAt + i] != expected[i]);
+        }
+        var off = Enumerable.Range(0, expected.Length).Count(i => uints[SumsAt + i] != expected[i]);
         var said = $"{rays} rays of {count} seen points add {reached.Sum()} parts, {string.Join(", ", reached)} reaching each cascade from the finest, "
             + $"{missing} parts finding no probe and {off} of the sums' uints off the rays traced whole";
         _output.WriteLine(said);
-        (rays, missing, off).Should().Be((20997, 0, 0), said);
-        reached.Should().Equal([20997, 7184, 871, 242], said);
+        (rays, missing, off).Should().Be((18985, 0, 0), said);
+        reached.Should().Equal([18985, 15517, 3316, 359], said);
     }
 
     [NeedsSplitTraceFact]

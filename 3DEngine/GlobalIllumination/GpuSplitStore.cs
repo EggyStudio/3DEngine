@@ -30,18 +30,21 @@ internal sealed class GpuSplitStore : IDisposable
     public IBuffer Light { get; }
 
     /// <summary>
-    /// The span along each axis over which every probe's key repeats, 512 of the coarsest spacing
-    /// the store holds, since a key keeps the nine low bits of its cell along each axis, and a
-    /// whole count of 512 of every finer spacing, so places moved by it keep every probe's key and
-    /// light.
+    /// The span along each axis over which every probe's key repeats, 512 of the coarsest
+    /// cascade's spacing, since a key keeps the nine low bits of its cell along each axis, and a
+    /// whole count of 512 of every finer spacing, so places moved by it keep every probe's key.
     /// </summary>
-    public static double Repeat(SplitStoreShape shape) => 512.0 * shape.Spacing * Math.Pow(2, shape.Levels + shape.Cascades - 2);
+    public static double Repeat(SplitStoreShape shape) => 512.0 * shape.Spacing * Math.Pow(2, shape.Cascades - 1);
 
     /// <summary>
     /// The frame's origin against the store's, which stands at the frame's origin rounded to the
     /// nearest whole count of <see cref="Repeat"/> along each axis, so the store's places stay
     /// within half of it of the eye and the frame's origin moving with the eye moves no probe.
     /// </summary>
+    /// <remarks>
+    /// An entry keeps its probe's whole cell beside its key, so where the store's origin steps by
+    /// a repeat no probe reads back as its cell, and the store fills again from the points seen.
+    /// </remarks>
     public static Vector3 OriginAgainst(SplitStoreShape shape, RenderOrigin origin)
     {
         var repeat = Repeat(shape);
