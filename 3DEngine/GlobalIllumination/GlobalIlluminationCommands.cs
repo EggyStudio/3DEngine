@@ -68,10 +68,10 @@ internal static class GlobalIlluminationCommands
         static double Megabytes(GpuScreenProbes screen) =>
             ((11.0 * 8 + GpuScreenProbes.GlowSeenBytes) * screen.Across * screen.Down
              + (6.0 * 8 + 4) * screen.Glow.Light.Description.Extent.Width * screen.Glow.Light.Description.Extent.Height) / 1024 / 1024;
-        // At Low, which leaves them out, probes stand for the glow lights alone while some are lit
-        // (GlowOnly), placed and marching to them once a tile with no ray traced.
-        if (renderer.RenderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: true })
-            lines.Add("no screen probes, which gi.screen left out, the cascades' light read alone and each pixel marching to the glow lights");
+        // Put in at Low, probes stand for the glow lights alone while some are lit (GlowOnly),
+        // placed and marching to them once a tile with no ray traced.
+        if (renderer.RenderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenProbes: false })
+            lines.Add("no screen probes, which gi.screen puts in, the cascades' light read alone and each pixel marching to the glow lights");
         else if (!Illumination.ScreenProbesAt(quality))
             lines.Add(gi.Screen is { } alone
                 ? $"no screen probes at {quality}, the cascades' light read alone, and probes every {alone.Tile} pixels, {alone.Across} by {alone.Down}, "
@@ -85,8 +85,10 @@ internal static class GlobalIlluminationCommands
         // depth beside it in floats.
         var history = gi.HistoryViewProjection is null || renderer.RenderWorld.TryGet<SwapchainTarget>() is not { } window ? 0
             : (window.Extent.Width / 2) * (window.Extent.Height / 2) * (8 * 4 / 3.0 + 4) / 1024 / 1024;
-        lines.Add($"reflections below roughness {Illumination.GlossyRoughness} in {steps} steps through the depth across {reach} units, "
-                  + $"then the field, the frame before kept in {history:0.00} MB");
+        lines.Add(renderer.RenderWorld.TryGet<GlobalIlluminationSettings>() is { ReflectionOnScreen: true }
+            ? $"reflections below roughness {Illumination.GlossyRoughness} in {steps} steps through the depth across {reach} units, "
+              + $"then the field, the frame before kept in {history:0.00} MB"
+            : $"reflections below roughness {Illumination.GlossyRoughness} through the field alone, which gi.screen_reflection marches the depth before");
         if (gi.Rays is { } traced)
             lines.Add($"what the field misses through the device's rays, {traced.Count} copies of {traced.Meshes.Count} meshes in {traced.Bytes / 1024.0 / 1024.0:0.00} MB");
         else if (renderer.RenderWorld.TryGet<GlobalIlluminationSettings>() is { Quality: GlobalIllumination.High } raysSet && (raysSet.RaysOff || raysSet.MeshesTraced))
@@ -182,7 +184,6 @@ internal static class GlobalIlluminationCommands
         var off = new List<string>();
         if (settings.HistoryOff) off.Add("the frame before's light");
         if (settings.FilterOff) off.Add("the screen's filter");
-        if (settings.ScreenOff) off.Add("the screen's probes");
         if (settings.MergeOff) off.Add("the merge");
         if (settings.AgainOff) off.Add("the light past the first bounce");
         if (settings.FollowOff) off.Add("indirect light following a light out");
@@ -201,6 +202,8 @@ internal static class GlobalIlluminationCommands
         if (settings.OwnFieldMarched) said += ", each cascade's probes marching the field from their own cascade outward";
         if (settings.FacesMovedToward) said += ", each pixel reading its probes' faces moved toward the surfaces their rays met";
         if (settings.SurfaceGather) said += ", each pixel taking the probes' light as the module gathers its point";
+        if (settings.ScreenProbes) said += ", the screen's probes traced and read";
+        if (settings.ReflectionOnScreen) said += ", a glossy surface's reflection marching the window's depth before the field";
         if (settings.ScreenCascades) said += ", the screen's probes standing in cascades traced by the device's rays";
         if (!settings.MeshesTraced) return said;
         var device = ConsoleHost.World is { } world && world.TryGetResource<Renderer>(out var renderer) && renderer.Context.Graphics is GraphicsDevice { CanQueryRays: true };

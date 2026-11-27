@@ -141,12 +141,14 @@ public static partial class E3D
     /// profile names its cost as <c>global_illumination</c>.
     /// </para>
     /// <para>
-    /// At <see cref="GlobalIllumination.Medium"/> and <see cref="GlobalIllumination.High"/> it
-    /// stands a probe on the view's surfaces every few pixels as well, which traces the near light
-    /// through the window's depth, so the light under a table is seen at the size the window draws
-    /// it. <see cref="GlobalIllumination.Low"/> leaves them out, every surface reading the cascades'
-    /// light alone, smoother and coarser, and the small emissive surfaces carried as lights are
-    /// marched to once a tile, at a cost the lights in view do not change.
+    /// Every quality lights each surface by the cascades' light alone, and each pixel marches to
+    /// the small emissive surfaces carried as lights in view itself, at a cost that grows with the
+    /// lights in view. The qualities differ in their cascades, the third at
+    /// <see cref="GlobalIllumination.Medium"/> holding four times the directions it holds at
+    /// <see cref="GlobalIllumination.Low"/>, and <see cref="GlobalIllumination.High"/> adding a
+    /// fourth. The probes a view can stand on its surfaces every few pixels, which trace the near
+    /// light through the window's depth and blend with the frames before, are left out at every
+    /// quality and put in for debugging alone, as <c>gi.screen on</c> puts them in.
     /// </para>
     /// <para>
     /// A value the enum names none of, as <c>(GlobalIllumination)7</c>, is refused with an error
@@ -267,12 +269,12 @@ public static partial class E3D
         var alone = settings.Alone >= 0;
         ImGuiNET.ImGui.Checkbox("The cascade chosen alone", ref alone);
         settings.Alone = alone ? settings.ShownCascade : -1;
-        // The screen's probes, which Low leaves out and Medium and High keep, left out whole here at
-        // any quality for debugging, so what they cost and give can be read (ScreenOff).
-        var screen = !settings.ScreenOff;
-        if (ImGuiNET.ImGui.Checkbox("The screen's probes", ref screen)) settings.ScreenOff = !screen;
-        ImGuiNET.ImGui.TextUnformatted("Unticked for debugging alone, the screen's probes neither made nor traced at any quality, "
-            + "those standing for the glow lights at Low with them, each pixel marching to the glow lights itself.");
+        // The screen's probes, off unless set and traced at Medium and High where set, put in here
+        // for debugging, so what they cost and give can be read (ScreenProbes).
+        var screen = settings.ScreenProbes;
+        if (ImGuiNET.ImGui.Checkbox("The screen's probes", ref screen)) settings.ScreenProbes = screen;
+        ImGuiNET.ImGui.TextUnformatted("Ticked for debugging alone, the screen's probes traced at Medium and High and standing for the glow lights "
+            + "at Low, each pixel marching to the glow lights itself without them.");
         ImGuiNET.ImGui.Separator();
 
         ImGuiNET.ImGui.InputText("Reference", ref _bouncePath, 1024);

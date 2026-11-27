@@ -74,9 +74,12 @@ internal static class Illumination
     /// </summary>
     internal static bool ScreenProbesAt(GlobalIllumination quality) => quality is GlobalIllumination.Medium or GlobalIllumination.High;
 
-    /// <summary>Whether the views have screen probes this frame, at a quality that has them and not left out for debugging (<see cref="GlobalIlluminationSettings.ScreenOff"/>).</summary>
+    /// <summary>
+    /// Whether the views have screen probes this frame, put in for debugging
+    /// (<see cref="GlobalIlluminationSettings.ScreenProbes"/>) at a quality that has them.
+    /// </summary>
     internal static bool ScreenProbesOn(RenderWorld renderWorld) =>
-        renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: false } settings && ScreenProbesAt(settings.Quality);
+        renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenProbes: true } settings && ScreenProbesAt(settings.Quality);
 
     /// <summary>
     /// Whether the window's pixels take the world's probes' light as the RadianceCascades module

@@ -1383,3 +1383,36 @@ points and a second from the 577,056 of them in a level's overlap, in 4.69 milli
 ray query, 2.60 million of which meet a face, into 174 standing probes, and on the Bistro from
 1,994,040 points with 111,872 second rays, in 4.58 million parts, 1.71 million meeting a face, into
 280 probes, as a scratch counter that is not committed read them once.
+
+151. Decision 126. Global illumination puts no screen layer in by default at any quality, and the
+world's probes light every pixel. `gi.screen` is off unless set, and set it puts the screen's probes
+in for debugging, traced at Medium and High and standing for the glow lights alone at Low. The
+screen cascades of 316 stay off. A glossy surface's reflection marches the scene's field alone and
+takes the color of the surface it meets times the probes' light at its hit, with no history, and the
+frame before is no longer kept for it. `gi.screen_reflection`, a new setting off unless set, puts
+back its march through the window's depth and its read of the frame before. Ambient occlusion, the
+subsurface blur and the contact shadows stay as they were. With the glow tiles out, each pixel
+marches to every glow light in view itself, and in the voxel game's closed room of forty glowstones
+at night at 1280 by 720 the scene pass takes 13.3 ms so against 1.2 with the tiles, as the GI guide
+gives it. The tests of the screen's probes, of the tiles and of what they read put them in, and the
+settings test counts 35 under gi. Six readings moved with the screen layers out, and each bound now
+sits 15% over what was read. The dimming room's fall at High steps within the cycle, the largest 6.3
+times the typical with a rise beside it and as large with the again pass off, and its bound is 7.3
+times the typical. The lamp room's ledge front reads 1.421 of the reference with the lamp flush in
+the wall and 0.944 with it on the floor, and its bound runs from 0.93 to 1.49. The glow tier's floor
+at Low reads 0.966 with the hidden block lit, and its bound is 0.039 either side of 1. Those three
+are items 319, 320 and 321. The thin sheets at High hold 0.047 of the open light inside, under a
+bound of 0.054, and the floor two and a half under the solid canopy at High reads 0.131 against the
+reference's 0.17, its least 0.125. The fog test's sealed room and its ground are black. Of gray
+stone, the sealed room's wall took the light of the probes outside and read 0.359 against the open
+room's 0.395, and the fog before it held back more of the wall's light than it scattered. Black, the
+open room's fog scatters 0.091 and the sealed room's none. The bounce rooms are read with no screen
+layer, Low and Medium alike since their cascades differ in the third alone, and each view's bound
+sits 15% over its reading. The corridor stands furthest from its reference, 0.256 at Low and Medium
+and 0.142 at High, and then the strip's room, 0.196 and 0.187. The Cornell box's and the
+reflections' reference frames are written again with no screen layer, and the captures of the two
+scenes, the bounce rooms, the Cornell box and the reflections are taken again. On the RTX 4070 with
+the layer required, the whole suite passed 2,591 tests and skipped 1, none failing, and on lavapipe
+the classes touched passed 250 and skipped 51, the two reference frames and the fog test among the
+passed and none failing. Comments alone changed after the suite, and the norms', the shaders', the
+settings', the glow tier's and the reference frames' tests passed again on that build.

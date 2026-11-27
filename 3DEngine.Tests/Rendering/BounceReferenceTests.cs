@@ -81,6 +81,7 @@ public sealed partial class BounceReferenceTests : IDisposable
         GpuScreenProbes? screen = null;
         var share = EmissiveBox(frame =>
         {
+            if (frame == 0) GetApp().World.Resource<GlobalIlluminationSettings>().ScreenProbes = true;
             if (frame != 6) return;
             world = GetApp().World;
             screen = world.Resource<Engine.Renderer>().RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen!;

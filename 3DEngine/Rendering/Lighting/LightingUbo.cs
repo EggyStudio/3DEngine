@@ -94,8 +94,8 @@ internal struct LightingUbo
 
     /// <summary>
     /// x: the pixels along each side of a screen probe's tile. y: 1 when the screen's probes are
-    /// read before the world's. z: 1 at <see cref="GlobalIllumination.Low"/>, which leaves them out,
-    /// where they stand for the glow lights alone, whose light on the depth's texels is read. w: the
+    /// read before the world's. z: 1 where they are put in at <see cref="GlobalIllumination.Low"/>
+    /// and stand for the glow lights alone, whose light on the depth's texels is read. w: the
     /// switches a reading sets, 1 every surface white, 2 the reflection of the indirect light left
     /// out and 4 the materials' normal maps left out (<c>gi.albedo</c>, <c>gi.specular</c> and
     /// <c>gi.normals</c>), 8 the surfaces' roughness left unwidened, where specular antialiasing
@@ -123,7 +123,11 @@ internal struct LightingUbo
     /// </summary>
     public Vector4 Reflection;
 
-    /// <summary>x: how far a reflection is traced through the window's depth, in world units.</summary>
+    /// <summary>
+    /// x: how far a reflection is traced through the window's depth, in world units. y: 1 where a
+    /// reflection the field misses is traced through the device's rays. z: 1 where a reflection is
+    /// traced through the window's depth before the field, 0 where through the field alone.
+    /// </summary>
     public Vector4 ReflectionReach;
 
     /// <summary>

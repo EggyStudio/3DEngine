@@ -11,7 +11,7 @@ public sealed partial class GlobalIlluminationTests
 {
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
-    public void Low_Leaves_The_Screens_Probes_Out_And_Their_Debug_Toggle_Leaves_Them_Out_At_Any_Quality()
+    public void The_Screens_Probes_Stand_At_Medium_Only_Where_Their_Debug_Toggle_Puts_Them_In_And_Low_Leaves_Them_Out()
     {
         Open();
         CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
@@ -22,18 +22,18 @@ public sealed partial class GlobalIlluminationTests
             DrawModelEx(slab, new Vector3(-1.6f, 1.5f, 0), Vector3.UnitY, 0, new Vector3(0.3f, 3, 6), new Color(220, 20, 20));
             DrawModelEx(slab, new Vector3(-0.3f, 0.75f, 0.3f), Vector3.UnitY, 30, new Vector3(1, 1.5f, 1), Color.White);
         }
-        // The screen's probes made at Medium, then left out there through the debugging toggle,
-        // then at Low, which leaves them out, the cascades read alone, then no global illumination.
-        // With no glow light Low makes no probe at all.
+        // No screen probe at Medium unless the debugging toggle puts them in, then made there, then
+        // at Low, which leaves them out with the toggle on, the cascades read alone, then no global
+        // illumination. With no glow light Low makes no probe at all.
         SetGlobalIllumination(GlobalIllumination.Medium);
         var gi = GetApp().World.Resource<GlobalIlluminationSettings>();
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         Capture(Draw);
-        renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen.Should().NotBeNull("Medium stands probes on the window's surfaces");
-        gi.ScreenOff = true;
+        renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen.Should().BeNull("the screen's probes are off unless put in");
+        GlobalIlluminationCommands.IlluminationState(GetApp().World).Should().Contain("no screen probes, which gi.screen puts in");
+        gi.ScreenProbes = true;
         Capture(Draw);
-        renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen.Should().BeNull("the toggle leaves them neither made nor traced at any quality");
-        gi.ScreenOff = false;
+        renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen.Should().NotBeNull("Medium stands probes on the window's surfaces with them put in");
         SetGlobalIllumination(GlobalIllumination.Low);
         var left = Capture(Draw);
         renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Screen.Should().BeNull("Low leaves the screen's probes out");
@@ -76,14 +76,16 @@ public sealed partial class GlobalIlluminationTests
         var settings = GetApp().World.Resource<GlobalIlluminationSettings>();
         var renderer = GetApp().World.Resource<Engine.Renderer>();
 
-        // The room drawn once first, since its slabs stand in for nothing until the field has
-        // built them, and the light of those frames rides in the probes' history a while.
+        // The room drawn once first with the screen's probes put in, since its slabs stand in for
+        // nothing until the field has built them, and the light of those frames rides in the
+        // probes' history a while.
+        settings.ScreenProbes = true;
         Capture(Room, camera);
-        settings.ScreenOff = true;
+        settings.ScreenProbes = false;
         var marched = Capture(Room, camera);
         var gi = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!;
-        gi.Screen.Should().BeNull("the toggle leaves even the probes standing for the glow lights out");
-        settings.ScreenOff = false;
+        gi.Screen.Should().BeNull("without the toggle even the probes standing for the glow lights are out");
+        settings.ScreenProbes = true;
         var read = Capture(Room, camera);
         gi.GlowOnly(renderer.RenderWorld).Should().BeTrue("the strip is carried as a glow light");
         gi.Screen.Should().NotBeNull("probes stand for the glow lights alone");
@@ -175,6 +177,7 @@ public sealed partial class GlobalIlluminationTests
         // after reads as the frame before it was fed.
         Open();
         SetGlobalIllumination(GlobalIllumination.Low);
+        GetApp().World.Resource<GlobalIlluminationSettings>().ScreenProbes = true;
         CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var lamp = LoadModelFromMesh(GenMeshCube(1, 1, 1));
@@ -248,10 +251,10 @@ public sealed partial class GlobalIlluminationTests
             DrawModelEx(wall, new Vector3(0.8f, 1, 0), Vector3.UnitX, -90, new Vector3(1.4f, 1, 2), Color.White);
         }
         var gi = GetApp().World.Resource<GlobalIlluminationSettings>();
+        gi.ScreenProbes = true;
         var with = Capture(Draw, camera);
-        gi.ScreenOff = true;
+        gi.ScreenProbes = false;
         var without = Capture(Draw, camera);
-        gi.ScreenOff = false;
         // How much the screen's probes change each wall's red low on its face, near the slab.
         float Change(float x)
         {
@@ -273,6 +276,7 @@ public sealed partial class GlobalIlluminationTests
         // frames bring, and leaves no pixel black that they light.
         Open();
         SetGlobalIllumination(GlobalIllumination.Medium);
+        GetApp().World.Resource<GlobalIlluminationSettings>().ScreenProbes = true;
         CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         void Draw()

@@ -600,13 +600,13 @@ public float4 probesReflectedPlaced(float3 p, float3 n, float3 r, float roughnes
         bouncedField, p, n, r, roughness, lighting.indirect.z, lighting.indirect.y, lighting.indirect.w);
 }
 
-// The light a glossy surface at p facing n reflects along r, traced through the window's depth and
-// past it through the scene's distance field, with in a how much of it is known, 1 where a ray met
-// a surface, faded at the picture's edge where the frame before's picture gives its light, and 0
-// where the ray met nothing, or the surface is too rough to trace for, where the probes and the
-// environment reflect alone. A surface met on the screen reflects the light the frame before
-// showed where it was, and one past the picture or hidden from it its color times the light
-// reaching it, as global illumination shades a hit.
+// The light a glossy surface at p facing n reflects along r, traced through the scene's distance
+// field, and through the window's depth before it where lighting.reflectionReach.z asks, with in a
+// how much of it is known, 1 where a ray met a surface, faded at the picture's edge where the frame
+// before's picture gives its light, and 0 where the ray met nothing, or the surface is too rough to
+// trace for, where the probes and the environment reflect alone. A surface met on the screen
+// reflects the light the frame before showed where it was, and one met in the field its color
+// times the light reaching it, as global illumination shades a hit.
 public float4 tracedReflectionPlaced(float3 p, float3 n, float3 r, float roughness, float3 eye)
 {
     if (!Bouncing || lighting.reflection.x <= 0.0 || roughness >= lighting.reflection.y)
@@ -618,12 +618,13 @@ public float4 tracedReflectionPlaced(float3 p, float3 n, float3 r, float roughne
     camera.viewProjection = lighting.reflectViewProjection;
     camera.inverseViewProjection = lighting.reflectInverseViewProjection;
     camera.eye = eye;
-    float3 hit;
-    float left;
+    float3 hit = start;
+    float left = 0.0;
     // The surface met, on the screen or past it in the field, shaded once, since each shading of a
     // hit holds the glow lights' marches, and two of them lengthen the model pass's compile for
     // every app.
-    bool onScreen = traceScreen(SplitPicture(reflectDepth, lightNearest), camera, start, r, lighting.reflectionReach.x, int(lighting.reflection.z), hit, left);
+    bool onScreen = lighting.reflectionReach.z > 0.0
+        && traceScreen(SplitPicture(reflectDepth, lightNearest), camera, start, r, lighting.reflectionReach.x, int(lighting.reflection.z), hit, left);
     if (!onScreen)
     {
         float t = traceField(SplitVolume(reflectField, lightLinear), bouncedField, start, r, left, 1e5);

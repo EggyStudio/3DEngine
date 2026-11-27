@@ -147,7 +147,7 @@ public sealed class GlowPenumbraTests : IDisposable
             SetSceneField(4, 0.25f, 2);
             SetGlobalIllumination(GlobalIllumination.High);
             SetAmbientLight(Color.Black, 0);
-            if (screenOff) GetApp().World.Resource<GlobalIlluminationSettings>().ScreenOff = true;
+            GetApp().World.Resource<GlobalIlluminationSettings>().ScreenProbes = !screenOff;
             _block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
             _lamp = LoadModelFromMesh(GenMeshCube(1, 1, 1));
             _lamp.Materials[0].Emissive = new Color(255, 200, 120);

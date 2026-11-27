@@ -1458,14 +1458,15 @@ columns from 1.55 to 1.65 ms of the GPU and its global illumination from 1.26 to
 build, and the Cornell box's from 0.69 to 0.70 ms at `High` with 0.84 MB more, by
 `./e3d command profile` and `gi.state`.
 
-The first interval is traced again on the screen (`gi_screen.slang`). A probe stands on the surface
-at the middle of each tile of 16, 12 or 8 pixels by the quality, read from the half-size depth the
-occlusion pass draws, which it draws for the probes alone where the occlusion and contact shadows
-are off. It sends 16 rays over the hemisphere around the surface's normal, one through each texel
-of the hemisphere's square of four by four, each tile's from one of sixteen places in its texels,
-every four tiles by four holding each place once (below), twice as far as the
-world's probes are apart where a ray ends in the finest cascade and as far as they are apart past
-it, stepped through the depth while on the screen and through the field from where they leave it.
+Where `gi.screen on` puts them in, off unless set (below), the first interval is traced again on the
+screen (`gi_screen.slang`). A probe stands on the surface at the middle of each tile of 16, 12 or 8
+pixels by the quality, read from the half-size depth the occlusion pass draws, which it draws for
+the probes alone where the occlusion and contact shadows are off. It sends 16 rays over the
+hemisphere around the surface's normal, one through each texel of the hemisphere's square of four by
+four, each tile's from one of sixteen places in its texels, every four tiles by four holding each
+place once (below), twice as far as the world's probes are apart where a ray ends in the finest
+cascade and as far as they are apart past it, stepped through the depth while on the screen and
+through the field from where they leave it.
 Reaching as far as the probes are apart, a wall two units before a pillar beside a lamp took the
 light past that from the probes standing at the pillar's dark face, and its indirect light read 0.68
 of a path-traced reference's where 1.05 without the pillar, and reaching twice as far 0.79 and 1.01,
@@ -1581,22 +1582,24 @@ under it first and then the eight around it (`screenNearest`), the world's probe
 where none does. A pixel at a wall's edge whose own texel shows the surface beyond, as where the
 pixel's samples cover the wall but its middle does not, so reads the wall's texel beside it.
 
-A glossy surface traces its reflection in the model pass (`tracedReflection` in
-`lights.slang`), where it has its own normal, its normal map's included, and its roughness, so
-only a fragment under a roughness of 0.5 traces and a scene of rough surfaces pays nothing. The
-mirror ray is stepped through the window's half-size depth of this frame, 12, 16 or 24 steps by the
-quality, spaced more finely near the surface, and the step it meets a surface in is halved five
-times (`traceScreen` in `gi.slang`, which the screen probes trace through too). The surface it meets
-is looked up in the frame before's picture through the camera of the frame before, its level of
-blur by the roughness, and blended toward the field's shading of the same point at the picture's
-edge, and where the frame before's depth there held a point away from the hit, something in front
-of the surface then, the field's shading is taken in its place. A ray that leaves the picture or meets nothing on it is traced on through the field, and the
-surface it meets there is shaded as a probe's ray shades one. Where it meets nothing, the probe's or
-the environment's reflection stands, as it does for a surface as it grows rough, the traced
-reflection fading from a roughness of 0.25 to 0.5, and the ambient lights' specular fades with it.
-While global illumination is on, the window's scene decoded to linear light (§5) is copied after the
-model pass at half size into an image with its mips, and the window's half-size depth beside it
-(`GraphicsDevice.RecordKeepFrame`), which the next frame's reflections read.
+A glossy surface traces its reflection in the model pass (`tracedReflection` in `lights.slang`),
+where it has its own normal, its normal map's included, and its roughness, so only a fragment under
+a roughness of 0.5 traces and a scene of rough surfaces pays nothing. Where
+`gi.screen_reflection on` puts it in, off unless set (below), the mirror ray is stepped through the
+window's half-size depth of this frame, 12, 16 or 24 steps by the quality, spaced more finely near
+the surface, and the step it meets a surface in is halved five times (`traceScreen` in `gi.slang`,
+which the screen probes trace through too). The surface it meets is looked up in the frame before's
+picture through the camera of the frame before, its level of blur by the roughness, and blended
+toward the field's shading of the same point at the picture's edge, and where the frame before's
+depth there held a point away from the hit, something in front of the surface then, the field's
+shading is taken in its place. A ray that leaves the picture or meets nothing on it is traced on
+through the field, and the surface it meets there is shaded as a probe's ray shades one. Where it
+meets nothing, the probe's or the environment's reflection stands, as it does for a surface as it
+grows rough, the traced reflection fading from a roughness of 0.25 to 0.5, and the ambient lights'
+specular fades with it. Where the window's march is put in, the window's scene decoded to linear
+light (§5) is copied after the model pass at half size into an image with its mips, and the window's
+half-size depth beside it (`GraphicsDevice.RecordKeepFrame`), which the next frame's reflections
+read, and without it no frame is kept.
 
 A rough surface reflects the light the world's probes hold along its mirror way (`probesReflected`
 in `lights.slang`, `reflectedAt` in `roughreflect.slang`), which takes the place of the environment's and the
@@ -2878,6 +2881,18 @@ what the toggle's frame costs. The bounce rooms at `Low` read 0.099, 0.117, 0.27
 0.078, 0.226, 0.308, 0.020, 0.207, 0.069, 0.113 and 0.058, the thin walls and the corridor further
 with nothing under the probes' spacing, and the Cornell box, the window, the grazing floor and the
 carried lamp nearer.
+
+**Every screen layer off by default, read on 2026-11-26.** No layer read from the window's depth
+and the frames before lights a pixel unless a setting puts it in, so the world's probes alone light
+every pixel at every quality. `gi.screen on` puts the screen's probes in, at `Medium` and `High`
+traced and at `Low` standing for the glow lights alone, and `gi.screen_reflection on` the glossy
+reflection's march through the window's depth and its read of the frame before's picture, whose
+copy is not kept without it. The screen's cascades stay off. A glossy surface's reflection is
+traced through the field alone, its hit shaded from the world's probes with no history. Each pixel
+marches to every glow light in view itself, the cost the voxel game's room of forty glowstones read
+above, 13.3 ms where the probes standing for the glow lights took 1.2. The occlusion pass, the
+contact shadows and the blur of light under skin are not light read from the frames before and
+stay as their own settings set them.
 
 **The screen's probes' spacing by the window's height, read on 2026-10-25.** Every 8 pixels at
 `High` whatever the window, 3840 by 2160 placed nine times the probes of 1280 by 720, and in the

@@ -98,7 +98,9 @@ public struct Lighting
     // the window's depth. w: 1 when reflectHistory holds the frame before.
     public float4 reflection;
     // x: how far a reflection is traced through the window's depth. y: 1 when a reflection the
-    // field misses is traced through rayScene, where the device traces rays. zw: unused.
+    // field misses is traced through rayScene, where the device traces rays. z: 1 when a reflection
+    // is traced through the window's depth before the field, and 0 when through the field alone. w:
+    // unused.
     public float4 reflectionReach;
     // rgb: what the environment map's light on the scene is multiplied by, the share and the tint
     // the program set, linear, apart from the sky the map draws, which reads environment.x alone.

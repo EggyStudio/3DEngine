@@ -124,18 +124,19 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
         renderWorld.TryGet<GlobalIlluminationSettings>() is { GatherRays: true } ? _rays : null;
 
     /// <summary>
-    /// Whether the screen's probes stand for the glow lights alone this frame, which they do at
-    /// <see cref="GlobalIllumination.Low"/>, which leaves them out, while some glow light is lit.
+    /// Whether the screen's probes stand for the glow lights alone this frame, which they do where
+    /// they are put in at <see cref="GlobalIllumination.Low"/>, while some glow light is lit.
     /// </summary>
     /// <remarks>
     /// Without them each pixel marches to every glow light in view itself, the model pass's cost
     /// growing with the lights in view, so they are marched to once a tile, as the screen's probes
     /// march to them, and a pixel reads the texels around it, its cost the same however many lights
-    /// there are. Left out for debugging (<see cref="GlobalIlluminationSettings.ScreenOff"/>), they
-    /// stand for nothing, and each pixel marches.
+    /// there are. Unless put in for debugging
+    /// (<see cref="GlobalIlluminationSettings.ScreenProbes"/>), they stand for nothing, and each
+    /// pixel marches.
     /// </remarks>
     public bool GlowOnly(RenderWorld renderWorld) =>
-        _glowCount > 0 && renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenOff: false, Quality: GlobalIllumination.Low };
+        _glowCount > 0 && renderWorld.TryGet<GlobalIlluminationSettings>() is { ScreenProbes: true, Quality: GlobalIllumination.Low };
 
     /// <summary>Traces, merges and gathers the frame's probes, binding them for the model pass, or lets them go where light does not bounce.</summary>
     public void Draw(RenderContext renderContext, RenderWorld renderWorld)
@@ -300,8 +301,8 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             origin.Against(_fieldChanged.Min), origin.Against(_fieldChanged.Max), lit.ShellParts)));
 
         // The screen's probes, where the window has a depth to stand them on, the first interval
-        // theirs. At Low, which leaves them out, they stand for the glow lights alone while some
-        // are lit, each marching to the lights once a tile and tracing no ray (GlowOnly).
+        // theirs. Put in at Low, they stand for the glow lights alone while some are lit, each
+        // marching to the lights once a tile and tracing no ray (GlowOnly).
         var quality = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
         var glowOnly = GlowOnly(renderWorld);
         if ((ScreenProbesOn(renderWorld) || glowOnly) && renderWorld.TryGet<WindowDepth>() is { } depth
@@ -512,10 +513,17 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
     /// Keeps <paramref name="scene"/>, the window's scene the HDR frame drew this frame at
     /// <paramref name="extent"/>, for the reflections of the frame after, once the model pass has
     /// read the frame before's, with the window's depth beside it, made again where the window's size
-    /// changed.
+    /// changed, and none kept where the reflections march the field alone
+    /// (<see cref="GlobalIlluminationSettings.ReflectionOnScreen"/>).
     /// </summary>
     public void KeepFrame(RenderContext renderContext, RenderWorld renderWorld, IImageView scene, Extent2D extent)
     {
+        if (renderWorld.TryGet<GlobalIlluminationSettings>() is not { ReflectionOnScreen: true })
+        {
+            if (_history is not null) _retired.Add((_frame, _history));
+            (_history, HistoryView) = (null, null);
+            return;
+        }
         if (_gi is null || renderContext.Device is not GraphicsDevice device || renderWorld.TryGet<WindowView>() is not { } window
             || renderWorld.TryGet<WindowDepth>() is not { } depth) return;
         if (_history is null || _history.Window != extent)

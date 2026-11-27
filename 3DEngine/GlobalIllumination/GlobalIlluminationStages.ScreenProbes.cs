@@ -12,8 +12,8 @@ internal sealed unsafe partial class GlobalIlluminationStages
     /// pass to sample.
     /// </summary>
     /// <remarks>
-    /// With <paramref name="glowOnly"/> set the probes stand for the glow lights alone, as at
-    /// <see cref="GlobalIllumination.Low"/>, which leaves the screen's probes out, each placed and
+    /// With <paramref name="glowOnly"/> set the probes stand for the glow lights alone, as where
+    /// they are put in at <see cref="GlobalIllumination.Low"/>, each placed and
     /// marching to the lights with no ray traced, filtered or held, so the glow lights' light on the
     /// depth's texels is made from them as it is from the whole probes. Where the screen gathers by
     /// pixel (<see cref="GpuScreenProbes.Gathered"/>) the probes stand for the glow lights alone as

@@ -117,13 +117,16 @@ public sealed class VolumetricFogTests : IDisposable
         // inside it at High, the field's middle 20 units off, so the room lies in the third
         // cascade, whose probes stand 8 units apart, all outside it. The fog's light in the room is
         // the frame's linear light with fog less without, at the wall ahead, against the same room
-        // with its roof off. No light enters the sealed room, so its fog has none to scatter. With
-        // its cells read as a surface's light is read, the point taken past the roof and the probes
-        // outside seeing the sky, the sealed room's fog scattered as much as the open room's, where
-        // read for the air it scatters a small share of the open room's. Probes 8 apart leave the
-        // open room's fog darker than probes 2 apart around the eye do, the cost of reading only
-        // the probes that see it. Walls thinner than the field's cells of a unit there let the
-        // probes' own rays pass, and the sealed room's fog scattered near the open room's.
+        // with its roof off. The room and its ground are black, so that light is the fog's own. Of
+        // gray stone, the sealed room's wall took the light of the probes outside, and the fog
+        // before it held back more of the wall's light than it scattered. No light enters the
+        // sealed room, so its fog has none to scatter. With its cells read as a surface's light is
+        // read, the point taken past the roof and the probes outside seeing the sky, the sealed
+        // room's fog scattered as much as the open room's, where read for the air it scatters a
+        // small share of the open room's. Probes 8 apart leave the open room's fog darker than
+        // probes 2 apart around the eye do, the cost of reading only the probes that see it. Walls
+        // thinner than the field's cells of a unit there let the probes' own rays pass, and the
+        // sealed room's fog scattered near the open room's.
         var config = Config.Default.WithWindow("fog test", 160, 120) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(3, 0.25f, 2);
@@ -132,7 +135,7 @@ public sealed class VolumetricFogTests : IDisposable
         SetAmbientLight(new Color(170, 200, 255), 2);
         CreateDirectionalLight(Vector3.Normalize(new Vector3(0.4f, -1, 0.3f)), Color.White, 3, castsShadows: true);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
-        var gray = new Color(150, 150, 150);
+        var black = Color.Black;
         var camera = new Camera3D(new Vector3(0, 1, 0.6f), new Vector3(0, 1, -1), Vector3.UnitY, 60);
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         double Wall(bool roofed, bool fogged)
@@ -143,14 +146,14 @@ public sealed class VolumetricFogTests : IDisposable
                 BeginDrawing();
                 ClearBackground(Color.Black);
                 BeginMode3D(camera);
-                DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(30, 0.3f, 30), gray);
+                DrawModelEx(slab, new Vector3(0, -0.15f, 0), Vector3.UnitY, 0, new Vector3(30, 0.3f, 30), black);
                 foreach (var side in new[] { -1f, 1f })
                 {
-                    DrawModelEx(slab, new Vector3(side * 1.5f, 1, 0), Vector3.UnitY, 0, new Vector3(1, 2, 4), gray);
-                    DrawModelEx(slab, new Vector3(0, 1, side * 1.5f), Vector3.UnitY, 0, new Vector3(2, 2, 1), gray);
+                    DrawModelEx(slab, new Vector3(side * 1.5f, 1, 0), Vector3.UnitY, 0, new Vector3(1, 2, 4), black);
+                    DrawModelEx(slab, new Vector3(0, 1, side * 1.5f), Vector3.UnitY, 0, new Vector3(2, 2, 1), black);
                 }
                 if (roofed)
-                    DrawModelEx(slab, new Vector3(0, 2.5f, 0), Vector3.UnitY, 0, new Vector3(4, 1, 4), gray);
+                    DrawModelEx(slab, new Vector3(0, 2.5f, 0), Vector3.UnitY, 0, new Vector3(4, 1, 4), black);
                 EndMode3D();
                 EndDrawing();
             }

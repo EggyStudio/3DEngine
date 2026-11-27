@@ -28,9 +28,10 @@ public sealed class BounceViewTests : IDisposable
         var config = Config.Default.WithWindow("bounce view test", 160, 96) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.15f, 2);
-        // At Medium, which stands the screen's probes the views of tiles, light, filter and history
-        // draw.
+        // At Medium with the screen's probes put in, which stands those the views of tiles, light,
+        // filter and history draw.
         SetGlobalIllumination(GlobalIllumination.Medium);
+        GetApp().World.Resource<GlobalIlluminationSettings>().ScreenProbes = true;
         CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
         // And a sky, which the last cascade's rays that meet nothing bring back, so the far
         // cascades give the frame light of their own.
@@ -76,7 +77,7 @@ public sealed class BounceViewTests : IDisposable
         // first bounce and the first cascade's light, the screen's probes, and their filter least.
         LeftOut("the merge", () => settings.MergeOff = true, () => settings.MergeOff = false, 5);
         LeftOut("every cascade but the last", () => settings.Alone = 1, () => settings.Alone = -1, 0.5f);
-        LeftOut("the screen's probes", () => settings.ScreenOff = true, () => settings.ScreenOff = false, 0.2f);
+        LeftOut("the screen's probes", () => settings.ScreenProbes = false, () => settings.ScreenProbes = true, 0.2f);
         LeftOut("the screen's filter", () => settings.FilterOff = true, () => settings.FilterOff = false, 0.03f);
         LeftOut("the light past the first bounce", () => settings.AgainOff = true, () => settings.AgainOff = false, 0.5f);
         LeftOut("the surfaces' reflection of the indirect light", () => settings.SpecularOff = true, () => settings.SpecularOff = false, 4);

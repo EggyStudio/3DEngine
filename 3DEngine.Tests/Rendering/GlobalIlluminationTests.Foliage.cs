@@ -149,7 +149,7 @@ public sealed partial class GlobalIlluminationTests
     [NeedsVulkanTheory]
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low, 2.5f, 0.11f, 0.2f)]
-    [InlineData(GlobalIllumination.High, 2.5f, 0.14f, 0.23f)]
+    [InlineData(GlobalIllumination.High, 2.5f, 0.125f, 0.23f)]
     [InlineData(GlobalIllumination.High, 5.5f, 0.18f, 0.28f)]
     public void A_Floor_Under_A_Canopy_Of_Leaf_Blocks_Takes_The_Sky_Light_Their_Faces_Let_Through(GlobalIllumination quality, float height, float least, float most)
     {
@@ -160,11 +160,12 @@ public sealed partial class GlobalIlluminationTests
         // shaded where the ray crossed it does. A path-traced reference takes 0.17 of the sky's
         // light the solid canopy holds back two and a half units under it and 0.21 five and a half
         // under it, at the point read three units before the eye in the finest cascade's middle,
-        // and the bounds lie around those. The floor under the solid canopy sees the sky below the
-        // canopy's edges, 5 units off on its near side, which a sky even over the directions below
-        // those edges gives about a twelfth of the open floor's light, and read from the probes
-        // above alone it would be dark, so the rays those probes see no sky along are traced on to
-        // the sky past them.
+        // and the bounds lie around those, the least at High two and a half under it 15% further
+        // from the reference than the 0.131 the world's probes alone give, with no screen probe.
+        // The floor under the solid canopy sees the sky below the canopy's edges, 5 units off on
+        // its near side, which a sky even over the directions below those edges gives about a
+        // twelfth of the open floor's light, and read from the probes above alone it would be dark,
+        // so the rays those probes see no sky along are traced on to the sky past them.
         Open();
         SetSceneField(4, 0.25f);
         SetGlobalIllumination(quality);

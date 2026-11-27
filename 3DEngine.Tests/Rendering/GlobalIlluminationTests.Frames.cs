@@ -375,6 +375,7 @@ public sealed partial class GlobalIlluminationTests
         // Each probe keeps sixteen frames of its light, so its alpha is 2 less a sixteenth.
         Open();
         SetGlobalIllumination(quality);
+        GetApp().World.Resource<GlobalIlluminationSettings>().ScreenProbes = true;
         CreatePointLight(new Vector3(0, 0, 2), new Color(255, 236, 210), 6, range: 8);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         for (int frame = 0; frame < 40; frame++)

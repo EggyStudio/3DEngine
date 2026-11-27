@@ -69,17 +69,20 @@ internal sealed class GlobalIlluminationSettings
     public bool FilterOff { get; set; }
 
     /// <summary>
-    /// Whether the screen's probes are left out whole at any quality, for the window and the render
-    /// targets, neither made nor traced, every surface reading the cascades' light alone and each
-    /// pixel marching to the glow lights itself, as <c>gi.screen off</c> and the global
-    /// illumination window's debug toggle set it, so what they cost and give can be read.
+    /// Whether the screen's probes are made, for the window and the render targets, traced at
+    /// <see cref="GlobalIllumination.Medium"/> and <see cref="GlobalIllumination.High"/>
+    /// (<see cref="Illumination.ScreenProbesAt"/>) and standing for the glow lights alone at
+    /// <see cref="GlobalIllumination.Low"/>, as <c>gi.screen on</c> and the global illumination
+    /// window's debug toggle set it, so what they cost and give can be read. Without them every
+    /// surface reads the cascades' light alone and each pixel marches to the glow lights itself.
     /// </summary>
     /// <remarks>
-    /// A debugging switch alone, which no program's call reaches. A program leaves the screen's
-    /// probes out by <see cref="GlobalIllumination.Low"/> (<see cref="Illumination.ScreenProbesAt"/>).
-    /// Each pixel's march costs the model pass in step with the glow lights in view.
+    /// Off unless set, a debugging switch alone, which no program's call reaches. The world's
+    /// probes light every pixel by default, and no layer read from the window's depth and the
+    /// frames before lights one. Each pixel's march costs the model pass in step with the glow
+    /// lights in view.
     /// </remarks>
-    public bool ScreenOff { get; set; }
+    public bool ScreenProbes { get; set; }
 
     /// <summary>
     /// How the light reaches the picture where the screen's probes stand, by those probes or by the
@@ -279,6 +282,19 @@ internal sealed class GlobalIlluminationSettings
     /// further from their references than their measured bounds.
     /// </remarks>
     public bool ScreenCascades { get; set; }
+
+    /// <summary>
+    /// Whether a glossy surface's reflection marches the window's depth before the scene's distance
+    /// field, a surface it meets there taking the light the frame before's picture showed of it, as
+    /// <c>gi.screen_reflection on</c> sets it. Without it the reflection marches the field alone
+    /// and takes the color of the surface it meets times the light reaching it, as global
+    /// illumination shades a hit, and the frame is not kept for it.
+    /// </summary>
+    /// <remarks>
+    /// Off unless set, so that no layer read from the window's depth and the frames before lights a
+    /// pixel by default.
+    /// </remarks>
+    public bool ReflectionOnScreen { get; set; }
 
     /// <summary>
     /// How many probes a side each cascade of the world's probes holds, from the first on, the last

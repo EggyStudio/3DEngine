@@ -227,13 +227,13 @@ public class ImGuiHolderTests
             E3D.UseApp(app);
             E3D.SetGlobalIllumination(GlobalIllumination.Low);
             var settings = app.World.Resource<GlobalIlluminationSettings>();
-            foreach (var off in new[] { false, true })
+            foreach (var on in new[] { false, true })
             {
-                settings.ScreenOff = off;
+                settings.ScreenProbes = on;
                 app.BeginFrame();
                 E3D.DrawBounceWindow();
                 app.EndFrame();
-                settings.ScreenOff.Should().Be(off);
+                settings.ScreenProbes.Should().Be(on);
             }
         }
         finally

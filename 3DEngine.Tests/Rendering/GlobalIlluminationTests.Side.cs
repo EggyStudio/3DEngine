@@ -26,7 +26,7 @@ public sealed partial class GlobalIlluminationTests
         SetAmbientLight(Color.Black, 0);
         CreateDirectionalLight(Vector3.Normalize(new Vector3(0.6f, -1, 0.2f)), Color.White, 3);
         var settings = GetApp().World.Resource<GlobalIlluminationSettings>();
-        (settings.ScreenOff, settings.MergeOff, settings.AgainOff, settings.Alone) = (true, true, true, 0);
+        (settings.MergeOff, settings.AgainOff, settings.Alone) = (true, true, 0);
         var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         block.Materials[0] = new ModelMaterial(new Color(200, 200, 200)) { Roughness = 0.9f };
         void Box(float x0, float x1, float y0, float y1, float z0, float z1) =>

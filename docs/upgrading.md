@@ -189,7 +189,7 @@ guide that shows it, as far as the surface had come before it began to change wi
   cost. `DrawBounceWindow` shows its probes, leaves its parts out one at a time and measures the
   frame against a path-traced reference, in an ImGui window of its own.
 - **Glossy surfaces reflect.** Where global illumination is on, a surface with a roughness under 0.5
-  traces its reflection through the window's depth and on through the field, and at `High` on a GPU
+  traces its reflection through the scene's distance field, and at `High` on a GPU
   that traces rays itself, where the field misses, against the meshes' own triangles. Render
   textures and reflection probes' captures take indirect light, in the same guide.
 - **Text shaped.** A line in a script written right to left is drawn in the order it is read,

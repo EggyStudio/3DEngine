@@ -92,8 +92,8 @@ internal static partial class EngineSettings
             s => s.PassesTimed, (s, on) => s.PassesTimed = on);
         yield return Part("gi.history", "Whether the screen's probes take the frame before's light.", s => s.HistoryOff, (s, off) => s.HistoryOff = off);
         yield return Part("gi.filter", "Whether each screen probe's light is blended with its neighbors'.", s => s.FilterOff, (s, off) => s.FilterOff = off);
-        yield return Part("gi.screen", "Whether the screen's probes are traced and read, the cascades' light read alone without them.",
-            s => s.ScreenOff, (s, off) => s.ScreenOff = off);
+        yield return Of("gi.screen", "Whether the screen's probes are traced and read, the cascades' light read alone without them.", false,
+            s => s.ScreenProbes, (s, on) => s.ScreenProbes = on);
         yield return Of("gi.gather", "How the cascades' light reaches the picture where the screen's probes stand, by those probes or by a ray from each texel of a grid of the window's pixels.",
             ScreenGather.Probes, s => s.Gather, (s, v) => s.Gather = v);
         yield return Of("gi.gather_size", "The size of the grid gi.gather pixels sends a ray from each texel of, full, half, quarter or eighth.",
@@ -130,6 +130,8 @@ internal static partial class EngineSettings
             s => s.Layout, (s, layout) => s.Layout = layout);
         yield return Of("gi.screen_cascades", "Whether the screen's probes stand in cascades of their own traced by the device's own rays at High, where it has it, each level's probes twice as far apart with twice as many ways along each side as the level before's, the last reaching the scene's end, in place of the screen probes' rays through the window's depth and the field.", false,
             s => s.ScreenCascades, (s, on) => s.ScreenCascades = on);
+        yield return Of("gi.screen_reflection", "Whether a glossy surface's reflection marches the window's depth before the scene's distance field and takes the light of a surface it meets there from the frame before's picture, the field alone without it.", false,
+            s => s.ReflectionOnScreen, (s, on) => s.ReflectionOnScreen = on);
         yield return new Setting<string>("gi.side", $"How many probes a side each cascade of the world's probes holds, their spacing kept, from the first on as 8,8,12, the last count holding for the cascades past it, 8 for every cascade on a device that draws on its CPU unless set, each even from {GlobalIlluminationSettings.LeastSide} to {GlobalIlluminationSettings.MostSide}.",
             GlobalIlluminationSettings.SidesText(GlobalIlluminationSettings.DefaultSides),
             () => GlobalIlluminationSettings.SidesText(Lit()?.ProbesSides ?? GlobalIlluminationSettings.DefaultSides),

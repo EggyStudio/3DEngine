@@ -79,7 +79,6 @@ public sealed partial class GlobalIlluminationTests
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
         SetGlobalIllumination(GlobalIllumination.High);
-        GetApp().World.Resource<GlobalIlluminationSettings>().ScreenOff = true;
         SetAmbientLight(Color.Black, 0);
         var glowstone = (X: 15, Y: 5, Z: -14);
         var cube = LoadModelFromMesh(GenMeshCube(1, 1, 1));

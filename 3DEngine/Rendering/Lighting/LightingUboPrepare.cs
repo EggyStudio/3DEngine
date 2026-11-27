@@ -89,7 +89,8 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 renderWorld.TryGet<GlobalIlluminationSettings>()!.GridSide(cascades), cascades);
             var quality = renderWorld.TryGet<GlobalIlluminationSettings>()!.Quality;
             var settings = renderWorld.TryGet<GlobalIlluminationSettings>()!;
-            // z: 1 at Low, where the screen's probes stand for the glow lights alone, whose texels are read.
+            // z: 1 where the screen's probes are put in at Low and stand for the glow lights alone,
+            // whose texels are read.
             var glowOnly = renderWorld.TryGet<IIlluminationPasses>()?.GlowOnly(renderWorld) == true;
             var tall = renderWorld.TryGet<SwapchainTarget>()?.Extent.Height ?? 1080;
             // The pixels along each side of the texel the model pass reads the screen's light from
@@ -102,8 +103,9 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 (settings.AlbedoOff ? 1 : 0) + (settings.SpecularOff ? 2 : 0) + (gather > 0 ? 16 : 0) + (settings.FacesMovedToward ? 32 : 0) + (settings.UnderOff ? 64 : 0)
                 + (Illumination.SurfaceGatherOn(renderWorld) ? 128 : 0) + settings.Term * 256);
             windowUbo.ScreenGlow = new System.Numerics.Vector4(GpuScreenProbes.GlowTexelAt(tall), 0, 0, 0);
-            // And a glossy surface's reflection traced through its depth and the field, looked up
-            // in the frame before's picture where the renderer kept it.
+            // And a glossy surface's reflection traced through the field, and through its depth
+            // first and looked up in the frame before's picture where the renderer kept it, where
+            // gi.screen_reflection is on.
             // Both through the camera without temporal antialiasing's move, the camera the window's
             // depth and the frame kept are taken through, and both against the frame's origin from
             // their eyes, the frame before's as this frame's.
@@ -117,7 +119,7 @@ internal sealed class LightingUboPrepare : IPrepareSystem
                 windowUbo.ReflectLastInverseViewProjection = System.Numerics.Matrix4x4.Invert(windowUbo.ReflectLastViewProjection, out var lastInverse)
                     ? lastInverse : inverse;
                 windowUbo.Reflection = new System.Numerics.Vector4(1, Illumination.GlossyRoughness, steps, gi.HistoryViewProjection is null ? 0 : 1);
-                windowUbo.ReflectionReach = new System.Numerics.Vector4(reach, gi.TracesRays ? 1 : 0, 0, 0);
+                windowUbo.ReflectionReach = new System.Numerics.Vector4(reach, gi.TracesRays ? 1 : 0, settings.ReflectionOnScreen ? 1 : 0, 0);
             }
         }
         // And the materials' normal maps left out for a reading, with global illumination on or off.

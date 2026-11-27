@@ -29,6 +29,7 @@ public sealed class GlowStillTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f);
         SetGlobalIllumination(quality);
+        GetApp().World.Resource<GlobalIlluminationSettings>().ScreenProbes = true;
         SetAmbientLight(Color.Black, 0);
         var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         Vector3[] square = [new(5, 0, 0), new(6, 0, 0), new(6, 1, 0), new(5, 1, 0)];

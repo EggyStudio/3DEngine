@@ -9,7 +9,10 @@ namespace Engine;
 /// </summary>
 internal interface IIlluminationPasses
 {
-    /// <summary>Whether the screen's probes stand for the glow lights alone this frame, as at <see cref="GlobalIllumination.Low"/> while some glow light is lit.</summary>
+    /// <summary>
+    /// Whether the screen's probes stand for the glow lights alone this frame, as at
+    /// <see cref="GlobalIllumination.Low"/> where they are put in, while some glow light is lit.
+    /// </summary>
     bool GlowOnly(RenderWorld renderWorld);
 
     /// <summary>

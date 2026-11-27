@@ -32,7 +32,6 @@ public sealed partial class CascadeEdgeTests
         SetSceneField(3, 0.15f, 2);
         SetGlobalIllumination(quality);
         var settings = GetApp().World.Resource<GlobalIlluminationSettings>();
-        settings.ScreenOff = true;
         settings.AlbedoOff = true;
         settings.SpecularOff = true;
         var field = GetApp().World.Resource<SceneFieldSettings>();

@@ -520,10 +520,11 @@ public sealed partial class BounceRoomsTests(ITestOutputHelper output) : IDispos
         return MathF.Abs(Vector3.Dot(sum, n)) / (2 * MathF.PI);
     }
 
-    // The window's screen probe under the pixel x, y of a view of shaders_bounce_rooms at 800 by 450
-    // at High, its rays written over the last frames once the screen's probes have settled, as
-    // gi.screenprobe reads it, with the lines it writes of it, and where more is given the probe read
-    // again in each of the frames after, its rays leaving from the next place in their texels each.
+    // The window's screen probe under the pixel x, y of a view of shaders_bounce_rooms at 800 by
+    // 450 at High with the screen's probes put in, its rays written over the last frames once the
+    // screen's probes have settled, as gi.screenprobe reads it, with the lines it writes of it, and
+    // where more is given the probe read again in each of the frames after, its rays leaving from
+    // the next place in their texels each.
     private static BounceReference.ScreenProbeLight ReadScreenProbe(int view, int x, int y, out string report, Vector3? lamp = null, bool moved = false,
         List<BounceReference.ScreenProbeLight>? more = null, int frames = 16, float roughness = 0.5f)
     {
@@ -531,6 +532,7 @@ public sealed partial class BounceRoomsTests(ITestOutputHelper output) : IDispos
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(3, 0.15f, 2);
         SetGlobalIllumination(GlobalIllumination.High);
+        GetApp().World.Resource<GlobalIlluminationSettings>().ScreenProbes = true;
         using var rooms = new Rooms(lamp, moved, roughness);
         var world = GetApp().World;
         GpuScreenProbes? screen = null;

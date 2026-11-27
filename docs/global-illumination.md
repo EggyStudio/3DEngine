@@ -188,10 +188,10 @@ buildings it holds before the sky, so a valley past the near field is not lit as
 the occlusion, the contact shadows and the glow lights' marches read on through it. Its cells are
 coarse, so it holds land and buildings and loses what is thinner than they are, and it is built
 under the budgets as the others are. Its probes trace a quarter of them a frame, so the far land's
-light is up to three frames behind, and all of them on a frame it moves. The screen's probes stand
-in the counted cascades alone, so a surface past them takes the far cascade's probes as every
-surface does at `Low`. It takes 5.5 MB of the GPU's memory beside the 27 of four cascades, and its
-probes 2.6 MB at High, as `field.state` and `gi.state` say.
+light is up to three frames behind, and all of them on a frame it moves. The screen's probes, where
+`gi.screen on` puts them in, stand in the counted cascades alone, so a surface past them takes the
+far cascade's probes as every other surface does. It takes 5.5 MB of the GPU's memory beside the 27
+of four cascades, and its probes 2.6 MB at High, as `field.state` and `gi.state` say.
 
 The cascades past the first, the far cascade aside, trace half their probes a frame while they lie
 where they lay the frame before, those whose places' coordinates add up to the frame's parity, each
@@ -255,7 +255,8 @@ the screen probes it reads 5.80 times where 5.90. `gi.under off` keeps them at a
 
 ## The screen's probes
 
-At `Medium` and `High`, beside the world's probes stands a probe for every few pixels of the window,
+With `gi.screen on`, a debugging setting that is off unless set, at `Medium` and `High` beside the
+world's probes stands a probe for every few pixels of the window,
 every 12 at `Medium` and 8 at `High` up to 1080 pixels high, on the surface the window shows there. Each traces the near
 light through the window's depth first, as far as the first cascade's probes stand apart, and takes
 the world's probes' light past that, so the light under a table, in a corner or where a wall meets
@@ -274,34 +275,35 @@ render texture, took 1.14 ms of the GPU between them with screen probes every 16
 `./e3d command profile` gives `targets`, where they took 0.62 reading the world's probes alone. A reflection probe's faces take
 the indirect light from the world's probes alone.
 
-The screen's probes come with global illumination at `Medium` and `High`, and `Low` leaves them
-out, every surface reading the cascades' light alone, smoother and coarser, with nothing of the
-light under a table that is smaller than the probes' spacing, so a slow GPU has the cheaper path
-with no switch of its own. A surface by a wall thinner than the field's cell reads the probes it
-sees through the field there, so a lamp outside a room of thin walls lights none of the floor along
-their foot inside. In the Cornell box of `shaders_bounce_rooms` at 800 by 450 on an RTX 4070
-Laptop GPU, the screen's probes take 0.92 ms of the GPU at `High` where no emissive surface is
-carried as a light. At `Low` the small emissive surfaces carried as lights are marched to once a
-tile by probes standing for them alone, which trace nothing else, so a pixel reads their light at
-the same cost however many there are. In a voxel game's closed room of forty glowstones at night,
-all in view, at 1280 by 720, the scene pass took 2.2 ms with the screen's probes and 1.2 with those
-standing for the glow lights alone, where each pixel marching to every glow light itself took 13.3.
-For debugging, `gi.screen off` and the box of the screen's probes in the global
-illumination window leave them out whole at any quality, those standing for the glow lights at `Low`
-with them, neither made nor traced, for the window and a render texture, so what they cost and give
-can be read, and each pixel then marches to the glow lights itself. The setting `gi.gather pixels`
-brings the light by one ray from each texel of a grid of the window's pixels in place of the
-screen's probes, at the size `gi.gather_size` sets, `half` unless set, each ray traced through the
-field as far as `gi.gather_reach` sets, as far as the field reaches unless set, made whole each
-frame with no light kept from the frame before and blended with the texels around it within the
-frame, and the screen's probes stand for the glow lights alone beside it. Each ray's way is drawn
-by the cosine of its angle to the surface's normal, and `gi.gather_guide cascades` draws half the
-texels' ways in proportion to the light the nearest probe of the cascades holds along them times
-that cosine in place, each ray weighed by the chance of its way under the two draws mixed, so the
-light's mean stays what it is and more rays go where the cascades hold light. With
-`gi.gather_rays on`, at High on a device that traces rays, each ray meets the window's meshes
-through the device's ray tracing in place of the window's depth and the field, and the face it
-meets takes the sun through a ray of its own, every face stopping it as a solid one does.
+The screen's probes are off at every quality unless `gi.screen on` or the box of the screen's probes
+in the global illumination window puts them in, for the window and a render texture, so what they
+cost and give can be read. They read the window's depth and keep the frames before, and no such
+layer lights a pixel by default, so the world's probes alone light every pixel, every surface
+reading the cascades' light, smoother and coarser, with nothing of the light under a table that is
+smaller than the probes' spacing. Put in, they stand at `Medium` and `High`, and `Low` leaves them
+out. A surface by a wall thinner than the field's cell reads the probes it sees through the field
+there, so a lamp outside a room of thin walls lights none of the floor along their foot inside. In
+the Cornell box of `shaders_bounce_rooms` at 800 by 450 on an RTX 4070 Laptop GPU, the screen's
+probes take 0.92 ms of the GPU at `High` where no emissive surface is carried as a light. Put in at
+`Low`, the small emissive surfaces carried as lights are marched to once a tile by probes standing
+for them alone, which trace nothing else and blend with what each texel held the frame before, so a
+pixel reads their light at the same cost however many there are. Without them each pixel marches to
+every glow light in view itself, which every quality does by default. In a voxel game's closed room
+of forty glowstones at night, all in view, at 1280 by 720, the scene pass took 2.2 ms with the
+screen's probes and 1.2 with those standing for the glow lights alone, where each pixel marching to
+every glow light itself, as by default, took 13.3. The setting `gi.gather pixels` brings the light
+by one ray from each texel of a grid of the window's pixels in place of the screen's probes, at the
+size `gi.gather_size` sets, `half` unless set, each ray traced through the field as far as
+`gi.gather_reach` sets, as far as the field reaches unless set, made whole each frame with no light
+kept from the frame before and blended with the texels around it within the frame, and the screen's
+probes stand for the glow lights alone beside it. Each ray's way is drawn by the cosine of its angle
+to the surface's normal, and `gi.gather_guide cascades` draws half the texels' ways in proportion to
+the light the nearest probe of the cascades holds along them times that cosine in place, each ray
+weighed by the chance of its way under the two draws mixed, so the light's mean stays what it is and
+more rays go where the cascades hold light. With `gi.gather_rays on`, at High on a device that
+traces rays, each ray meets the window's meshes through the device's ray tracing in place of the
+window's depth and the field, and the face it meets takes the sun through a ray of its own, every
+face stopping it as a solid one does.
 
 A probe's ray that meets a surface takes the light of every glow light in its reach there, about
 thirty at a hit in Ore's lit caves, of which the brightest four give nine tenths. A light giving
@@ -318,8 +320,8 @@ Past 1080 pixels high the probes stand further apart as the window is higher, ev
 `High` at 2560 by 1440 and every 16 at 3840 by 2160, so each stands for about the same share of the
 picture on any screen and their cost holds near 1080p's. In the voxel game's room of forty
 glowstones, offscreen on the same GPU, global illumination and the scene pass took this with the
-screen's probes at `High`, with `Low`'s probes for the glow lights alone, and with each pixel
-marching to the glow lights, as the debugging toggle has it.
+screen's probes put in at `High`, with `Low`'s probes for the glow lights alone put in, and with
+each pixel marching to the glow lights, as every quality does by default.
 
 | Window | `High`, global illumination | `High`, scene pass | `Low`, global illumination | `Low`, scene pass | Marching, scene pass |
 |---|---|---|---|---|---|
@@ -391,10 +393,11 @@ command gi.through off` reads by stopping the rays at them.
 
 On the development machine's laptop GPU at 800 by 450 with the frame rate unlimited, the Cornell box
 of `shaders_bounce_rooms` costs this on the GPU, read on 2026-11-03, as `./e3d command profile`
-names it `global_illumination`, with `./e3d command gi.state` giving the rest. At `Low` the
-probes standing for the room's four small emitters alone are in the time.
+names it `global_illumination`, with `./e3d command gi.state` giving the rest. They were read with
+the screen's probes put in, which every quality leaves out by default, and at `Low` the probes
+standing for the room's four small emitters alone are in the time.
 
-| Quality | Probe cascades | Directions each | Screen probes | Memory | GPU time |
+| Quality | Probe cascades | Directions each | Screen probes put in | Memory | GPU time |
 |---|---|---|---|---|---|
 | `Low` | 3 | 64, 64, 64 | none, those standing for the glow lights alone | 8.28 MB, 3.65 with no glow light | 0.91 ms |
 | `Medium` | 3 | 64, 64, 256 | every 12 pixels | 10.46 MB | 1.90 ms |
@@ -408,11 +411,12 @@ illumination at `High` and 0.03 to 0.09 ms at `Low` and `Medium` at 800 by 450 o
 machine's GPU.
 
 Each quality keeps to a budget on the development machine's RTX 4070, read in Sponza's atrium and
-the bounce rooms with `./e3d command profile`, without the glow lights global illumination takes
-under 2 ms at `Low`, 3 at `Medium` and 4 at `High` at 1920 by 1080, Sponza's atrium 1.56, 2.85 and
-3.83, and at 3840 by 2160 at most half again as much, the atrium 1.57, 2.94 and 4.04, since the
-screen's probes and the glow lights' texels stand near 1080p's count past it. The glow lights add
-0.3 to 0.4 ms at any size, whatever their count, Sponza's 23 of them 0.29 to 0.42.
+the bounce rooms with `./e3d command profile` with the screen's probes put in, without the glow
+lights global illumination takes under 2 ms at `Low`, 3 at `Medium` and 4 at `High` at 1920 by 1080,
+Sponza's atrium 1.56, 2.85 and 3.83, and at 3840 by 2160 at most half again as much, the atrium
+1.57, 2.94 and 4.04, since the screen's probes and the glow lights' texels stand near 1080p's count
+past it. The glow lights add 0.3 to 0.4 ms at any size, whatever their count, Sponza's 23 of them
+0.29 to 0.42.
 
 `Low` suits a slow GPU or a scene whose light comes from near, `Medium` most games, and `High` a
 scene whose light comes from far off, a cave lit from its mouth or a valley under a sunset. A
@@ -435,24 +439,25 @@ rays have not met for 60 frames gives its corners back for the next that fits in
 ## Reflections and the sky
 
 Where global illumination is on, a glossy surface, one with a roughness under 0.5, traces its
-reflection too. The ray is stepped through the window's depth first, and a surface it meets there
-reflects the light the frame before showed on it; a ray that leaves the picture is traced on through
-the field, and the surface it meets there reflects its color times the light reaching it, so a
-mirror shows what stands behind the camera. At `High`, on a GPU that traces rays itself, a
-reflection the field misses, past its cascades or too thin for its cells, is traced against the
-meshes' own triangles, which `./e3d command gi.rays off` turns off and `gi.rays on` back on. The
-traced reflection fades as a surface grows rough, from a roughness of 0.25 to 0.5, into the light
-the probes around the surface hold along its mirror way, which spreads wider as the roughness grows,
-so stone and wood reflect the room around them, and a reflection probe's box keeps its capture. A
-surface lying in a plane the program sets mirrors the
-scene drawn from the camera mirrored in it instead, as [A mirror
-plane](materials-light-and-shadows.md#a-mirror-plane) says. Under a roughness of 0.5 the
-environment map's reflection takes what the trace and the probes leave, weighed by the share of the
-sky the probes around a surface see along its mirror direction, so a glossy floor in a cave sealed
-from the sky reflects none of it. In `shaders_reflections` at `Medium`
-the scene's pass takes 0.30 ms of the GPU with its floor polished and 0.23 ms with it rough, as
-`./e3d command profile` names it `hdr_scene`, and at `High` the GPU's rays see its 8 copies of 6
-meshes in 1.23 MB, built again each frame in some 0.02 ms.
+reflection too. The ray is traced through the field, and the surface it meets there reflects its
+color times the light reaching it, so a mirror shows what stands behind the camera. With
+`gi.screen_reflection on`, off unless set since it reads the window's depth and the frame before,
+the ray is stepped through the window's depth first, and a surface it meets there reflects the light
+the frame before showed on it, a ray that leaves the picture traced on through the field. At `High`,
+on a GPU that traces rays itself, a reflection the field misses, past its cascades or too thin for
+its cells, is traced against the meshes' own triangles, which `./e3d command gi.rays off` turns off
+and `gi.rays on` back on. The traced reflection fades as a surface grows rough, from a roughness of
+0.25 to 0.5, into the light the probes around the surface hold along its mirror way, which spreads
+wider as the roughness grows, so stone and wood reflect the room around them, and a reflection
+probe's box keeps its capture. A surface lying in a plane the program sets mirrors the scene drawn
+from the camera mirrored in it instead, as [A mirror
+plane](materials-light-and-shadows.md#a-mirror-plane) says. Under a roughness of 0.5 the environment
+map's reflection takes what the trace and the probes leave, weighed by the share of the sky the
+probes around a surface see along its mirror direction, so a glossy floor in a cave sealed from the
+sky reflects none of it. In `shaders_reflections` at `Medium` the scene's pass takes 0.30 ms of the
+GPU with its floor polished and 0.23 ms with it rough, as `./e3d command profile` names it
+`hdr_scene`, and at `High` the GPU's rays see its 8 copies of 6 meshes in 1.23 MB, built again each
+frame in some 0.02 ms.
 
 ## Where it falls short
 
@@ -470,9 +475,9 @@ meshes in 1.23 MB, built again each frame in some 0.02 ms.
   light, but a gap thinner than a cell is closed to it. A double-sided face is held by its plane in
   the cells it is nearest, so two of them two cells apart, as a field of crops, leave the gap
   between them open.
-- **The screen's probes at a far doorway.** In Sponza's view 1 at the default the face of the far
-  doorway beside the floor reads 5.80 times its path-traced reference's light with the screen's
-  probes, where 1.81 with the world's cascades alone, for two causes. A screen probe's ray that
+- **The screen's probes at a far doorway.** In Sponza's view 1 with the screen's probes put in, the
+  face of the far doorway beside the floor reads 5.80 times its path-traced reference's light, where
+  1.81 with the world's cascades alone as by default, for two causes. A screen probe's ray that
   meets a surface far off takes the normal of the field's coarse cell there, which at a corner
   points through the wall, and given the true normal at each hit the face reads 1.70 times. A pixel
   takes the light of a screen probe that stands far from it along its own plane, so the gray floor
@@ -508,9 +513,9 @@ boxes leave parts of global illumination out. The same is in a running program t
 | `gi.show <view>`, `gi.show_cascade <cascade>` | Settings that draw over the window the screen's probes as tiles, their light, filtered or the share of it the frames before gave, or the cascade's rays' light, its merge or its probes as cubes |
 | `gi.difference <png>` | Draws the frame over the window against a reference |
 | `gi.passes <on\|off>` | The setting that times global illumination's passes apart in the profile, the ray scene, each cascade's trace, the merges, the gather, the screen's probes, their filter and the glow lights, as `gpu.gi_` lines, the rest staying `gpu.global_illumination` |
-| `gi.history`, `gi.filter`, `gi.screen`, `gi.merge`, `gi.again`, `gi.follow`, `gi.glow`, `gi.through`, `gi.albedo`, `gi.specular`, `gi.normals`, `gi.spread`, `gi.points`, `gi.footprint`, `gi.under`, `gi.own_place` `<on\|off>` | Settings that leave out the frame before's light, the screen's filter, the screen's probes, neither made nor traced, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, the crossing of what lets light through, the surfaces' colors, their reflection of the indirect light, their normal maps, the coarser cascades' trace in halves, the faint glow lights taken as one point, the sun at a still probe's hit read over the patch of the face its ray stands for, the probes below every surface left out where a surface does not see them or each cascade's probes placed by the field from the cascade they stand in outward |
+| `gi.history`, `gi.filter`, `gi.merge`, `gi.again`, `gi.follow`, `gi.glow`, `gi.through`, `gi.albedo`, `gi.specular`, `gi.normals`, `gi.spread`, `gi.points`, `gi.footprint`, `gi.under`, `gi.own_place` `<on\|off>` | Settings that leave out the screen's probes' light of the frame before, their filter, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, the crossing of what lets light through, the surfaces' colors, their reflection of the indirect light, their normal maps, the coarser cascades' trace in halves, the faint glow lights taken as one point, the sun at a still probe's hit read over the patch of the face its ray stands for, the probes below every surface left out where a surface does not see them or each cascade's probes placed by the field from the cascade they stand in outward |
 | `gi.gather <probes\|pixels>`, `gi.gather_size <full\|half\|quarter\|eighth>`, `gi.gather_reach <units>`, `gi.gather_guide <off\|cascades>`, `gi.gather_rays <on\|off>` | Settings that bring the cascades' light to the picture by the screen's probes or by one ray from each texel of a grid of the window's pixels at the size set, traced through the field as far as the reach set, `0` for as far as the field reaches, its ways drawn by the cosine or half of them toward the light the cascades hold, its rays meeting the meshes through the device's ray tracing where set, made whole each frame and blended within it, the screen's probes then standing for the glow lights alone |
-| `gi.cascade <cascade>`, `gi.meshes <on\|off>`, `gi.own_field <on\|off>`, `gi.toward <on\|off>`, `gi.surface <on\|off>`, `gi.layout <dense\|split>`, `gi.screen_cascades <on\|off>` | Settings that keep one cascade's light alone, `-1` for all, trace the probes' rays through the GPU's own rays at `High` and march each cascade's probes' rays through the field from the cascade they stand in outward, have a pixel read its probes' faces moved toward the surfaces their rays met, have it take the probes' light at its point as the RadianceCascades module gathers a surface point, lay those probes out as the module's split cascades kept near the points the eye sees, or have the screen's probes stand in cascades of their own traced by the GPU's own rays to the scene's end |
+| `gi.cascade <cascade>`, `gi.meshes <on\|off>`, `gi.own_field <on\|off>`, `gi.toward <on\|off>`, `gi.surface <on\|off>`, `gi.layout <dense\|split>`, `gi.screen <on\|off>`, `gi.screen_cascades <on\|off>`, `gi.screen_reflection <on\|off>` | Settings, off unless set but for the cascade and the layout, that keep one cascade's light alone, `-1` for all, trace the probes' rays through the GPU's own rays at `High` and march each cascade's probes' rays through the field from the cascade they stand in outward, have a pixel read its probes' faces moved toward the surfaces their rays met, have it take the probes' light at its point as the RadianceCascades module gathers a surface point, lay those probes out as the module's split cascades kept near the points the eye sees, put the screen's probes in, have them stand in cascades of their own traced by the GPU's own rays to the scene's end, or step a glossy surface's reflection through the window's depth before the field |
 | `gi.side <counts>`, `gi.shell_parts <turns>` | Settings that set how many probes a side each cascade holds from the first on, as `8,8,12`, the last count holding for the cascades past it, and the turns the probes past each cascade's inner eight a side trace in, `0` for every frame |
 | `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it, each face by where its ways were met, and the ways that carry most of the face furthest from it, each with how far its rays went against what and how far the reference's path through the texel's middle first met, and whether the probe was carried past its interval with its rays moving |
 | `field.march <x> <y> <z> [dx] [dy] [dz] [sun]` | Marches the scene's distance field from a point along a way, or toward the sun, as the passes march it, and says where it met a surface, in which cascade and cell, and each step, with `sun` marching on from that surface toward the sun as a probe's hit does |

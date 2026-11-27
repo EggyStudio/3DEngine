@@ -121,6 +121,7 @@ public sealed partial class GlobalIlluminationTests
         SetSceneField(2, 0.15f, 2, farCascade: 100);
         SetAmbientLight(Color.White, 1);
         SetGlobalIllumination(GlobalIllumination.Medium);
+        GetApp().World.Resource<GlobalIlluminationSettings>().ScreenProbes = true;
         var floor = LoadModelFromMesh(GenMeshCube(400, 1, 400));
         var image = Capture(() => DrawModel(floor, new Vector3(0, -0.5f, -180), 1, Color.Gray),
             new Camera3D(new Vector3(0, 4, 0), new Vector3(0, 0, -20), Vector3.UnitY, 50));

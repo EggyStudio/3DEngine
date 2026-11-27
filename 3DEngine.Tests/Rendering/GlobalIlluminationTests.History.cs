@@ -35,6 +35,7 @@ public sealed partial class GlobalIlluminationTests
             DrawModelEx(panel, new Vector3(0, 2.97f, 0), Vector3.UnitY, 0, new Vector3(1.2f, 0.06f, 1.2f), Color.White);
         }
         SetGlobalIllumination(GlobalIllumination.Medium);
+        GetApp().World.Resource<GlobalIlluminationSettings>().ScreenProbes = true;
         var settings = GetApp().World.Resource<GlobalIlluminationSettings>();
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var device = (GraphicsDevice)renderer.Context.Graphics!;
@@ -82,6 +83,7 @@ public sealed partial class GlobalIlluminationTests
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.15f, 2);
         SetGlobalIllumination(quality);
+        GetApp().World.Resource<GlobalIlluminationSettings>().ScreenProbes = true;
         CreatePointLight(new Vector3(0, 2, 1), new Color(255, 236, 210), 6, range: 10);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var column = LoadModelFromMesh(GenMeshCylinder(0.12f, 3.5f, 8));
