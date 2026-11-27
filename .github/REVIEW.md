@@ -1460,3 +1460,19 @@ required, the whole suite passed 2,591 tests and skipped 1, none failing, and la
 26.3.1 passed the store's, the split's and the copies' 11 tests. After the suite only comments and
 the guide changed, and the global illumination, norms and docs tests passed 240 and skipped 1 on
 that build.
+
+153. Verdict 143. The three dumps of run 46061553783 were read with gdb in Ubuntu 24.04. The thread
+that ended each process took signal 11 reading address 8 through a null pointer, in code no file
+holds, lavapipe's compiled shader, as in Verdict 141. On the runner's Mesa, lavapipe of Mesa 25.2.8
+in an Ubuntu 24.04 container on four cores, the passes test ends the process in seconds, and copies
+of its frames place the fault in the split layout over its slab 8 wide, at High and at Low, timed
+apart or not, the layout set before the first frame or after the grid's. Over a floor 40 wide, as
+the split tests draw, the same frames run, and on the host's lavapipe of Mesa 26.3.1 all of them
+run, the passes test with them. The split cascades' part of the test is a test of its own,
+`Under_The_Split_Layout_Its_Passes_Timed_Apart_Are_The_Split_Cascades_Each`, which takes
+`NeedsSplitTraceFact` as the store's trace tests do, and the grid's part stays in the passes test.
+The rule's comments name the split cascades' kernel where they named the store's trace in the
+walk's second level, since the module's 10c530a walks no levels. On 25.2.8 the passes test passed
+and the split one was skipped, and the Rendering tests passed 751 and skipped 59, none failing and
+none ending the process. On 26.3.1 the two passed. On the RTX 4070 with the layer required, the GI
+filter with the norms' and the docs' tests passed 241 and skipped 1.

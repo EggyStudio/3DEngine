@@ -93,7 +93,7 @@ public sealed class NeedsRayQueryTheoryAttribute : TheoryAttribute
 
 /// <summary>
 /// Skipped as <see cref="NeedsVulkanFactAttribute"/> is, and on lavapipe before Mesa 26.3, whose
-/// compiled shader of the split store's trace ends the process
+/// compiled shader of the split cascades' kernel ends the process
 /// (<see cref="Probes.SplitTraceFaults"/>).
 /// </summary>
 public sealed class NeedsSplitTraceFactAttribute : FactAttribute
@@ -102,7 +102,7 @@ public sealed class NeedsSplitTraceFactAttribute : FactAttribute
     {
         if (new NeedsVulkanFactAttribute().Skip is { } skip) Skip = skip;
         else if (Probes.Adapter.Value is { } adapter && Probes.SplitTraceFaults(adapter))
-            Skip = $"The Vulkan device here, {adapter.Name} of Mesa {adapter.Driver}, ends the process in the split store's trace, "
+            Skip = $"The Vulkan device here, {adapter.Name} of Mesa {adapter.Driver}, ends the process in the split cascades' kernel, "
                    + "its compiled shader reading a buffer's descriptor through a null address, as lavapipe before Mesa 26.3 does.";
     }
 }
@@ -207,9 +207,9 @@ internal static class Probes
     });
 
     // Whether the adapter is lavapipe before Mesa 26.3, which numbers its driver as Mesa is
-    // numbered. Mesa 25.2.8's compiles the split store's trace to a shader that reads a buffer's
-    // descriptor through a null address in the walk's second level, under the branch to it, and
-    // the process ends, where 26.3.1's runs it.
+    // numbered. Mesa 25.2.8's compiles the split cascades' kernel to a shader that reads a
+    // buffer's descriptor through a null address, in the store's trace and in the frames of a slab
+    // 8 wide under the split layout, and the process ends, where 26.3.1's runs both.
     public static bool SplitTraceFaults(GraphicsAdapterInfo adapter)
     {
         if (adapter.DeviceType != GraphicsDeviceType.Cpu || !adapter.Name.StartsWith("llvmpipe", StringComparison.Ordinal)) return false;
