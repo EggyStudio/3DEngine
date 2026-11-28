@@ -118,7 +118,8 @@ internal sealed class Renderer : IDisposable
         }
         RenderWorld.Set(new ParticleRenderer(server.LoadSync<ShaderProgram>("shaders/particles.slang")));
         RenderWorld.Set(new ModelRenderer(model, shadow, server.LoadSync<ShaderProgram>("shaders/model_streams.slang"),
-            server.LoadSync<ShaderProgram>("shaders/subsurface.slang"), lampless, unbounced));
+            server.LoadSync<ShaderProgram>("shaders/subsurface.slang"), lampless, unbounced,
+            server.LoadSync<ShaderProgram>("shaders/surface_normals.slang")));
         RenderWorld.Set(new SubsurfaceRenderer(server.LoadSync<ShaderProgram>("shaders/subsurface_blur.slang")));
         RenderWorld.Set(new ImmediateRenderer(immediate.Vertex, immediate.Fragment));
         var bloom = server.LoadSync<ShaderProgram>("shaders/bloom.slang");

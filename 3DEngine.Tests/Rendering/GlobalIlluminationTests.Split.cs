@@ -92,6 +92,78 @@ public sealed partial class GlobalIlluminationTests
 
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
+    public void Split_A_Floor_s_Points_Take_The_Normal_Its_Surface_Is_Shaded_With_And_Else_The_Depth_s_From_Inside_Its_Edge()
+    {
+        // A black floor under a sky of 1 takes at a point the sky over the share of its normal's
+        // half the floor's plane leaves open, (1 + cos a) / 2 where the normal leans a from up. The
+        // floor drawn with its vertices' normals leaning 60 degrees gathers so, where the depth
+        // alone gives it the level floor's normal and the whole sky. A floor of positions alone,
+        // which the pass beside the depth does not draw, takes the depth's normal, along each axis
+        // from the texel inside it at the depth's edge, so its bottom row and its first and last
+        // columns gather the whole sky as those of the level floor drawn with its normals do. A
+        // see-through film of normals leaning as much, laid over the level floor, leaves the floor
+        // its own normal, which the model pass shades it by under the film, and the whole sky, as
+        // does a slab of such normals close under the floor and drawn after it, its depth near
+        // enough the floor's to pass the pass's bound but further than the floor's own.
+        var leaning = Vector3.Normalize(new Vector3(MathF.Sqrt(3), 1, 0));
+        Vector3[] corners = [new(-20, 0, -20), new(20, 0, -20), new(20, 0, 20), new(-20, 0, 20)];
+        uint[] faces = [0, 2, 1, 0, 3, 2];
+        foreach (var quality in new[] { GlobalIllumination.Low, GlobalIllumination.High })
+            foreach (var (name, expected) in new[] { ("level", 1f), ("leaning", 0.75f), ("of positions", 1f), ("under a film", 1f), ("over a slab", 1f) })
+            {
+                Open();
+                SetAmbientLight(Color.White, 1);
+                SetGlobalIllumination(quality);
+                GetApp().World.Resource<GlobalIlluminationSettings>().Layout = ProbeLayout.Split;
+                var mesh = name == "of positions" ? UploadMesh(corners, faces, null, null)
+                    : UploadMesh([.. corners.Select(c => new ModelVertex(c, name == "leaning" ? leaning : Vector3.UnitY, Vector2.Zero))], faces);
+                var floor = LoadModelFromMesh(mesh);
+                // The film 2 mm over the floor, half clear and out of the light's bounces, which
+                // the depth draws through its masked stage.
+                var film = name == "under a film"
+                    ? LoadModelFromMesh(UploadMesh([.. corners.Select(c => new ModelVertex(c + new Vector3(0, 0.002f, 0), leaning, Vector2.Zero))], faces))
+                    : null;
+                if (film is not null)
+                    film.Materials[0] = new ModelMaterial(new Color(0, 0, 0, 128)) { AlphaMode = MaterialAlphaMode.Blend, BouncesLight = false };
+                // The slab 2 mm under the floor, which the floor hides from the depth.
+                var slab = name == "over a slab"
+                    ? LoadModelFromMesh(UploadMesh([.. corners.Select(c => new ModelVertex(c - new Vector3(0, 0.002f, 0), leaning, Vector2.Zero))], faces))
+                    : null;
+                Capture(() =>
+                {
+                    DrawModel(floor, Vector3.Zero, 1, Color.Black);
+                    if (film is not null) DrawModel(film, Vector3.Zero, 1, Color.White);
+                    if (slab is not null) DrawModel(slab, Vector3.Zero, 1, Color.Black);
+                });
+                var renderer = GetApp().World.Resource<Engine.Renderer>();
+                var lit = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!;
+                var surface = lit.Surface!;
+                var light = GlobalIlluminationStages.Of((GraphicsDevice)renderer.Context.Graphics!).ReadSurfaceGather(surface);
+                var (width, height) = ((int)surface.Width, (int)surface.Height);
+                float At(int x, int y) => light[(y * width + x) * 4];
+                var middle = Enumerable.Range(0, width).Select(x => At(x, height - 8)).ToArray();
+                var bottom = Enumerable.Range(0, width).Select(x => At(x, height - 1)).ToArray();
+                var sides = Enumerable.Range(height - 24, 24).SelectMany(y => new[] { At(0, y), At(width - 1, y) }).ToArray();
+                output.WriteLine($"{quality} {name} rays {lit.Rays is not null} middle {middle.Min():F4} to {middle.Max():F4} "
+                    + $"bottom {bottom.Min():F4} to {bottom.Max():F4} sides {sides.Min():F4} to {sides.Max():F4}");
+                // The bounds measured, the leaning floor's gather above the share by up to 0.05.
+                var bound = name == "leaning" ? 0.06f : 0.002f;
+                middle.Should().AllSatisfy(v => v.Should().BeApproximately(expected, bound, $"a point of the floor {name} gathers by its normal at {quality}"));
+                if (name != "leaning")
+                {
+                    bottom.Should().AllSatisfy(v => v.Should().BeApproximately(1, bound, $"the floor {name} gathers the whole sky at the depth's bottom row at {quality}"));
+                    sides.Should().AllSatisfy(v => v.Should().BeApproximately(1, bound, $"and at its first and last columns at {quality}"));
+                }
+                UnloadModel(floor);
+                if (film is not null) UnloadModel(film);
+                if (slab is not null) UnloadModel(slab);
+                CloseWindow();
+                UseApp(null);
+            }
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
     public void Split_A_Closed_Room_Of_Glowing_Black_Walls_Gathers_What_The_Grid_s_Probes_Gather_Through_The_Field_And_The_Device_s_Rays()
     {
         // Every way from a point of the room's walls meets a wall that glows and reflects nothing,

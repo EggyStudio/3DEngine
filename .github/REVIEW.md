@@ -1553,3 +1553,81 @@ On the RTX 4070 with the layer required, the whole suite passed 2,595 tests at 1
 and that of Mesa 25.2.8 in the Linux job's image passed 12 and skipped the 3 whose split kernel it
 ends the process in. After the suite a test's comment alone changed, and on that build the global
 illumination, norms and docs tests passed 244 and skipped 1.
+
+155. The surface's own normal in the split's gather. After the window's depth,
+`ModelRenderer.DrawSurfaceNormals` draws the window's meshes again through surface_normals.slang
+into an image of the depth's size held beside it as `WindowDepth.Normals`. Each texel holds the
+normal the model pass shades the surface there with, the vertices' normal bent by the material's
+normal map, or nothing where no mesh the pass draws shows. A fragment is kept only where its depth
+lies within two pixels' change of the depth's, and of those kept at a texel the pass keeps the one
+nearest the depth, writing how far each lies as a depth of its own and testing it. It leaves out
+what the depth leaves out, the meshes drawn through a program's shader, of points or of positions
+alone, and also see-through meshes, those the depth draws through its masked stage though their
+materials cut nothing out. It reads the view's lighting buffer through a set of its own, since the
+model pass's set of a view is made once a frame with the occlusion and light the passes after the
+depth work out, and making that set in the depth's node had the render textures' tests read a stale
+one. gi_split.slang's `normalAt` takes the surface's normal where the texel holds one. Elsewhere it
+takes the depth's normal, which takes the smaller step of each pair and reads the texture's edge by
+the neighbor inside it, never the texel itself.
+ao.slang worked its normal out from the same depth by the nearer step of each pair, so it takes the
+surface's normal too, reading the image at its binding 6. Where the texel holds none it keeps its
+own rule at the edge, under which a floor of positions alone keeps 0.9952 of its light along its
+bottom row against 0.9949 by the neighbor inside. The circular occluders' prepass works its normal
+out in its own way and keeps it, the glow march takes the normal its caller gives it, the screen
+glow keeps its own, and the grid's gather in gi_surface.slang keeps the depth's normal, so the grid
+gathers as before.
+Intel Sponza's dirt decals, decals_1st_floor and decals_2nd_floor, are blended, single-sided and
+without a normal map, and 433 of the first's 2,660 triangles and 2,056 of the second's 4,512 carry
+vertex normals more than 60 degrees off their winding. The first floor's lie over the columns'
+bases. Drawn into the pass they lay within its bound of the stone and gave each side of a base a
+normal along another axis, and view 1's specks rose to 4,342. The model pass shades the stone under
+a decal by the stone's own normal and blends the decal over it, so the pass leaves see-through
+meshes out. At the door view the wall on the right, seen at a slant behind the vault's foot, lay
+within the bound there, and drawn after the vault it gave 797 of the view's specks the wall's
+normal along z where the vault faces along x. With the nearest fragment kept, 279 specks lie on the
+vault's foot, and the order the meshes are drawn in decides nothing. The asset's door ornaments
+carry vertex normals off their winding too, ornament_doors_09 on 4,790 of its 48,380 triangles and
+ornament_doors_07 on 3,237 of 32,848. The model pass shades by them, so the specks on the wooden
+door at the door view stay, 266 on its face.
+The split's test of a floor whose points take the normal its surface is shaded with gains two
+cases, a see-through film of leaning normals 2 mm over the level floor and an opaque slab of
+leaning normals 2 mm under it, drawn after it. On the RTX 4070 both read 0.9995 to 1.0 at Low and
+at High along the middle row, the bottom row and the side columns. Without see-through meshes left
+out the film's floor read 0.776, and without the nearest fragment kept the slab's read 0.773 to
+0.778, each failing. Without the surface's normal the leaning floor reads 1.0 and fails, and with
+the depth's normal read at the edge from the texel itself the floor of positions alone reads 0.568
+to 0.606 along its bottom row and fails. The occlusion's test of a floor closed off about the
+normal it is shaded with reads the leaning floor's middle at 0.7972 and fails at 0.9928 without the
+surface's normal, the floors drawn level and of positions alone keeping 0.9929 at their middles.
+Read with no screen layer, the door's left wall settled reads 1.23 of the reference as the grid
+does, against 1.33 at 1dc336e. Its parts read 1.33, 1.38 and 1.46 along the top and 0.89, 1.21 and
+1.80 along the bottom, against the grid's 1.30, 1.47, 4.80, 0.78, 1.17 and 5.85, two of the six
+further from the reference, against three at 1dc336e. With the bounce at zero the wall reads 0.55
+against the grid's 0.63. The command-line guide gives these figures, the layout still off. On the
+views' sheet view 1 reads 1.03 of the reference against the grid's 1.03, its shade 1.17 against
+1.15 and the far doorway 1.33 against 1.81, against 1.03, 1.16 and 1.37 at 1dc336e. The door view's
+wall reads 1.17 against the grid's 1.16 and 1dc336e's 1.26, the gallery 1.00 against 1.01 and 1.00,
+and its near wall 0.96 against 1.66 and 0.99. Of the pixels the reference lights above a fiftieth
+of its mean, those under a fifth of the reference in the mean of the three frames number 940 in
+view 1, where the grid has 550, 10c530a had 1,857 and 1dc336e 1,447. At the door they number 2,154
+against 837, 1,595 and 1,912, and in the gallery 2,677 against 1,110, 4,274 and 4,824. At the door
+they lie on the left wall's edge at the frame, the vault's foot, the wooden door and the floor
+along the wall's foot. Over the three frames 2,601 of their 6,515 are lent half or more from behind
+their plane, against 1,096 at 1dc336e, and none gathers nothing or holds a fresh probe.
+Read by a scratch build that writes the gathered normal at each pixel, the specks' normals lie a
+median 8.8 degrees off the face the reference names in view 1, 14.4 at the door and 9.7 in the
+gallery, against 96, 72 and 89 at 1dc336e, and the other lit pixels' 3.1 to 4.0. Of the specks 11%,
+13% and 22% have a normal facing away from the face, against 0.3% to 1.1% of the other lit pixels.
+Timed at 1080p on the RTX 4070 with no layer, five sessions a scene, the window's depth with the
+normals drawn beside it takes 0.198 to 0.205 ms on Sponza and 0.785 to 0.826 on the Bistro, against
+0.094 to 0.096 and 0.364 to 0.419 at 1dc336e. The occlusion takes 0.383 to 0.405 and 0.356 to 0.361
+against 0.386 to 0.400 and 0.358 to 0.366. The split's gather takes 13.4 and 14.8 ms against 13.5
+and 15.5, its trace 30.7 and 41.0 against 30.4 and 41.1, and global illumination 54.0 and 69.3
+against 53.5 and 70.1.
+On the RTX 4070 with the layer required, the whole suite passed 2,596 tests, skipped 1 and failed
+1, the package test that finds each shader in the newest package of build/package, packed before
+surface_normals.slang was made. Packed again by build/pack.sh, and built again after two comments
+alone changed, the package, global illumination, norms and docs tests passed 274 and skipped 1.
+Lavapipe of Mesa 26.3.1 passed the store's, the split's and the copies' 16 tests, and that of Mesa
+25.2.8 in the Linux job's image passed 13 and skipped the 3 whose split kernel it ends the process
+in, the film's and the slab's floors reading 1.0 on both.

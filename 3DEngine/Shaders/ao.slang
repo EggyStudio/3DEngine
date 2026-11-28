@@ -1,13 +1,14 @@
 // Ambient occlusion from the window's depth, drawn at half the window's size. Each pixel is put
-// back in the world through the inverse of the camera's view-projection, its surface's normal
-// found from the pixels beside it, and the share of the light from all around that reaches it,
-// weighed by the cosine, is integrated over the horizons the depth gives along two slices through
-// the eye's way, as ground-truth ambient occlusion has it, so a floor darkens where a wall meets it
-// and a corner more than either wall. The slices turn each frame and a history pass blends each
-// pixel with what it held the frame before, found through the frame before's view-projection, so
-// the frames together read many slices. A pass across and a pass down then blur the result, each
-// tap weighed by how near its distance from the eye is to the pixel's, so the darkening keeps to
-// the surface it is on and does not cross an edge. Where the scene's distance field is built, the
+// back in the world through the inverse of the camera's view-projection, its surface's normal the
+// one the model pass shades it with (surface_normals.slang) or, where that pass drew none, found
+// from the pixels beside it, and the share of the light from all around that reaches it, weighed by
+// the cosine, is integrated over the horizons the depth gives along two slices through the eye's
+// way, as ground-truth ambient occlusion has it, so a floor darkens where a wall meets it and a
+// corner more than either wall. The slices turn each frame and a history pass blends each pixel
+// with what it held the frame before, found through the frame before's view-projection, so the
+// frames together read many slices. A pass across and a pass down then blur the result, each tap
+// weighed by how near its distance from the eye is to the pixel's, so the darkening keeps to the
+// surface it is on and does not cross an edge. Where the scene's distance field is built, the
 // occlusion is also read from it, along the normal and four ways leaning from it, which finds what
 // closes a point off beyond what the window shows, and the sun's light is traced toward the sun
 // through it for soft contact shadows, which the green channel carries to the model pass and the
@@ -67,6 +68,11 @@ Sampler2D history;
 // or 4, and the other passes do not read.
 [[vk::binding(5, 0)]]
 Sampler2D circular;
+
+// The normal the model pass shades each texel's surface with and 1 in alpha, or nothing where the
+// depth shows no surface the model pass's own shader draws (surface_normals.slang).
+[[vk::binding(6, 0)]]
+Sampler2D surfaceNormals;
 
 // The slices through the eye's way each pixel reads a frame, and the steps along each side of one.
 static const int Slices = 2;
@@ -173,15 +179,22 @@ float2 occlude(float2 uv, float2 pixel)
     float3 p = worldAt(uv, d);
     float2 texel = push.texelAndStrength.xy;
 
-    // The normal from the nearer of the pixels on either side along each axis, so an edge does not
-    // lean it toward what is behind.
-    float3 right = worldAt(uv + float2(texel.x, 0), depthAt(uv + float2(texel.x, 0))) - p;
-    float3 left = p - worldAt(uv - float2(texel.x, 0), depthAt(uv - float2(texel.x, 0)));
-    float3 down = worldAt(uv + float2(0, texel.y), depthAt(uv + float2(0, texel.y))) - p;
-    float3 up = p - worldAt(uv - float2(0, texel.y), depthAt(uv - float2(0, texel.y)));
-    float3 across = dot(right, right) < dot(left, left) ? right : left;
-    float3 along = dot(down, down) < dot(up, up) ? down : up;
-    float3 n = normalize(cross(across, along));
+    // The surface's own normal where the model pass drew it, and else the normal from the nearer of
+    // the pixels on either side along each axis, so an edge does not lean it toward what is behind.
+    float4 given = surfaceNormals.SampleLevel(uv, 0);
+    float3 n;
+    if (given.w > 0.5)
+        n = normalize(given.xyz);
+    else
+    {
+        float3 right = worldAt(uv + float2(texel.x, 0), depthAt(uv + float2(texel.x, 0))) - p;
+        float3 left = p - worldAt(uv - float2(texel.x, 0), depthAt(uv - float2(texel.x, 0)));
+        float3 down = worldAt(uv + float2(0, texel.y), depthAt(uv + float2(0, texel.y))) - p;
+        float3 up = p - worldAt(uv - float2(0, texel.y), depthAt(uv - float2(0, texel.y)));
+        float3 across = dot(right, right) < dot(left, left) ? right : left;
+        float3 along = dot(down, down) < dot(up, up) ? down : up;
+        n = normalize(cross(across, along));
+    }
     float3 toEye = push.eyeAndRadius.xyz - p;
     if (dot(n, toEye) < 0.0)
         n = -n;

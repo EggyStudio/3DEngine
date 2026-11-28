@@ -35,7 +35,10 @@ public sealed class AmbientOcclusionTests(ITestOutputHelper output) : IDisposabl
 
     // Draws frames of the cube on its floor, into the window or into a render texture of the
     // window's size shown over it, the last of them captured.
-    private Image Capture(Model floor, Model cube, int frames = 4, RenderTexture2D? into = null)
+    private Image Capture(Model floor, Model cube, int frames = 4, RenderTexture2D? into = null) => Capture(() => Scene(floor, cube), frames, into);
+
+    // Draws frames of a scene, as above.
+    private Image Capture(Action scene, int frames = 4, RenderTexture2D? into = null)
     {
         var path = Path.Combine(_folder.Path, $"{_captures++}.png");
         for (int frame = 0; frame < frames + 10 && !File.Exists(path); frame++)
@@ -43,7 +46,7 @@ public sealed class AmbientOcclusionTests(ITestOutputHelper output) : IDisposabl
             if (into is { } texture)
             {
                 BeginTextureMode(texture);
-                Scene(floor, cube);
+                scene();
                 EndTextureMode();
                 BeginDrawing();
                 ClearBackground(Color.Black);
@@ -52,7 +55,7 @@ public sealed class AmbientOcclusionTests(ITestOutputHelper output) : IDisposabl
             else
             {
                 BeginDrawing();
-                Scene(floor, cube);
+                scene();
             }
             if (frame == frames - 1) TakeScreenshot(path);
             EndDrawing();
@@ -164,6 +167,59 @@ public sealed class AmbientOcclusionTests(ITestOutputHelper output) : IDisposabl
         UnloadRenderTexture(texture);
         UnloadModel(floor);
         UnloadModel(cube);
+    }
+
+    [NeedsVulkanFact]
+    public void A_Floor_Is_Closed_Off_About_The_Normal_It_Is_Shaded_With_And_Else_About_The_Depth_s()
+    {
+        // A floor filling the view under the ambient light alone. Drawn with its vertices' normals
+        // leaning 60 degrees, it is closed off by its own plane about the normal it is shaded with,
+        // where the depth alone gives it the level floor's normal and nothing to close it off. A
+        // floor of positions alone, which the pass beside the depth does not draw, takes the
+        // depth's normal, and nothing closes it off, its bottom row and its first and last columns
+        // no more than its middle.
+        Open();
+        SetAmbientLight(Color.White, 0.6f);
+        var camera = new Camera3D(new Vector3(0, 3, 3), Vector3.Zero, Vector3.UnitY, 45);
+        var leaning = Vector3.Normalize(new Vector3(MathF.Sqrt(3), 1, 0));
+        Vector3[] corners = [new(-20, 0, -20), new(20, 0, -20), new(20, 0, 20), new(-20, 0, 20)];
+        uint[] faces = [0, 2, 1, 0, 3, 2];
+        foreach (var name in new[] { "level", "leaning", "of positions" })
+        {
+            var mesh = name == "of positions" ? UploadMesh(corners, faces, null, null)
+                : UploadMesh([.. corners.Select(c => new ModelVertex(c, name == "leaning" ? leaning : Vector3.UnitY, Vector2.Zero))], faces);
+            var floor = LoadModelFromMesh(mesh);
+            void Floor()
+            {
+                ClearBackground(Color.Black);
+                BeginMode3D(camera);
+                DrawModel(floor, Vector3.Zero, 1, Color.White);
+                EndMode3D();
+            }
+            SetAmbientOcclusion(0);
+            var without = Capture(Floor);
+            SetAmbientOcclusion(1);
+            var with = Capture(Floor);
+            // The share of its light each part keeps, by the mean of its pixels with the occlusion
+            // over that without it.
+            double Kept(IEnumerable<(int X, int Y)> pixels) =>
+                pixels.Sum(p => Sum(GetImageColor(with, p.X, p.Y))) / (double)pixels.Sum(p => Sum(GetImageColor(without, p.X, p.Y)));
+            var (width, height) = (with.Width, with.Height);
+            var middle = Kept(Enumerable.Range(0, width).Select(x => (x, height / 2)));
+            var bottom = Kept(Enumerable.Range(0, width).Select(x => (x, height - 1)));
+            var sides = Kept(Enumerable.Range(0, height).SelectMany(y => new[] { (0, y), (width - 1, y) }));
+            output.WriteLine($"the floor {name} keeps {middle:F4} of its light in its middle row, {bottom:F4} in its bottom row and {sides:F4} in its first and last columns, "
+                + $"{Sum(GetImageColor(without, width / 2, height / 2))} at the middle without the occlusion");
+            if (name == "leaning")
+                middle.Should().BeLessThan(0.9, "the floor's own plane closes off the leaning normal's half of the sky");
+            else
+            {
+                middle.Should().BeGreaterThan(0.98, $"nothing closes off the floor {name} about a level normal");
+                bottom.Should().BeGreaterThan(middle - 0.02, $"the floor {name} darkens no more in its bottom row");
+                sides.Should().BeGreaterThan(middle - 0.02, $"nor in its first and last columns");
+            }
+            UnloadModel(floor);
+        }
     }
 
     [NeedsVulkanFact]

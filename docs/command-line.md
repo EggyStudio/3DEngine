@@ -188,10 +188,10 @@ settled, it reads four of the six parts of a wall beside a door further from a p
 reference than the faces do, and `off` reads the faces. `gi.layout split` lays the probes a pixel
 takes the world's light from out as the RadianceCascades module's split cascades, kept near the
 points of the window's depth the eye sees, each traced by a ray a point a frame and gathered at each
-pixel's point, the grid's probes still lighting what those rays meet, a layout that stays off
-since, once the bounce has settled, it reads a wall beside a door at 1.33 of a path-traced
-reference where the grid reads 1.23, three of its six parts further from it, and `dense` puts the
-grid back. `gi.screen_cascades on` has the screen's
+pixel's point about the normal the model pass shades it with, the grid's probes still lighting what
+those rays meet, a layout that stays off since, once the bounce has settled, it reads a wall beside
+a door at 1.23 of a path-traced reference as the grid does, two of its six parts further from it
+than the grid's, and `dense` puts the grid back. `gi.screen_cascades on` has the screen's
 probes stand in cascades of their own at `High` where the device traces rays, each level's probes
 twice as far apart with twice as many ways along each side, each tracing a stretch twice as long
 through the device's rays and the last on to the scene's end, with nothing kept from the frames

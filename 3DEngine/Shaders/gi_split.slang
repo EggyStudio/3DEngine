@@ -80,6 +80,12 @@ RWTexture2D<float4> causes;
 [[vk::binding(16, 0)]]
 RWStructuredBuffer<float4> lightMerged;
 
+// The normal the model pass shades the surface at each texel of the depth with and 1 in alpha, or
+// nothing where the depth shows no surface the model pass's own shader draws, as
+// surface_normals.slang draws them.
+[[vk::binding(17, 0)]]
+Texture2D<float4> surfaceNormals;
+
 struct SplitPush
 {
     // x: the pass, as computeMain numbers them. y: the cascade the pass runs over.
@@ -115,10 +121,12 @@ struct DepthPoints : IVisiblePoints
 
     float3 placeAt(uint index) { return screenWorld(camera(), uvOf(index), depthOf(index)) + push.origin.xyz; }
 
+    // The surface's own normal where the model pass drew it, and else the depth's.
     float3 normalAt(uint index)
     {
         float2 uv = uvOf(index);
-        return depthNormal(uv, fromEyeAt(uv, depthOf(index)));
+        float4 given = surfaceNormals.Load(int3(int2(uv * view.sizes.xy), 0));
+        return given.w > 0.5 ? normalize(given.xyz) : depthNormal(uv, fromEyeAt(uv, depthOf(index)));
     }
 
     // The split gather keeps the light the point takes, the irradiance, as the dense gather does,
@@ -135,14 +143,16 @@ ScreenCamera camera()
     return c;
 }
 
-// The point at uv of the depth d as its way from the eye, and the normal of the surface the depth
-// holds there toward the eye, from the nearer of the texels on either side along each axis.
+// The point at uv of the depth d as its way from the eye.
 float3 fromEyeAt(float2 uv, float d)
 {
     float4 way = mul(view.inverseFromEye, float4(uv * 2.0 - 1.0, d, 1.0));
     return way.xyz / way.w;
 }
 
+// The normal of the surface the depth holds at uv toward the eye, from the nearer of the texels on
+// either side along each axis, the texel inside alone at the depth's edge, where the one past it is
+// the texel itself.
 float3 depthNormal(float2 uv, float3 fromEye)
 {
     float2 texel = 1.0 / view.sizes.xy;
@@ -150,7 +160,9 @@ float3 depthNormal(float2 uv, float3 fromEye)
     float3 left = fromEye - fromEyeAt(uv - float2(texel.x, 0), depth.SampleLevel(uv - float2(texel.x, 0), 0).r);
     float3 down = fromEyeAt(uv + float2(0, texel.y), depth.SampleLevel(uv + float2(0, texel.y), 0).r) - fromEye;
     float3 up = fromEye - fromEyeAt(uv - float2(0, texel.y), depth.SampleLevel(uv - float2(0, texel.y), 0).r);
-    float3 n = surfaceNormal(cross(dot(right, right) < dot(left, left) ? right : left, dot(down, down) < dot(up, up) ? down : up), -fromEye);
+    float3 across = uv.x + texel.x > 1.0 ? left : uv.x - texel.x < 0.0 || dot(right, right) < dot(left, left) ? right : left;
+    float3 along = uv.y + texel.y > 1.0 ? up : uv.y - texel.y < 0.0 || dot(down, down) < dot(up, up) ? down : up;
+    float3 n = surfaceNormal(cross(across, along), -fromEye);
     return dot(n, -fromEye) < 0.0 ? -n : n;
 }
 

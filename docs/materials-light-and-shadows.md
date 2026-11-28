@@ -540,10 +540,14 @@ darkens by the share of the light from all around those surfaces close off, and 
 further. It is worked out for the window from a depth of its models drawn at half size each frame,
 by the horizons along two slices a pixel turned each frame, each pixel keeping most of what it held
 the frame before, 0.07 ms of a desktop GPU at 1920 by 1080 in Sponza past the sun's contact shadows
-the same pass traces, so a model that casts no shadow darkens nothing around it. A render texture
-that draws models through a camera, as each half of a split screen, works out its own the same way
-before it is drawn, and the two halves of `games/Sumo` at 640 by 720 take about 0.1 ms more of the
-GPU with it on, as `./e3d command profile` gives `targets`. `games/Manor` turns it on for its rooms.
+the same pass traces, so a model that casts no shadow darkens nothing around it. A point is closed
+off about the normal the model pass shades it with, its vertices' normal bent by its material's
+normal map, drawn beside the depth, a see-through mesh's left out so a point under one takes the
+normal of what it lies on, and a point of a mesh drawn through a program's shader, of points or of
+positions alone about the normal worked out from the depth around it. A render texture that draws
+models through a camera, as each half of a split screen, works out its own the same way before it is
+drawn, and the two halves of `games/Sumo` at 640 by 720 take about 0.1 ms more of the GPU with it
+on, as `./e3d command profile` gives `targets`. `games/Manor` turns it on for its rooms.
 
 `SetAmbientOcclusionMethod` works the window's occlusion out another way, a trial beside the
 horizons, which stay the default: rays over each pixel's hemisphere traced against the points of the

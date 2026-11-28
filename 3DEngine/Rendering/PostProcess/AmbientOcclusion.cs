@@ -75,9 +75,12 @@ internal sealed record AmbientOcclusionImage(IImageView View, ISampler Sampler);
 
 /// <summary>
 /// The depth of the window's meshes that cast shadows at half the window's size this frame, which
-/// the occlusion is worked out from and global illumination places its screen's probes on.
+/// the occlusion is worked out from and global illumination places its screen's probes on, and
+/// beside it in <paramref name="Normals"/> the normal the model pass shades each texel's surface
+/// with and 1 in alpha, or nothing where the depth shows no surface the model pass's own shader
+/// draws (<see cref="ModelRenderer.DrawSurfaceNormals"/>).
 /// </summary>
-internal sealed record WindowDepth(IImageView View, ISampler Sampler, Extent2D Extent);
+internal sealed record WindowDepth(IImageView View, ISampler Sampler, Extent2D Extent, IImageView Normals);
 
 /// <summary>
 /// Each render target's depth and occlusion this frame, by the target's texture id, as
@@ -169,7 +172,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
     // What is made for one size of the window, the depth, the occlusion, the image between the
     // blurs and the two histories the frames write in turn, the set each pass reads through, and
     // what the history pass needs of the frame before.
-    private sealed class Sized(Extent2D extent, GpuSceneField field, ShadowMap depth, RenderTarget occlusion, RenderTarget across,
+    private sealed class Sized(Extent2D extent, GpuSceneField field, ShadowMap depth, RenderTarget normals, RenderTarget occlusion, RenderTarget across,
         RenderTarget[] histories, IDescriptorSet occlude, IDescriptorSet blurAcross, IDescriptorSet blurDown,
         IDescriptorSet[] remember, IDescriptorSet rememberFirst, IDescriptorSet[] blurRemembered, Func<IImageView, IDescriptorSet> circled) : IDisposable
     {
@@ -193,6 +196,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         public Extent2D Extent { get; } = extent;
         public GpuSceneField Field { get; } = field;
         public ShadowMap Depth { get; } = depth;
+        public RenderTarget Normals { get; } = normals;
         public RenderTarget Occlusion { get; } = occlusion;
         public RenderTarget Across { get; } = across;
         public RenderTarget[] Histories { get; } = histories;
@@ -222,6 +226,7 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             foreach (var history in Histories) history.Dispose();
             Across.Dispose();
             Occlusion.Dispose();
+            Normals.Dispose();
             Depth.Dispose();
         }
     }
@@ -294,7 +299,8 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         // Through the camera without temporal antialiasing's move, so the occlusion, the screen's
         // probes and the reflections that read this depth hold still under it.
         models.DrawDepth(renderContext, renderWorld, sized.Depth, back: view.Back);
-        renderWorld.Set(new WindowDepth(sized.Depth.DepthView, sized.Depth.Sampler, extent));
+        models.DrawSurfaceNormals(renderContext, renderWorld, sized.Normals, sized.Depth.DepthView, back: view.Back);
+        renderWorld.Set(new WindowDepth(sized.Depth.DepthView, sized.Depth.Sampler, extent, sized.Normals.ColorView));
         _window = (sized, inverse, view.Eye, swapchain.Extent, settings, sun,
             (view.Unjittered, view.Turned is { } turned ? new ViewEye(view.Eye, turned * view.Back) : null));
     }
@@ -337,9 +343,10 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
         var sized = Ensure(device, extent, field.Field, _targets.TryGetValue(id, out var made) ? made.Sized : null, $"render texture {id}");
         _targets[id] = (sized, _frame);
         models.DrawDepth(renderContext, renderWorld, sized.Depth, id);
+        models.DrawSurfaceNormals(renderContext, renderWorld, sized.Normals, sized.Depth.DepthView, id);
         var targets = renderWorld.TryGet<TargetOcclusion>();
         if (targets is null) renderWorld.Set(targets = new TargetOcclusion());
-        targets.Depths[id] = new WindowDepth(sized.Depth.DepthView, sized.Depth.Sampler, extent);
+        targets.Depths[id] = new WindowDepth(sized.Depth.DepthView, sized.Depth.Sampler, extent, sized.Normals.ColorView);
         if (settings is not { On: true } && sun is null) return;
         Occlude(renderContext, sized, inverse, eye, size, settings, sun, bounces, renderWorld.TryGet<RenderOrigin>(),
             (camera, renderWorld.TryGet<ModelDrawList>()?.EyeOf(camera)));
@@ -492,6 +499,10 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
 
         var depth = device.CreateDepthTarget(extent.Width, extent.Height);
         device.Name(depth.DepthView.Image, $"Ambient occlusion depth of {view}");
+        // Half floats, a normal's three and whether the texel holds one, with a depth of its own
+        // that keeps at each texel the fragment nearest the window's depth.
+        var normals = device.CreateRenderTarget(extent.Width, extent.Height, ImageFormat.R16G16B16A16_Float, multisampled: false);
+        device.Name(normals.ColorView.Image, $"Surface normals of {view}");
         var occlusion = device.CreateRenderTarget(extent.Width, extent.Height, ImageFormat.R8G8B8A8_UNorm, depth: false, multisampled: false);
         var across = device.CreateRenderTarget(extent.Width, extent.Height, ImageFormat.R8G8B8A8_UNorm, depth: false, multisampled: false);
         device.Name(occlusion.ColorView.Image, $"Ambient occlusion of {view}");
@@ -526,9 +537,10 @@ internal sealed class AmbientOcclusionRenderer : IDisposable
             device.UpdateDescriptorSet(set, new UniformBufferBinding(field.Info, 3, 0, GpuSceneField.InfoBytes), null);
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(history ?? read, depth.Sampler, 4));
             device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(circled ?? read, depth.Sampler, 5));
+            device.UpdateDescriptorSet(set, null, new CombinedImageSamplerBinding(normals.ColorView, depth.Sampler, 6));
             return set;
         }
-        return new Sized(extent, field, depth, occlusion, across, histories,
+        return new Sized(extent, field, depth, normals, occlusion, across, histories,
             Set(across.ColorView), Set(occlusion.ColorView), Set(across.ColorView),
             [Set(occlusion.ColorView, histories[1].ColorView), Set(occlusion.ColorView, histories[0].ColorView)], Set(occlusion.ColorView),
             [Set(histories[0].ColorView), Set(histories[1].ColorView)], circled => Set(across.ColorView, circled: circled));

@@ -55,7 +55,7 @@ internal sealed partial class GlobalIlluminationRenderer
             if (split)
             {
                 _split ??= GpuSplitStore.Create(device, SplitShape);
-                _retired.Add((_frame, stages.RecordSplitGather(renderContext.CommandBuffer, _gi, _surface, _split, field, depth.View, depth.Sampler, bytes,
+                _retired.Add((_frame, stages.RecordSplitGather(renderContext.CommandBuffer, _gi, _surface, _split, field, depth.View, depth.Sampler, depth.Normals, bytes,
                     environment, environmentSampler, _rays, GpuSplitStore.OriginAgainst(SplitShape, origin))));
             }
             else

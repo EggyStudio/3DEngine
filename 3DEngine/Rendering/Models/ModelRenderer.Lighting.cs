@@ -6,6 +6,22 @@ namespace Engine;
 
 internal sealed partial class ModelRenderer
 {
+    // Whether a view has nothing to light it, no lights, environment, probes or cascades, so its
+    // models take the set over the empty buffer. The window and a probe's faces are always lit.
+    private static bool Unlit(RenderWorld renderWorld, FrameLightingBinding frame, int target) =>
+        frame.LightCount == 0 && !frame.HasEnvironment && target != 0 && target != ProbeCaptureLights
+        && renderWorld.TryGet<BoundProbes>() is not { Slots.Count: > 0 } && Illumination.CascadesIn(renderWorld) == 0;
+
+    // A view's lighting buffer and shadow. A render target with a camera of its own has a buffer
+    // and a shadow of its own, and a probe's faces the window's at the exposure they are captured
+    // at.
+    private static (UniformBufferBinding Binding, FrameShadow? Shadow) LightsOf(RenderWorld renderWorld, FrameLightingBinding frame, int target) =>
+        target == ProbeCaptureLights && renderWorld.TryGet<BoundProbes>()?.CaptureBinding is { } capture
+            ? (capture, renderWorld.TryGet<FrameShadow>())
+            : target != 0 && renderWorld.TryGet<TargetShadows>() is { } targets && targets.ByTarget.TryGetValue(target, out var own)
+            ? (own.Binding, own.Shadow)
+            : (frame.Binding, renderWorld.TryGet<FrameShadow>());
+
     // The lights of this frame as one view sees them, the window's at 0, as a descriptor set, one
     // of the sets of this frame's slot of a ring, a slot per frame in flight so a set the GPU may
     // still read is never written, or a set over an empty buffer when there are no lights and no
@@ -17,9 +33,7 @@ internal sealed partial class ModelRenderer
     private IDescriptorSet LightsSet(IGraphicsDevice gfx, RenderWorld renderWorld, GpuTextures textures, int target)
     {
         var (white, whiteSampler) = textures.ViewFor(gfx, 0);
-        if (renderWorld.TryGet<FrameLightingBinding>() is not { } frame
-            || (frame.LightCount == 0 && !frame.HasEnvironment && target != 0 && target != ProbeCaptureLights
-                && renderWorld.TryGet<BoundProbes>() is not { Slots.Count: > 0 } && Illumination.CascadesIn(renderWorld) == 0))
+        if (renderWorld.TryGet<FrameLightingBinding>() is not { } frame || Unlit(renderWorld, frame, target))
         {
             if (_noLights is null)
             {
@@ -64,13 +78,7 @@ internal sealed partial class ModelRenderer
         if (slot.Count <= _lightSetOf.Count) slot.Add(gfx.CreateDescriptorSet(LightsLayout(gfx)));
         var set = _lightSetOf[target] = slot[_lightSetOf.Count];
 
-        // A render target with a camera of its own has a buffer and a shadow of its own, and a
-        // probe's faces the window's at the exposure they are captured at.
-        var (binding, shadow) = target == ProbeCaptureLights && renderWorld.TryGet<BoundProbes>()?.CaptureBinding is { } capture
-            ? (capture, renderWorld.TryGet<FrameShadow>())
-            : target != 0 && renderWorld.TryGet<TargetShadows>() is { } targets && targets.ByTarget.TryGetValue(target, out var own)
-            ? (own.Binding, own.Shadow)
-            : (frame.Binding, renderWorld.TryGet<FrameShadow>());
+        var (binding, shadow) = LightsOf(renderWorld, frame, target);
         gfx.UpdateDescriptorSet(set, binding, shadow is not null && _shadowMap is { } map
             ? Lit(map.DepthView, map.Sampler, 1)
             : Lit(white, whiteSampler, 1));

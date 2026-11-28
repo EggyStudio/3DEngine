@@ -367,8 +367,12 @@ internal sealed partial class ModelRenderer : IDisposable
     /// <param name="subsurface">The compiled <c>subsurface.slang</c>, which draws the window's meshes that scatter light under their surface again for <see cref="SubsurfaceRenderer"/>, or none where no light scatters.</param>
     /// <param name="lampless"><c>model.slang</c> and <c>model_streams.slang</c> compiled with <c>NO_GLOW_LIGHTS</c>, as <paramref name="model"/> and <paramref name="streams"/> were otherwise, which draw a frame with no glow lights (<see cref="ModelBuild.Lampless"/>), or none where such a frame draws whole.</param>
     /// <param name="unbounced">The same compiled with <c>NO_BOUNCE</c>, which draw a frame without global illumination (<see cref="ModelBuild.Unbounced"/>).</param>
+    /// <param name="normals">The compiled <c>surface_normals.slang</c>, which draws the normals the
+    /// model pass shades the meshes with beside their depth (<see cref="DrawSurfaceNormals"/>), or
+    /// none where every reader of the depth takes the normal the depth gives.</param>
     public ModelRenderer(ShaderProgram model, ShaderProgram shadow, ShaderProgram? streams = null, ShaderProgram? subsurface = null,
-        (ShaderProgram? Model, ShaderProgram? Streams) lampless = default, (ShaderProgram? Model, ShaderProgram? Streams) unbounced = default)
+        (ShaderProgram? Model, ShaderProgram? Streams) lampless = default, (ShaderProgram? Model, ShaderProgram? Streams) unbounced = default,
+        ShaderProgram? normals = null)
     {
         foreach (var (build, programs) in new[] { (ModelBuild.Whole, (Model: (ShaderProgram?)model, Streams: streams)), (ModelBuild.Lampless, lampless), (ModelBuild.Unbounced, unbounced) })
         {
@@ -378,6 +382,8 @@ internal sealed partial class ModelRenderer : IDisposable
         }
         if (subsurface is not null)
             (_subsurfaceVertexSpv, _subsurfaceFragmentSpv, _subsurfaceDepthBindings) = (subsurface.Vertex, subsurface.Fragment, subsurface.LayoutOf(2));
+        if (normals is not null)
+            (_normalsVertexSpv, _normalsFragmentSpv, _normalsLightsBindings, _normalsDepthBindings) = (normals.Vertex, normals.Fragment, normals.LayoutOf(1), normals.LayoutOf(2));
         _vertexSpv = model.Vertex;
         _streamsVertexSpv = streams?.Vertex ?? model.Vertex;
         _plainVertexInputs = model.InputLocations(ShaderStage.Vertex);
@@ -734,6 +740,7 @@ internal sealed partial class ModelRenderer : IDisposable
         foreach (var sets in _shaderSets.Values) sets.Dispose();
         foreach (var (_, retired) in _retiredShaderSets) retired.Dispose();
         DisposeSubsurface();
+        DisposeSurfaceNormals();
         _shadowMaskShader?.Dispose();
         _shadowVertexShader?.Dispose();
         _noLightsBuffer?.Dispose();

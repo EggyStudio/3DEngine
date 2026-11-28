@@ -38,13 +38,16 @@ internal sealed unsafe partial class GlobalIlluminationStages
     /// traced from each point, the rays' light kept and merged from the coarsest cascade down, and
     /// gathered onto each pixel of <paramref name="surface"/>, left ready for the model pass to
     /// read, and each pixel's gather read by its causes into the surface's
-    /// <see cref="GpuSurfaceGather.Causes"/> where it holds them. The rays meet the meshes through
-    /// <paramref name="rays"/> where it is given and its build was made, and else the field.
+    /// <see cref="GpuSurfaceGather.Causes"/> where it holds them. Each point takes the normal
+    /// <paramref name="normals"/> holds beside the depth where it holds one
+    /// (<see cref="WindowDepth.Normals"/>).
+    /// The rays meet the meshes through <paramref name="rays"/> where it is given and its build was
+    /// made, and else the field.
     /// </summary>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordSplitGather(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSurfaceGather surface, GpuSplitStore store, GpuSceneField field,
-        IImageView depth, ISampler depthSampler, ReadOnlySpan<byte> view, IImageView environment, ISampler environmentSampler, GpuRayScene? rays,
-        Vector3 origin)
+        IImageView depth, ISampler depthSampler, IImageView normals, ReadOnlySpan<byte> view, IImageView environment, ISampler environmentSampler,
+        GpuRayScene? rays, Vector3 origin)
     {
         var meshes = rays is not null && GiStages[RaySplitStage].Pipeline.Handle != 0;
         var stage = meshes ? RaySplitStage : SplitStage;
@@ -77,6 +80,7 @@ internal sealed unsafe partial class GlobalIlluminationStages
         run.Buffer(set, 12, VkDescriptorType.StorageBuffer, store.Uints);
         run.Buffer(set, 13, VkDescriptorType.StorageBuffer, store.Light);
         run.Buffer(set, 16, VkDescriptorType.StorageBuffer, store.Merged);
+        run.Image(set, 17, VkDescriptorType.SampledImage, ((VulkanImageView)normals).View, null, VkImageLayout.ShaderReadOnlyOptimal);
         run.Image(set, 14, VkDescriptorType.StorageImage, ((VulkanImageView)surface.LightView).View, null, VkImageLayout.General);
         // The gathered light stands in for the causes where the surface holds none, the pass that
         // writes them not dispatched.
