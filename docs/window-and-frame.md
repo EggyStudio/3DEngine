@@ -352,7 +352,11 @@ Enter between the frame's input and its update, as `./e3d command` runs it. A co
 frames later writes its answer under the line when it comes, and one that throws writes the stack
 of what it threw to the log, as a line `./e3d command` sends does. F5 opens the settings panel, in
 the same look on the opaque black of the console's box so it reads over a bright scene, a page for
-each first word of the settings' names, steered by the arrows, Enter and Escape, or a pad.
+each first word of the settings' names, steered by the arrows, Enter and Escape, or a pad. A page
+longer than the window shows the rows that fit and follows the selection, its title saying which
+rows of how many it shows. A setting of text that offers no list of values is edited in a field,
+which Enter sets and Escape puts away. The first page ends with the row "Reset all settings",
+which puts every setting a set changes back to its default, as `reset all` does in the console.
 
 The settings are every value of the engine's a console line or an environment variable sets, each
 with its range or its choices, its default, whether it only reads and the variable that overrides

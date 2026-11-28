@@ -1832,3 +1832,24 @@ with the bounce at zero the wall reads 0.59, and settled 1.24 with its parts 0.9
 `docs/command-line.md` carries.
 The whole suite passes on the RTX 4070 in one process, 2,609 cases passed, none failed and 1 skipped
 of 2,610, in 30 minutes.
+158. Item 324, the Diagnostics module's 669be6f. The engine's `modules/Diagnostics` moves from
+162f7f0 to 669be6f, bringing the module's fab474e, 0101bef and 669be6f, a setting of text edited in
+a field, the settings panel shown in part where a page is longer than the window, and the row "Reset
+all settings" at the foot of its first page with the console's `reset all`. The module's changes add
+to its interface and change none of what the engine calls, so the host code stays as it is.
+`ImGuiPanel` sets the rows it shows from the window it is drawn in and reads its own keys, and the
+host already holds its key binds while an ImGui field has the caret. `docs/window-and-frame.md` says
+the page shown in part, the field and the reset row.
+The engine's tests of the console, the panel, the overlay, the keys and the window's settings pass
+at the pin, 101 cases, and the norm and document tests with them.
+The two captures in the dump are of core_3d_camera_first_person at 800 by 450, offscreen with a
+config folder of its own and driven by `input.key`. F5, Down twice and Enter open the `gi` page, and
+30 presses of Down scroll it to rows 20 to 31 of 36, which its title says. Escape and 20 presses of
+Down bring the first page to rows 4 to 15 of 15 with "Reset all settings" selected at its foot and
+not pressed.
+In a session of the same kind `reset all` answers "2 settings reset." with nothing set, and "3
+settings reset." with `render.fps_limit 50` set before it, which it puts back to off, and no
+settings file is left in the session's config folder. Of the two, `live.reload` is on in a program
+run from its own project's build folder while its setting's default is off, so a reset of all turns
+a development run's live reload off, as `reset live.reload` alone does. The other reads the same in
+`list` before and after. Both are named here and left as they are in this commit.
