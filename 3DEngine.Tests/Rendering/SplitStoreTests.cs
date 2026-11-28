@@ -52,7 +52,9 @@ public sealed class SplitStoreTests : IDisposable
     // The module's passes over the engine's store, one a dispatch picked by pass, the seen points
     // and the boxes the rays meet as the module's CPU kernel gives them, each point its place with
     // 1 in w where the eye sees it then its normal, each box its low corner with its light in w
-    // then its high corner, in a world's cube 128 a side about its middle.
+    // then its high corner, in a world's cube 128 a side about its middle. Each seen point sends
+    // one ray a frame, as the module's CPU kernel sends it unless its fresh probes' frames are
+    // given.
     private const string Kernel = """
         import gi_split_store;
 
@@ -150,7 +152,7 @@ public sealed class SplitStoreTests : IDisposable
             else if (pass == 3u)
                 askCascadeProbes(store, at, shape, cascade, index);
             else if (pass == 4u && index < count)
-                traceSeenRays(seen, hits, even, store, at, shape, index);
+                traceSeenRays(seen, hits, even, store, at, shape, index, 0u);
             else if (pass == 5u)
                 keepSplitLight(store, kept, at, shape, index);
             else if (pass == 6u)
@@ -433,7 +435,7 @@ public sealed class SplitStoreTests : IDisposable
         store.Frame(eye, 1, rays: true, keep: false);
         var whole = store.Taken(8, eye, 1);
         var uints = store.Uints();
-        var expected = new uint[5 * Shape.OwnLights];
+        var expected = new uint[SplitStoreShape.SumUints * Shape.OwnLights];
         var (rays, missing) = (0, 0);
         var reached = new int[Shape.Cascades];
         static uint Parts(float light) => (uint)(Math.Clamp(light, 0, 16384) * 1024 + 0.5f);
@@ -451,7 +453,7 @@ public sealed class SplitStoreTests : IDisposable
                     missing++;
                 else
                 {
-                    var sums = 5 * LightAt(c, entry, way);
+                    var sums = SplitStoreShape.SumUints * LightAt(c, entry, way);
                     for (int i = 0; i < 3; i++)
                         expected[sums + i] += passed ? 0 : Parts(whole[at + i]);
                     expected[sums + 3] += passed ? 1024u : 0;

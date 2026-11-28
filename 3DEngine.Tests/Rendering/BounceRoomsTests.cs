@@ -621,6 +621,11 @@ public sealed partial class BounceRoomsTests(ITestOutputHelper output) : IDispos
         // The bright lamp close outside the thin room's right wall.
         public LightHandle Outside { get; }
 
+        // The lamp under the first room's ceiling, which a test switches by its color.
+        public LightHandle Lamp { get; }
+        public static readonly Color LampColor = new(255, 236, 210);
+        public const float LampIntensity = 9;
+
         // The sun over the rooms, which a test steps as a game steps day and night, by its color.
         public LightHandle Sun { get; }
         public static readonly Color SunColor = new(255, 245, 230);
@@ -643,7 +648,7 @@ public sealed partial class BounceRoomsTests(ITestOutputHelper output) : IDispos
             _carried = carried ?? new Vector3(278, 2, -1.5f);
             _moved = moved;
             Sun = CreateDirectionalLight(Vector3.Normalize(new Vector3(0.8f, -1, 0.25f)), SunColor, 1.5f, castsShadows: true);
-            CreatePointLight(new Vector3(0, 4.2f, 0), new Color(255, 236, 210), 9, range: 12);
+            Lamp = CreatePointLight(new Vector3(0, 4.2f, 0), LampColor, LampIntensity, range: 12);
             CreatePointLight(new Vector3(40, 2.2f, 0), Color.White, 0.6f, range: 8);
             Outside = CreatePointLight(new Vector3(43, 1.5f, 0), Color.White, 25, range: 10, castsShadows: true);
             CreatePointLight(new Vector3(240, 2.6f, 0), new Color(255, 236, 210), 14, range: 16);

@@ -134,6 +134,19 @@ internal sealed class GlobalIlluminationSettings
     public bool SplitCauseRead { get; set; }
 
     /// <summary>
+    /// Whether each way of the split cascades' probes lets the light it keeps go and starts again
+    /// from the frame once the frames running lie far enough past that light, by the spread of its
+    /// frames' light about it, as <c>gi.split_agree on</c> sets it, so a lamp switched shows within
+    /// frames rather than over the 256 rays a way keeps the mean of.
+    /// </summary>
+    /// <remarks>
+    /// Off unless set. A way that takes about a ray in several frames meets runs of frames past its
+    /// spread by chance and starts again on noise, so under it the corridor's points swing further
+    /// from their mean as the cascades walk it.
+    /// </remarks>
+    public bool SplitAgree { get; set; }
+
+    /// <summary>
     /// Whether each cascade keeps its own rays' light, taking nothing from the cascade above, as
     /// <c>gi.merge off</c> sets it.
     /// </summary>

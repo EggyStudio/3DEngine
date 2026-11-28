@@ -128,6 +128,8 @@ internal static partial class EngineSettings
             s => s.SurfaceGather, (s, on) => s.SurfaceGather = on);
         yield return Of("gi.layout", "How the probes a pixel takes the world's light from are laid out, dense on a grid about the eye, or split, the RadianceCascades module's cascades kept near the points of the window's depth the eye sees, each traced by a ray a point a frame and gathered at each pixel's point.", ProbeLayout.Dense,
             s => s.Layout, (s, layout) => s.Layout = layout);
+        yield return Of("gi.split_agree", "Whether under gi.layout split each way of a probe lets the light it keeps go and starts again from the frame once its frames lie far enough past it, by the spread of its frames' light, so a lamp switched shows within frames, each way keeping the mean of its last 256 rays without it.", false,
+            s => s.SplitAgree, (s, on) => s.SplitAgree = on);
         yield return Of("gi.screen_cascades", "Whether the screen's probes stand in cascades of their own traced by the device's own rays at High, where it has it, each level's probes twice as far apart with twice as many ways along each side as the level before's, the last reaching the scene's end, in place of the screen probes' rays through the window's depth and the field.", false,
             s => s.ScreenCascades, (s, on) => s.ScreenCascades = on);
         yield return Of("gi.screen_reflection", "Whether a glossy surface's reflection marches the window's depth before the scene's distance field and takes the light of a surface it meets there from the frame before's picture, the field alone without it.", false,

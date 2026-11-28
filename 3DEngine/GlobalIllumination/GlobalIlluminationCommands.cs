@@ -230,6 +230,7 @@ internal static class GlobalIlluminationCommands
         if (settings.OwnFieldMarched) said += ", each cascade's probes marching the field from their own cascade outward";
         if (settings.FacesMovedToward) said += ", each pixel reading its probes' faces moved toward the surfaces their rays met";
         if (settings.SurfaceGather) said += ", each pixel taking the probes' light as the module gathers its point";
+        if (settings.SplitAgree) said += ", each split way starting again once its frames disagree with its light";
         if (settings.ScreenProbes) said += ", the screen's probes traced and read";
         if (settings.ReflectionOnScreen) said += ", a glossy surface's reflection marching the window's depth before the field";
         if (settings.ScreenCascades) said += ", the screen's probes standing in cascades traced by the device's rays";

@@ -1631,3 +1631,85 @@ alone changed, the package, global illumination, norms and docs tests passed 274
 Lavapipe of Mesa 26.3.1 passed the store's, the split's and the copies' 16 tests, and that of Mesa
 25.2.8 in the Linux job's image passed 13 and skipped the 3 whose split kernel it ends the process
 in, the film's and the slab's floors reading 1.0 on both.
+
+156. The pin to the module's 4527b67. The engine's `modules/RadianceCascades` moves from 1dc336e to
+4527b67 through e68fd0f and 40e1a90. 4527b67 changes the module's switch test and README alone over
+40e1a90, so the readings below, taken at 40e1a90, hold for it, and the sheets' captions name
+40e1a90. At e68fd0f the module's `traceSeenRays` sends four rays a seen point a frame while the
+point's finest probe is under 16 frames old and one after, and gi_split.slang takes that default.
+At 40e1a90 each way of the store keeps six uints of sums against five, the mean of the squares of
+its frames' light among them, so the engine's buffer of uints grows by a uint a way of the store's
+own light, and an overload of `keepSplitLight` takes the spread a way's frames must lie past its
+light by before it lets that light go and starts again from the frame. gi_split.slang passes it the
+module's `SplitAgreeSpread` where `GlobalIlluminationSettings.SplitAgree` is set and 0 otherwise,
+which keeps each way's history as at 1dc336e, through the third uint of the push's shape, `Agree`,
+unused before. `gi.split_agree <on|off>` sets it, off unless set, and gi's settings go from 35 to
+36. The store holds 105 MB of uints and 139 MB of light at six cascades, the 232.8 MiB the module
+gives, against 88 and 139 MB at 1dc336e. The device store's tests call `traceSeenRays` with no
+fresh frames, a ray a point a frame, and read the module's CPU figures unchanged, 1,164, 348, 78
+and 28 probes by cascade, 25,888 kept and 18,985 rays reaching 18,985, 15,517, 3,316 and 359 probes.
+Item 317's corridor test run under gi.layout split, a scratch copy of it with the layout set, reads
+a point's light at worst 1.01 from its mean and the 99th part of all swings 0.98 at High with
+gi.split_agree off, and 0.73 and 0.71 at Low, against the grid's 1.65 and 1.51 at High and 1.66 and
+1.51 at Low. With it on they read 1.13 and 1.09 at High and 0.78 and 0.77 at Low. Under the split
+the worst points lie on the floor and the right wall at z -16 to -18, whose light drops in one step
+about the 80th of 200 in both layouts, the floor at z -18 going from 2.0 of its mean to 0.4 under
+the split and from 2.5 to 0 under the grid. The grid's worst is the right wall at z -13, going from
+none of its light to 2.65 of its mean at the 120th step as cascade 1 snaps. The points before the
+lintel, z -4 to -12, swing 0.043 at worst and 0.023 at their 99th part with it off and 0.116 and
+0.077 with it on at High, against the grid's 0.63 and 0.46, so with the rule on ways start again on
+noise, as the module's walk reads. The largest change between neighboring steps away from the
+grid's snaps reads 0.0037 with it off and 0.0112 with it on against the grid's 0.0015, each under
+the test's 0.02, and at the walk's end the points the test holds to the traced reference read 0.755
+to 1.751 of it with it off and 0.815 to 1.827 with it on, against the grid's 0.762 to 1.953. The
+views' sheet gives the swings under its rows.
+The bounce rooms' first room keeps its lamp under the ceiling as `Rooms.Lamp`, whose color and
+intensity a test sets.
+`Split_Ways_Starting_Again_Once_Their_Frames_Disagree_Show_A_Lamp_Switched_On_Sooner` settles the
+room at High and 320 by 180 under the split with the lamp out, switches it on and reads 32 parts of
+the frame against the room settled with the lamp lit from the start, the mean of 16 frames, a frame
+lying as far off as its part furthest from that light by the log of their ratio over the parts
+above a fiftieth of the brightest. 32 frames after the switch the room lies 0.402 off with
+gi.split_agree on and 1.568 with it off, the settled frames 0.001 off at most, the same over three
+runs, and the test holds the first under 0.6 and the second over twice the first. With the spread
+passed as 0 whatever the setting, both read 1.568 and the test fails.
+Read by a scratch at 1920 by 1080, where each way takes many rays a frame as the module's rooms at
+the cap, the room with the lamp switched on lies within 0.05 of its settled light from the 14th
+frame with the rule on and from the 164th with it off, against the 12 frames the module reads.
+Switched off, it lies 0.242 off at the 32nd frame and 0.053 at the 240th with the rule on, against
+0.998 and 0.302 with it off. At 1280 by 720 the room switched on lies within 0.05 from the 39th
+frame with the rule on and within 0.1 from the 147th with it off, and at 320 by 180 within 0.1 from
+the 162nd with it on and 0.502 off at the 240th with it off. The grid at 320 by 180 lies within
+0.05 from the 8th frame switched off and the 13th switched on.
+Read with no screen layer at 40e1a90, on the views' sheet view 1 reads 1.03 of the reference
+against the grid's 1.03, its shade 1.17 against 1.15 and the far doorway 1.33 against 1.81, as at
+44225621. The door view's wall reads 1.18 against the grid's 1.16 and 44225621's 1.17, the gallery
+1.00 against 1.01 and 1.00, and its near wall 0.97 against 1.66 and 0.96. Of the pixels the
+reference lights above a fiftieth of its mean, those under a fifth of the reference in the mean of
+the three frames number 941 in view 1, 2,140 at the door and 2,696 in the gallery, against 940,
+2,154 and 2,677 at 44225621 and the grid's 550, 866 and 1,109, and the sheet gives the counts
+beside each view. Over the three frames 404 of view 1's 2,831 are lent half or more from behind
+their plane, 2,545 of the door's 6,491 and 2,358 of the gallery's 8,083, none gathers nothing or
+holds a fresh probe, and their youngest probes are a median 412, 420 and 423 frames old.
+At the door with no screen layer and gi.split_agree off, the left wall settled reads 1.23 of the
+reference as the grid does and as at 44225621. Its parts read 1.32, 1.36 and 1.42 along the top and
+0.91, 1.24 and 1.91 along the bottom, against the grid's 1.30, 1.47, 4.81, 0.78, 1.17 and 5.84 and
+44225621's 1.33, 1.38, 1.46, 0.89, 1.21 and 1.80, two of the six further from the reference than
+the grid's as before. With the bounce at zero the wall reads 0.55 against the grid's 0.63. The
+command-line guide's figures hold. Both sheets are made again at 40e1a90.
+Timed at 1080p on the RTX 4070 with no layer, five sessions a scene, the split's trace pass takes
+30.6 ms on Sponza and 41.4 on the Bistro at 40e1a90, against 30.7 and 41.0 at 44225621, its gather
+13.3 and 15.6 against 13.4 and 14.8, and global illumination 53.8 and 71.0 against 54.0 and 69.3.
+The Bistro's field is whole about 340 frames into the session, past the 30 seconds e3d gives
+field.wait unless told, and the store is made then with all its probes at once, so every seen point
+sends four rays for the store's first 16 frames. Timed from 60 frames after that wait as before,
+the Bistro's trace read 152.2 ms, the window holding those frames, and a scratch build sending one
+ray always read 41.3 in the same window. Its passes are timed here from 60 frames after the field
+is whole, the wait given 400 seconds. Over the frames from the store's making, the layout set to
+dense and back once the field is whole, the trace takes 140 to 170 ms a frame in three sessions.
+On the RTX 4070 with the layer required, the whole suite passed 2,598 tests at 40e1a90 and skipped
+1, none failing, and at 4527b67 the package, global illumination, norms, docs, settings and switch
+tests passed 278 and skipped 1. Lavapipe of Mesa 26.3.1 passed the store's, the split's, the
+copies' and the switch's 17 tests, the switch reading 0.426 and 1.576 in 14.7 minutes, and that of
+Mesa 25.2.8 in the Linux job's image passed 13 and skipped the 4 whose split kernel it ends the
+process in.

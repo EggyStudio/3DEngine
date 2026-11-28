@@ -8,13 +8,14 @@ namespace Engine;
 
 internal sealed unsafe partial class GlobalIlluminationStages
 {
-    // What gi_split.slang is pushed, the pass and its cascade, the store's shape and the frame's
-    // origin against the store's.
+    // What gi_split.slang is pushed, the pass and its cascade, the store's shape, whether each way
+    // starts again from the frame once its frames disagree with its light, and the frame's origin
+    // against the store's.
     [StructLayout(LayoutKind.Sequential)]
     private struct SplitPush
     {
         public uint Pass, Cascade, Unused0, Unused1;
-        public uint Slots, Cascades, Unused2, Unused3;
+        public uint Slots, Cascades, Agree, Unused3;
         public float Spacing, Unused4, Unused5, Unused6;
         public Vector3 Origin;
         public float Unused7;
@@ -47,7 +48,7 @@ internal sealed unsafe partial class GlobalIlluminationStages
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordSplitGather(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSurfaceGather surface, GpuSplitStore store, GpuSceneField field,
         IImageView depth, ISampler depthSampler, IImageView normals, ReadOnlySpan<byte> view, IImageView environment, ISampler environmentSampler,
-        GpuRayScene? rays, Vector3 origin)
+        GpuRayScene? rays, Vector3 origin, bool agree = false)
     {
         var meshes = rays is not null && GiStages[RaySplitStage].Pipeline.Handle != 0;
         var stage = meshes ? RaySplitStage : SplitStage;
@@ -94,7 +95,7 @@ internal sealed unsafe partial class GlobalIlluminationStages
         var shape = store.Shape;
         var push = new SplitPush
         {
-            Slots = (uint)shape.Slots, Cascades = (uint)shape.Cascades, Spacing = shape.Spacing, Origin = origin,
+            Slots = (uint)shape.Slots, Cascades = (uint)shape.Cascades, Agree = agree ? 1u : 0u, Spacing = shape.Spacing, Origin = origin,
         };
         var points = (long)surface.Width * surface.Height;
         void Pass(uint pass, int cascade, long threads)

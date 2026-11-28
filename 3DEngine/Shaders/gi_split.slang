@@ -90,7 +90,8 @@ struct SplitPush
 {
     // x: the pass, as computeMain numbers them. y: the cascade the pass runs over.
     uint4 pass;
-    // x: the most probes of the finest cascade the store holds. y: its cascades.
+    // x: the most probes of the finest cascade the store holds. y: its cascades. z: 1 where each
+    // way starts again from the frame once its frames disagree with its light (gi.split_agree).
     uint4 shape;
     // x: the finest cascade's spacing.
     float4 spacing;
@@ -256,7 +257,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     else if (pass == 4u && pixel)
         traceSeenRays(points, hits, sky, store, at, shape, index);
     else if (pass == 5u)
-        keepSplitLight(store, kept, at, shape, index);
+        keepSplitLight(store, kept, at, shape, index, push.shape.z != 0u ? SplitAgreeSpread : 0.0);
     else if (pass == 6u)
         mergeSplitCascade(store, kept, sky, at, shape, cascade, index);
     else if (pass == 7u && pixel)
