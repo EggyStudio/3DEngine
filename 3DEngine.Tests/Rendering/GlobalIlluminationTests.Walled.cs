@@ -6,7 +6,7 @@ namespace Engine.Tests.Rendering;
 
 public sealed partial class GlobalIlluminationTests
 {
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Probe_Moved_Into_The_Stone_At_A_Lamps_Corner_Is_Walled_In_And_Holds_Nothing()
     {
@@ -63,7 +63,7 @@ public sealed partial class GlobalIlluminationTests
         UnloadModel(cube);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void Two_Blocks_Meeting_Along_An_Edge_Close_It_To_A_Glow_Lights_Light()
     {

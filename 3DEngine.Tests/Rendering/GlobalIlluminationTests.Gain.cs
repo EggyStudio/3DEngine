@@ -22,7 +22,7 @@ public sealed partial class GlobalIlluminationTests
         GetBounceGain().Should().Be(1);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Floor_Lit_By_A_Panel_Takes_More_Of_Its_Walls_Light_As_The_Bounce_Gain_Rises()
     {

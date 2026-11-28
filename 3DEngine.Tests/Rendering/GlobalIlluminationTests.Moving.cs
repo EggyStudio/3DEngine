@@ -8,7 +8,7 @@ namespace Engine.Tests.Rendering;
 // stamped with each frame, its emission among it.
 public sealed partial class GlobalIlluminationTests
 {
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]

@@ -152,19 +152,23 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             // distance, info, albedo and glow, the lights, the probes' faces and their light at
             // surfaces, the view, the light from all around, the field's second sheets and faces,
             // the store's uints and its probes' own light, the light it gathers, what each pixel's
-            // gather is read by, the store's merged light and the surfaces' normals, and the build
-            // with the device's rays the ray scene after them.
+            // gather is read by, the store's merged light and the surfaces' normals, the boxes the
+            // frame changed after them, and in the build with the device's rays the ray scene
+            // before those boxes.
             VkDescriptorType[] split = [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer,
                 VkDescriptorType.SampledImage];
-            if (spirv.Length > SplitStage && spirv[SplitStage] is { Length: > 0 } fieldSplit)
-                made.Add((SplitStage, () => device.MakeComputeStage(fieldSplit, split, SplitPushBytes)));
-            if (spirv.Length > RaySplitStage && spirv[RaySplitStage] is { Length: > 0 } raySplit && device.CanQueryRays)
+            // Neither is made on a device whose driver ends the process in it, where the grid's
+            // probes light the window under the split layout too.
+            var splits = !device.AdapterInfo.FaultsSplitTrace;
+            if (splits && spirv.Length > SplitStage && spirv[SplitStage] is { Length: > 0 } fieldSplit)
+                made.Add((SplitStage, () => device.MakeComputeStage(fieldSplit, [.. split, VkDescriptorType.UniformBuffer], SplitPushBytes)));
+            if (splits && spirv.Length > RaySplitStage && spirv[RaySplitStage] is { Length: > 0 } raySplit && device.CanQueryRays)
                 made.Add((RaySplitStage, () => device.MakeComputeStage(raySplit, [.. split, VkDescriptorType.AccelerationStructureKHR,
-                    VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], SplitPushBytes)));
+                    VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer, VkDescriptorType.UniformBuffer], SplitPushBytes)));
             made.Add((AmbientStage, () => device.MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage,

@@ -9,7 +9,7 @@ namespace Engine.Tests.Rendering;
 // floor, where they see the sky.
 public sealed partial class CascadeEdgeTests
 {
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void A_Closed_Corridors_Far_End_Takes_None_Of_The_Sky_Its_Probes_Outside_It_Saw()
     {
         // Four units wide and three high, its end 34 units from the eye, which the field lies

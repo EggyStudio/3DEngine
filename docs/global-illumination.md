@@ -70,11 +70,26 @@ to point, is gathered by few probes, and the near light, which changes fast, by 
 light is merged into the one before's, so a probe of the first sees the whole distance at the cost
 of its own short rays.
 
-The engine chose them because nothing has to be baked or placed by hand. The probes stand on grids
-that follow the camera, a scene that changes is traced again in the next frame, and the cost of a
-frame grows with the cascades and not with the lights or the meshes. A light switched off takes its
-indirect light with it the frame after, and a mesh moved casts its new shadow into the indirect
-light at once.
+The engine chose them because nothing has to be baked or placed by hand. The probes follow the
+camera, a scene that changes is traced again in the next frame, and the cost of a frame grows with
+the cascades and not with the lights or the meshes. With the probes on grids about the camera, as
+`gi.layout dense` lays them, a light switched off takes its indirect light with it the frame after,
+and a mesh moved casts its new shadow into the indirect light at once.
+
+By default the probes a pixel takes the world's light from are the RadianceCascades module's split
+cascades, as `gi.layout split` lays them, kept near the points of the window's depth the eye sees.
+Each point the eye sees sends a ray a frame, four while its finest probe is under 16 frames old, and
+each pixel gathers the probes about its point, the probes on the grids still lighting what those
+rays meet. Each way of a split probe keeps the mean of its last 256 rays. The engine gives the split
+cascades the boxes of the world each frame changed, the box of what came or went in each build of
+the scene's distance field grown by its cell, the reach of a lamp that changed about its place
+before and after, and the field's whole extent where the sun, the sky or the gain changed, a glow
+light giving none, and each way whose rays may cross one lets its light go and takes the frame's
+rays. What those rays meet is lit by the probes on the grids, whose bounce takes frames to settle
+after a change, so a room seen open and then closed keeps 0.015 of the open floor's light 16 frames
+after at `High` and 0.006 after 60, where the probes on the grids keep none. On a device whose
+driver ends the process in the split's kernel, as lavapipe's before Mesa 26.3 does, the engine makes
+no split stage and the probes on the grids light the window.
 
 ## The scene's distance field
 
@@ -515,7 +530,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 | `gi.passes <on\|off>` | The setting that times global illumination's passes apart in the profile, the ray scene, each cascade's trace, the merges, the gather, the screen's probes, their filter and the glow lights, as `gpu.gi_` lines, the rest staying `gpu.global_illumination` |
 | `gi.history`, `gi.filter`, `gi.merge`, `gi.again`, `gi.follow`, `gi.glow`, `gi.through`, `gi.albedo`, `gi.specular`, `gi.normals`, `gi.spread`, `gi.points`, `gi.footprint`, `gi.under`, `gi.own_place` `<on\|off>` | Settings that leave out the screen's probes' light of the frame before, their filter, the merge, the light past the first bounce, the indirect light following a light out, the emissive surfaces carried as lights, the crossing of what lets light through, the surfaces' colors, their reflection of the indirect light, their normal maps, the coarser cascades' trace in halves, the faint glow lights taken as one point, the sun at a still probe's hit read over the patch of the face its ray stands for, the probes below every surface left out where a surface does not see them or each cascade's probes placed by the field from the cascade they stand in outward |
 | `gi.gather <probes\|pixels>`, `gi.gather_size <full\|half\|quarter\|eighth>`, `gi.gather_reach <units>`, `gi.gather_guide <off\|cascades>`, `gi.gather_rays <on\|off>` | Settings that bring the cascades' light to the picture by the screen's probes or by one ray from each texel of a grid of the window's pixels at the size set, traced through the field as far as the reach set, `0` for as far as the field reaches, its ways drawn by the cosine or half of them toward the light the cascades hold, its rays meeting the meshes through the device's ray tracing where set, made whole each frame and blended within it, the screen's probes then standing for the glow lights alone |
-| `gi.cascade <cascade>`, `gi.meshes <on\|off>`, `gi.own_field <on\|off>`, `gi.toward <on\|off>`, `gi.surface <on\|off>`, `gi.layout <dense\|split>`, `gi.split_agree <on\|off>`, `gi.screen <on\|off>`, `gi.screen_cascades <on\|off>`, `gi.screen_reflection <on\|off>` | Settings, off unless set but for the cascade and the layout, that keep one cascade's light alone, `-1` for all, trace the probes' rays through the GPU's own rays at `High` and march each cascade's probes' rays through the field from the cascade they stand in outward, have a pixel read its probes' faces moved toward the surfaces their rays met, have it take the probes' light at its point as the RadianceCascades module gathers a surface point, lay those probes out as the module's split cascades kept near the points the eye sees, have each of their ways start again from the frame once its frames disagree with its light, put the screen's probes in, have them stand in cascades of their own traced by the GPU's own rays to the scene's end, or step a glossy surface's reflection through the window's depth before the field |
+| `gi.cascade <cascade>`, `gi.meshes <on\|off>`, `gi.own_field <on\|off>`, `gi.toward <on\|off>`, `gi.surface <on\|off>`, `gi.layout <dense\|split>`, `gi.split_agree <on\|off>`, `gi.screen <on\|off>`, `gi.screen_cascades <on\|off>`, `gi.screen_reflection <on\|off>` | Settings, off unless set but for the cascade and the layout, that keep one cascade's light alone, `-1` for all, trace the probes' rays through the GPU's own rays at `High` and march each cascade's probes' rays through the field from the cascade they stand in outward, have a pixel read its probes' faces moved toward the surfaces their rays met, have it take the probes' light at its point as the RadianceCascades module gathers a surface point, lay those probes out on grids about the eye rather than as the module's split cascades kept near the points the eye sees, have each of their ways start again from the frame once its frames disagree with its light, put the screen's probes in, have them stand in cascades of their own traced by the GPU's own rays to the scene's end, or step a glossy surface's reflection through the window's depth before the field |
 | `gi.side <counts>`, `gi.shell_parts <turns>` | Settings that set how many probes a side each cascade holds from the first on, as `8,8,12`, the last count holding for the cascades past it, and the turns the probes past each cascade's inner eight a side trace in, `0` for every frame |
 | `gi.probe <x> <y> <z> [samples] [bounces] [cascade]` | The light arriving at the probe nearest a point against a path-traced reference of it, each face by where its ways were met, and the ways that carry most of the face furthest from it, each with how far its rays went against what and how far the reference's path through the texel's middle first met, and whether the probe was carried past its interval with its rays moving |
 | `field.march <x> <y> <z> [dx] [dy] [dz] [sun]` | Marches the scene's distance field from a point along a way, or toward the sun, as the passes march it, and says where it met a surface, in which cascade and cell, and each step, with `sun` marching on from that surface toward the sun as a probe's hit does |

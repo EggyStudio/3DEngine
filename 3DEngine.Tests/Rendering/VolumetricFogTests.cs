@@ -110,7 +110,7 @@ public sealed class VolumetricFogTests : IDisposable
         UnloadModel(cube);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void Fog_In_A_Sealed_Room_Scatters_None_Of_The_Light_Outside_It()
     {
         // A room two units across inside walls a unit thick under a bright sky and a sun, the eye

@@ -31,6 +31,7 @@ public sealed partial class GlobalIlluminationTests
             SetSceneField(3, 0.5f, 2);
             SetSceneFieldCenter(new Vector3(0, 1, 0));
             SetGlobalIllumination(GlobalIllumination.Low);
+            GridLayout.ForTheGridsOwnReading();
             if (sky) SetAmbientLight(new Color(200, 220, 255), 1);
             else SetAmbientLight(Color.Black, 0);
             var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));

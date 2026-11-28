@@ -26,7 +26,7 @@ public sealed class GlowPenumbraTests : IDisposable
     // (Illumination.JitterAt), which a line is read over.
     private const int Warm = 48, Round = 16;
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void A_Turn_Of_A_Few_Pixels_Moves_The_Penumbra_With_The_World()
     {
         // Marched to from their tiles' middles, the probes moved the floor's light along the line
@@ -44,7 +44,7 @@ public sealed class GlowPenumbraTests : IDisposable
         moved.Should().BeLessThan(0.02, "the line holds still over a round of the probes' points");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void A_Lamp_Placed_Shows_At_Once_And_A_Wall_Taken_Away_Lets_It_Through_At_Once()
     {
         // The lamp's place is new, so the blend each texel held is dropped and the frame's light
@@ -71,7 +71,7 @@ public sealed class GlowPenumbraTests : IDisposable
         Strays(opened, open).Should().BeLessThan(0.01, "the floor behind the wall takes the lamp's light in the frame the wall goes");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void The_Shadow_Settles_Within_Two_Rounds_Of_An_Apps_Start()
     {
         // Before the field holds the wall, the probes see the lamp past it. Held whole in the
@@ -85,7 +85,7 @@ public sealed class GlowPenumbraTests : IDisposable
         Strays(early, settled).Should().BeLessThan(0.02, "the shadow is in place two rounds after the app began");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void With_No_Screen_Probe_The_Floor_Behind_The_Wall_Stays_In_Its_Shadow()
     {
         // A pixel no screen probe holds marches to the faces' halves, as a probe does. With one
@@ -98,7 +98,7 @@ public sealed class GlowPenumbraTests : IDisposable
         line.Take(5).Should().OnlyContain(light => light < 0.02 * peak, "the floor from 1.3 to 1.7 blocks out lies in the wall's shadow, the lamp hidden from it");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void Each_Frame_Draws_With_The_Build_That_Leaves_Out_What_It_Does_Not_Hold()
     {
         // The model pass's fragment stage is built whole, without the glow lights' marches and

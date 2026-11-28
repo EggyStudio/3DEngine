@@ -19,6 +19,7 @@ public sealed partial class GlobalIlluminationTests
         // above it, which with them left out it is not.
         Open();
         SetGlobalIllumination(GlobalIllumination.Low);
+        GridLayout.ForTheGridsOwnReading();
         SetAmbientLight(Color.White, 64);
         CreatePointLight(new Vector3(0, 2.2f, 0), new Color(255, 240, 220), 1, range: 8);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));

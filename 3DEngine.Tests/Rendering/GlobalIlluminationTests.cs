@@ -102,7 +102,7 @@ public sealed partial class GlobalIlluminationTests(ITestOutputHelper output) : 
         return sum / (width * height);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void Under_A_Uniform_Sky_Every_Face_Of_A_Probe_Reads_The_Same_Light_At_Each_Quality()
     {
@@ -129,7 +129,7 @@ public sealed partial class GlobalIlluminationTests(ITestOutputHelper output) : 
         }
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Floor_Seen_At_A_Slant_Takes_The_Light_Of_The_Screens_Probes_Along_Its_Slope()
     {
@@ -164,7 +164,7 @@ public sealed partial class GlobalIlluminationTests(ITestOutputHelper output) : 
         UnloadModel(glow);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void The_Screens_Probes_Hold_Light_On_A_Floor_Past_The_Fields_First_Cascade()
     {
@@ -223,7 +223,7 @@ public sealed partial class GlobalIlluminationTests(ITestOutputHelper output) : 
         UnloadModel(strip);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Red_Wall_Tints_The_Side_Of_A_White_Block_Facing_It()
     {
@@ -252,7 +252,7 @@ public sealed partial class GlobalIlluminationTests(ITestOutputHelper output) : 
         UnloadModel(slab);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Red_Wall_That_Moves_Tints_The_Side_Of_A_White_Block_Facing_It_As_A_Still_One_Does()
     {
@@ -319,7 +319,7 @@ public sealed partial class GlobalIlluminationTests(ITestOutputHelper output) : 
         UnloadModel(panel);
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]
@@ -402,7 +402,7 @@ public sealed partial class GlobalIlluminationTests(ITestOutputHelper output) : 
         UnloadModel(panel);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void An_Emissive_Panel_Lights_Its_Room_In_A_Render_Texture_Too()
     {
@@ -466,6 +466,7 @@ public sealed partial class GlobalIlluminationTests(ITestOutputHelper output) : 
         // cascades alone.
         Open();
         SetGlobalIllumination(GlobalIllumination.Medium);
+        GridLayout.ForAnUnreadCause();
         GetApp().World.Resource<GlobalIlluminationSettings>().ScreenProbes = screenProbes;
         CreatePointLight(new Vector3(0.5f, 2.6f, 0.8f), Color.White, 6, range: 10);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
@@ -577,7 +578,7 @@ public sealed partial class GlobalIlluminationTests(ITestOutputHelper output) : 
         UnloadModel(panel);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Lamp_That_Casts_Shadows_Sends_No_Indirect_Light_Into_A_Room_Its_Walls_Close_It_Out_Of()
     {
@@ -647,7 +648,7 @@ public sealed partial class GlobalIlluminationTests(ITestOutputHelper output) : 
         UnloadModel(block);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Mirror_Shows_A_Block_Its_Lamp_Is_Shut_Away_From_In_The_Dark()
     {
@@ -726,7 +727,7 @@ public sealed partial class GlobalIlluminationTests(ITestOutputHelper output) : 
         UnloadModel(slab);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Mirror_Reflects_A_Block_Behind_The_Camera_Through_The_Field()
     {

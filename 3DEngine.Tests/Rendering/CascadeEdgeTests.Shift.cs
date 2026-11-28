@@ -8,7 +8,7 @@ namespace Engine.Tests.Rendering;
 // corridor's walls ahead as a slab built over frames.
 public sealed partial class CascadeEdgeTests
 {
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void A_Closed_Corridors_Light_Holds_While_The_Slabs_A_Walk_Brings_Into_The_Field_Are_Built()
     {
         // A corridor two units wide, three high and twenty-four long, closed at both ends under the
@@ -18,7 +18,8 @@ public sealed partial class CascadeEdgeTests
         // until the last, and read so, the rays through them would go on past the walls they stand
         // for to the sky. Walked down a tenth of a unit a frame, the corridor's light would leap
         // over the frame before's in a frame a slab waits, and with those cells read in the next
-        // cascade out, which holds the walls there, it holds in every frame.
+        // cascade out, which holds the walls there, it holds in every frame. The rise is read as a
+        // share of the open floor's light, since the corridor closed holds little of it.
         // The frames unpaced, so none waits and the field's triangle budget is never raised past the
         // 64 it is set to, where paced at 60 a frame of the suite's warm caches would wait and the
         // slabs be built in a frame or two.
@@ -82,12 +83,12 @@ public sealed partial class CascadeEdgeTests
         for (int frame = 0; frame < 80; frame++)
         {
             var light = Seen(-4 - 0.1f * (frame + 1), closed: true) / open;
-            if (light / before > most) (most, at) = (light / before, frame);
+            if (light - before > most) (most, at) = (light - before, frame);
             before = light;
             if (fields()!.Plan!.Unbuilt is not null) waited++;
         }
         UnloadModel(block);
         waited.Should().BeGreaterThan(4, "the walk's shifts build their slabs over frames");
-        most.Should().BeLessThan(1.5, $"the corridor's light holds while the slabs its walk brings in are built, where at the walk's frame {at} it rose to {most:0.00} times the frame before's, over {waited} frames a slab waited");
+        most.Should().BeLessThan(0.002, $"the corridor's light holds while the slabs its walk brings in are built, where at the walk's frame {at} it rose by {most:0.00000} of the open floor's light over the frame before's, over {waited} frames a slab waited");
     }
 }

@@ -21,6 +21,7 @@ public sealed partial class BounceRoomsTests
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(3, 0.15f, 2);
         SetGlobalIllumination(GlobalIllumination.Low);
+        GridLayout.ForAWallThinnerThanACell();
         using var rooms = new Rooms();
         var camera = Rooms.Views[1];
         float Foot()

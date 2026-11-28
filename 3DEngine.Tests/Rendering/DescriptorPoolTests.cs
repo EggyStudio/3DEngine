@@ -22,7 +22,7 @@ public sealed class DescriptorPoolTests : IDisposable
         _folder.Dispose();
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void No_Pool_Is_Asked_For_A_Set_Past_Its_Counts()
     {
         // The scene field's pool was counted by hand, six storage images where a build's two sets

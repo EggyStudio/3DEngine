@@ -29,6 +29,17 @@ internal sealed partial class GlobalIlluminationRenderer
     private (bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, bool, int, float, ScreenGather, GatherSize)? _switchesBefore;
     private bool _switchesChanged;
 
+    // The boxes of the world whose surfaces or light changed this frame, each build of the field's
+    // box of what came or went grown by its cell and each lamp's that changed grown by its reach,
+    // and whether the sun, the sky or the gain changed, which changes the light on every surface
+    // (SplitChanges).
+    private readonly List<SceneFieldPlan.Box> _splitChanges = [];
+    private bool _splitChangedWhole;
+
+    // The least normal half float, which the field's cells keep their light in, below which a
+    // lamp's light on a surface is not counted in its reach.
+    private const float LeastKeptLight = 1f / 16384;
+
     // Whether the carried probes' rays moved the frame before, or null before the first frame.
     private bool? _movingBefore;
 
@@ -73,7 +84,63 @@ internal sealed partial class GlobalIlluminationRenderer
     {
         var (signature, places) = LightSignature(lights);
         _lightsChanged = _lightSignature is not { } was || Differ(was, signature, places);
+        _splitChanges.Clear();
+        _splitChangedWhole = false;
+        if (_lightsChanged && _lightSignature is { } before) NoteLightBoxes(before, signature, places);
         (_lightSignature, _lightPlaces) = (signature, places);
+    }
+
+    // Notes the boxes of the lights that differ from the frame before's by more than NoteLights
+    // tells, each lamp that differs, came or went its place before and its place now each grown by
+    // its reach, a lamp after one that came or went counted as changed, and the field's whole
+    // extent where the sun, the sky or the gain differs. The glow lights give no box.
+    private void NoteLightBoxes(float[] was, float[] now, bool[] places)
+    {
+        bool Apart(int i) => i >= was.Length || i >= now.Length || MathF.Abs(was[i] - now[i])
+            > (places[i] ? 0.01f : 0.01f * MathF.Max(1, MathF.Max(MathF.Abs(was[i]), MathF.Abs(now[i]))));
+        // The sun's way and light, the sky's and the count of lamps, then the gain.
+        const int head = 14, count = 12;
+        for (int i = 0; i < head; i++)
+            if (i != count && Apart(i))
+            {
+                _splitChangedWhole = true;
+                return;
+            }
+        var size = Marshal.SizeOf<LightUboEntry>() / 4;
+        int before = Math.Clamp((int)was[count], 0, LightingUboPacker.MaxLights), after = Math.Clamp((int)now[count], 0, LightingUboPacker.MaxLights);
+        for (int k = 0; k < Math.Max(before, after); k++)
+        {
+            var at = head + k * size;
+            if (k < before && k < after && !Enumerable.Range(at, size).Any(Apart)) continue;
+            if (k < before) _splitChanges.Add(LampReach(was, at));
+            if (k < after) _splitChanges.Add(LampReach(now, at));
+        }
+    }
+
+    // A lamp's place in the lights' signature at at grown along each axis by its reach, its range
+    // where it has one, and else the distance past which its light on a surface, its brightest
+    // color over the distance squared, falls below what the field's cells keep.
+    private static SceneFieldPlan.Box LampReach(float[] signature, int at)
+    {
+        var place = new Vector3(signature[at], signature[at + 1], signature[at + 2]);
+        var (range, brightest) = (signature[at + 7], MathF.Max(signature[at + 8], MathF.Max(signature[at + 9], signature[at + 10])));
+        return new SceneFieldPlan.Box(place, place).Grown(range > 0 ? range : MathF.Sqrt(MathF.Max(brightest, 0) / LeastKeptLight));
+    }
+
+    // The frame's boxes of changes against the frame's origin, the coarsest cascade of the field
+    // alone where the sun, the sky or the gain changed, which the split cascades' ways whose rays
+    // may cross one let their light go by (GpuSplitStore.Changes).
+    private List<SceneFieldPlan.Box> SplitChanges(RenderWorld renderWorld, RenderOrigin origin)
+    {
+        var boxes = new List<SceneFieldPlan.Box>();
+        if (_splitChangedWhole && renderWorld.TryGet<SceneFieldRenderer>()?.Plan?.Extent is { } extent)
+            boxes.Add(extent);
+        else
+            foreach (var box in _splitChanges)
+                boxes.Add(box);
+        for (int k = 0; k < boxes.Count; k++)
+            boxes[k] = new SceneFieldPlan.Box(origin.Against(boxes[k].Min), origin.Against(boxes[k].Max));
+        return boxes;
     }
 
     // The frame before's lights read in a world a program moved by a whole step, each place in them

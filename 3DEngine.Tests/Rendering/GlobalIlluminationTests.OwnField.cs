@@ -8,7 +8,7 @@ namespace Engine.Tests.Rendering;
 // marching the field from their own cascade outward (gi.own_field) and from the finest.
 public sealed partial class GlobalIlluminationTests
 {
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void The_Second_Cascades_Light_Holds_Where_The_First_Cascades_Box_Moves_Under_A_Roof_Of_Slats()
     {

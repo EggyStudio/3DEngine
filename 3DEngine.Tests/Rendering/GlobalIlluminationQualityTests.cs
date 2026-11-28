@@ -18,7 +18,7 @@ public sealed class GlobalIlluminationQualityTests : IDisposable
         UseApp(null);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [ExpectsError("Engine.GlobalIllumination", "names none of Off, Low, Medium and High, so it stays Low")]
     public void A_Quality_That_Names_No_Value_Is_Refused_And_The_Frames_After_It_Draw()
     {

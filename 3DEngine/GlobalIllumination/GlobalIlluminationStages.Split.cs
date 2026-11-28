@@ -41,14 +41,16 @@ internal sealed unsafe partial class GlobalIlluminationStages
     /// read, and each pixel's gather read by its causes into the surface's
     /// <see cref="GpuSurfaceGather.Causes"/> where it holds them. Each point takes the normal
     /// <paramref name="normals"/> holds beside the depth where it holds one
-    /// (<see cref="WindowDepth.Normals"/>).
+    /// (<see cref="WindowDepth.Normals"/>). Each way whose rays may cross a box of
+    /// <paramref name="changes"/>, the store's <see cref="GpuSplitStore.Changes"/> bytes, lets the
+    /// light it kept go.
     /// The rays meet the meshes through <paramref name="rays"/> where it is given and its build was
     /// made, and else the field.
     /// </summary>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordSplitGather(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSurfaceGather surface, GpuSplitStore store, GpuSceneField field,
         IImageView depth, ISampler depthSampler, IImageView normals, ReadOnlySpan<byte> view, IImageView environment, ISampler environmentSampler,
-        GpuRayScene? rays, Vector3 origin, bool agree = false)
+        GpuRayScene? rays, Vector3 origin, ReadOnlySpan<byte> changes, bool agree = false)
     {
         var meshes = rays is not null && GiStages[RaySplitStage].Pipeline.Handle != 0;
         var stage = meshes ? RaySplitStage : SplitStage;
@@ -59,6 +61,8 @@ internal sealed unsafe partial class GlobalIlluminationStages
         var bytes = view[..(Math.Min(view.Length, GpuScreenProbes.ViewBytes) & ~3)];
         fixed (byte* data = bytes)
             device.Api.vkCmdUpdateBuffer(cmd, ((VulkanBuffer)surface.View).Buffer, 0, (ulong)bytes.Length, data);
+        fixed (byte* data = changes)
+            device.Api.vkCmdUpdateBuffer(cmd, ((VulkanBuffer)store.Changes).Buffer, 0, (ulong)changes.Length, data);
         device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.UniformRead);
         var light = ((VulkanImage)surface.Light).Image;
         device.PipelineBarrier(cmd, [ImageBarrier(light, ColorLevels(0, 1), VkImageLayout.ShaderReadOnlyOptimal, VkImageLayout.General,
@@ -82,6 +86,7 @@ internal sealed unsafe partial class GlobalIlluminationStages
         run.Buffer(set, 13, VkDescriptorType.StorageBuffer, store.Light);
         run.Buffer(set, 16, VkDescriptorType.StorageBuffer, store.Merged);
         run.Image(set, 17, VkDescriptorType.SampledImage, ((VulkanImageView)normals).View, null, VkImageLayout.ShaderReadOnlyOptimal);
+        run.Buffer(set, (uint)(meshes ? RayScreenFirst + 3 : RayScreenFirst), VkDescriptorType.UniformBuffer, store.Changes);
         run.Image(set, 14, VkDescriptorType.StorageImage, ((VulkanImageView)surface.LightView).View, null, VkImageLayout.General);
         // The gathered light stands in for the causes where the surface holds none, the pass that
         // writes them not dispatched.

@@ -249,6 +249,7 @@ internal sealed partial class GlobalIlluminationRenderer : IIlluminationPasses, 
             {
                 _fieldChanged = _fieldRebuilt == 0 ? changed : _fieldChanged.With(changed);
                 _fieldRebuilt |= 1u << build.Cascade;
+                _splitChanges.Add(changed.Grown(build.Cell));
             }
         NoteChanged();
         var origins = new Vector3?[cascades];

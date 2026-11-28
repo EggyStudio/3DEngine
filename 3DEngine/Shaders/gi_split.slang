@@ -86,6 +86,38 @@ RWStructuredBuffer<float4> lightMerged;
 [[vk::binding(17, 0)]]
 Texture2D<float4> surfaceNormals;
 
+// The most boxes of changes a frame gives the store, as GpuSplitStore.MostChanges.
+static const uint MostSplitChanges = 16u;
+
+// The boxes of the world whose surfaces or light changed at the frame, in the store's places, x of
+// count how many, the least corner of each in low and the greatest in high
+// (GlobalIlluminationRenderer.SplitChanges).
+struct SplitChangeBoxes
+{
+    uint4 count;
+    float4 low[MostSplitChanges];
+    float4 high[MostSplitChanges];
+};
+
+// It stands past the ray scene's three bindings in the build that reads it.
+#if defined(RAY_QUERY)
+[[vk::binding(21, 0)]]
+#else
+[[vk::binding(18, 0)]]
+#endif
+ConstantBuffer<SplitChangeBoxes> changed;
+
+// The frame's changes as the store's light takes them, each way whose rays may cross a box letting
+// what it kept go (keepSplitLight).
+struct FrameChanges : ISplitChanges
+{
+    uint changes() { return min(changed.count.x, MostSplitChanges); }
+
+    float3 changeLow(uint k) { return changed.low[k].xyz; }
+
+    float3 changeHigh(uint k) { return changed.high[k].xyz; }
+}
+
 struct SplitPush
 {
     // x: the pass, as computeMain numbers them. y: the cascade the pass runs over.
@@ -226,12 +258,12 @@ struct WindowSky : ISky
 // The passes of a frame in the order the module runs them, each a thread an index of what it runs
 // over, 1024 groups of 64 a row of the dispatch. Pass 0 empties the table over four slots a probe
 // and counts the probes by how long ago each was asked for, 1 keeps those asked for within the
-// frames their pool has room for over the entries, 2 asks for the finest probe each seen point
-// adds its rays to over the pixels, 3 asks for a cascade's probes from the one below over that
-// cascade's entries, 4 traces the seen points' rays over the pixels, 5 keeps the ways' light over
-// every cascade's ways, 6 merges a cascade's light over its ways from the coarsest down, 7 gathers
-// onto the pixels from the finest probes, and 8 reads each pixel's gather by its causes where
-// gi.split_cause asks.
+// frames their pool has room for over the entries, 2 asks for the finest probe each seen point adds
+// its rays to over the pixels, 3 asks for a cascade's probes from the one below over that cascade's
+// entries, 4 traces the seen points' rays over the pixels, 5 keeps the ways' light over every
+// cascade's ways, letting go the light of each whose rays may cross a box the frame changed, 6
+// merges a cascade's light over its ways from the coarsest down, 7 gathers onto the pixels from the
+// finest probes, and 8 reads each pixel's gather by its causes where gi.split_cause asks.
 [shader("compute")]
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID)
@@ -257,7 +289,10 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     else if (pass == 4u && pixel)
         traceSeenRays(points, hits, sky, store, at, shape, index);
     else if (pass == 5u)
-        keepSplitLight(store, kept, at, shape, index, push.shape.z != 0u ? SplitAgreeSpread : 0.0);
+    {
+        FrameChanges changes;
+        keepSplitLight(store, kept, at, shape, index, push.shape.z != 0u ? SplitAgreeSpread : 0.0, changes);
+    }
     else if (pass == 6u)
         mergeSplitCascade(store, kept, sky, at, shape, cascade, index);
     else if (pass == 7u && pixel)

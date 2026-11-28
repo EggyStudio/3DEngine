@@ -68,7 +68,7 @@ public sealed partial class GlobalIlluminationTests
         UnloadModel(mirror);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void The_Meshes_Switch_And_The_State_Say_What_The_Probes_Rays_Are_Traced_Through()
     {

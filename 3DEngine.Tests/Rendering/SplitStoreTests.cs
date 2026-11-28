@@ -35,14 +35,14 @@ public sealed class SplitStoreTests : IDisposable
     }
 
     [Fact]
-    public void The_Trace_s_Tests_Skip_On_Lavapipe_Before_Mesa_26_3_And_Run_On_Its_Later_Mesa_And_A_GPU()
+    public void Lavapipe_Before_Mesa_26_3_Faults_In_The_Split_Kernel_And_Its_Later_Mesa_And_A_GPU_Do_Not()
     {
         // lavapipe numbers its driver as Mesa is numbered, Mesa 25.2.8's ending the process in the
         // trace and 26.3.1's running it, and a GPU's driver runs it whatever its number.
         static GraphicsAdapterInfo Lavapipe(string mesa) => new("llvmpipe (LLVM 20.1.2, 256 bits)", 0x10005, 0, GraphicsDeviceType.Cpu, mesa, "1.4.318");
-        Probes.SplitTraceFaults(Lavapipe("25.2.8")).Should().BeTrue("Mesa 25.2.8's lavapipe ends the process in the trace");
-        Probes.SplitTraceFaults(Lavapipe("26.3.1")).Should().BeFalse("Mesa 26.3.1's lavapipe runs the trace");
-        Probes.SplitTraceFaults(new("NVIDIA GeForce RTX 4070", 0x10DE, 0x2786, GraphicsDeviceType.DiscreteGpu, "25.2.8.0", "1.4.312"))
+        Lavapipe("25.2.8").FaultsSplitTrace.Should().BeTrue("Mesa 25.2.8's lavapipe ends the process in the trace");
+        Lavapipe("26.3.1").FaultsSplitTrace.Should().BeFalse("Mesa 26.3.1's lavapipe runs the trace");
+        new GraphicsAdapterInfo("NVIDIA GeForce RTX 4070", 0x10DE, 0x2786, GraphicsDeviceType.DiscreteGpu, "25.2.8.0", "1.4.312").FaultsSplitTrace
             .Should().BeFalse("a GPU runs the trace whatever its driver's number");
     }
 

@@ -69,7 +69,7 @@ public sealed class GlowStillTests : IDisposable
         return (held.Count > 0 ? held.Average() : 0, change);
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]
     public void A_Still_View_Holds_Its_Glow_Lights_Light_From_Frame_To_Frame(GlobalIllumination quality)

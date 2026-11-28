@@ -38,6 +38,11 @@ public sealed class NeedsVulkanFactAttribute : FactAttribute
         else if (!Probes.Vulkan.Value && Environment.GetEnvironmentVariable("E3D_REQUIRE_VULKAN") != "1")
             Skip = "No Vulkan device starts offscreen here. A software one, such as lavapipe, is enough.";
     }
+
+    /// <inheritdoc cref="SplitOnTheCpu"/>
+    public bool SplitAtWindowSize { get => _split; set => Skip ??= (_split = value) ? SplitOnTheCpu.Skip() : null; }
+
+    private bool _split;
 }
 
 /// <summary>
@@ -68,6 +73,32 @@ public sealed class NeedsVulkanTheoryAttribute : TheoryAttribute
     {
         if (new NeedsVulkanFactAttribute().Skip is { } reason) Skip = reason;
     }
+
+    /// <inheritdoc cref="SplitOnTheCpu"/>
+    public bool SplitAtWindowSize { get => _split; set => Skip ??= (_split = value) ? SplitOnTheCpu.Skip() : null; }
+
+    private bool _split;
+}
+
+/// <summary>
+/// The skip of a drawing test whose frames draw the split cascades at a window's size, which
+/// <c>SplitAtWindowSize</c> sets, on a device that draws on its CPU and runs the split's kernels,
+/// as lavapipe of Mesa 26.3 in the Windows job does, where those frames take past the time the
+/// build gives a test. Global illumination's tests measured short on lavapipe carry none, so the
+/// jobs on a CPU still draw the split at small sizes and read the guard, the store and the kernels.
+/// Lavapipe before Mesa 26.3 draws the grid's probes under the split layout
+/// (<see cref="GraphicsAdapterInfo.FaultsSplitTrace"/>) and runs these tests.
+/// </summary>
+internal static class SplitOnTheCpu
+{
+    /// <summary>
+    /// The words of the cause by which <c>build/test.py</c> counts the cases so skipped.
+    /// </summary>
+    public const string Cause = "draws the split cascades on its CPU";
+
+    public static string? Skip() => Probes.Adapter.Value is { DeviceType: GraphicsDeviceType.Cpu, FaultsSplitTrace: false } adapter
+        ? $"The Vulkan device here, {adapter.Name}, {Cause}, where this test's frames at the size it draws take past the time the build gives a test."
+        : null;
 }
 
 /// <summary>Skipped as <see cref="NeedsVulkanFactAttribute"/> is, and where the device traces no rays from a shader.</summary>
@@ -93,17 +124,41 @@ public sealed class NeedsRayQueryTheoryAttribute : TheoryAttribute
 
 /// <summary>
 /// Skipped as <see cref="NeedsVulkanFactAttribute"/> is, and on lavapipe before Mesa 26.3, whose
-/// compiled shader of the split cascades' kernel ends the process
-/// (<see cref="Probes.SplitTraceFaults"/>).
+/// compiled shader of the split cascades' kernel ends the process, so the engine makes no split
+/// stage there (<see cref="GraphicsAdapterInfo.FaultsSplitTrace"/>).
 /// </summary>
 public sealed class NeedsSplitTraceFactAttribute : FactAttribute
 {
     public NeedsSplitTraceFactAttribute()
     {
         if (new NeedsVulkanFactAttribute().Skip is { } skip) Skip = skip;
-        else if (Probes.Adapter.Value is { } adapter && Probes.SplitTraceFaults(adapter))
+        else if (Probes.Adapter.Value is { FaultsSplitTrace: true } adapter)
             Skip = $"The Vulkan device here, {adapter.Name} of Mesa {adapter.Driver}, ends the process in the split cascades' kernel, "
                    + "its compiled shader reading a buffer's descriptor through a null address, as lavapipe before Mesa 26.3 does.";
+    }
+}
+
+/// <summary>Skipped as <see cref="NeedsSplitTraceFactAttribute"/> is, for a theory.</summary>
+public sealed class NeedsSplitTraceTheoryAttribute : TheoryAttribute
+{
+    public NeedsSplitTraceTheoryAttribute()
+    {
+        if (new NeedsSplitTraceFactAttribute().Skip is { } reason) Skip = reason;
+    }
+}
+
+/// <summary>
+/// Skipped as <see cref="NeedsVulkanFactAttribute"/> is, and on a device that draws on its CPU,
+/// where the frames the test reads take past the time the build gives a test. Lavapipe, whose
+/// driver before Mesa 26.3 ends the process in the split cascades' kernel, is such a device.
+/// </summary>
+public sealed class NeedsGpuFactAttribute : FactAttribute
+{
+    public NeedsGpuFactAttribute()
+    {
+        if (new NeedsVulkanFactAttribute().Skip is { } skip) Skip = skip;
+        else if (Probes.Adapter.Value is { DeviceType: GraphicsDeviceType.Cpu } adapter)
+            Skip = $"The Vulkan device here, {adapter.Name}, draws on its CPU, where the frames this test reads take past the time the build gives a test.";
     }
 }
 
@@ -205,18 +260,6 @@ internal static class Probes
         device.Initialize(new OffscreenSurface(1, 1), "probe");
         return device.AdapterInfo;
     });
-
-    // Whether the adapter is lavapipe before Mesa 26.3, which numbers its driver as Mesa is
-    // numbered. Mesa 25.2.8's compiles the split cascades' kernel to a shader that reads a
-    // buffer's descriptor through a null address, in the store's trace and in the frames of a slab
-    // 8 wide under the split layout, and the process ends, where 26.3.1's runs both.
-    public static bool SplitTraceFaults(GraphicsAdapterInfo adapter)
-    {
-        if (adapter.DeviceType != GraphicsDeviceType.Cpu || !adapter.Name.StartsWith("llvmpipe", StringComparison.Ordinal)) return false;
-        var parts = adapter.Driver.Split('.');
-        return parts.Length >= 2 && int.TryParse(parts[0], CultureInfo.InvariantCulture, out var major)
-            && int.TryParse(parts[1], CultureInfo.InvariantCulture, out var minor) && major * 100 + minor < 2603;
-    }
 
     // The name Python runs by, python3 where it is, as on Linux and macOS, and python on Windows.
     public static readonly Lazy<string?> Python = new(() =>

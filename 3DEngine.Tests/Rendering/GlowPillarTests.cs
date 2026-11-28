@@ -31,6 +31,7 @@ public sealed class GlowPillarTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
         SetGlobalIllumination(GlobalIllumination.High);
+        GridLayout.ForAnUnreadCause();
         SetAmbientLight(Color.Black, 0);
         var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var lamp = LoadModelFromMesh(GenMeshCube(1, 1, 1));

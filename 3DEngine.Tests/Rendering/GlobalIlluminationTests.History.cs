@@ -67,7 +67,7 @@ public sealed partial class GlobalIlluminationTests
         UnloadModel(panel);
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Medium)]
     [InlineData(GlobalIllumination.High)]

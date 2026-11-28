@@ -38,7 +38,7 @@ public sealed class FieldWaitTests : IDisposable
         return (null, most);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void A_Wait_Answers_Once_The_Field_Is_Built_And_Its_Light_Has_Run_Its_Frames_On_It()
     {
         var config = Config.Default.WithWindow("field wait", 160, 90) with { Headless = true, Offscreen = true, Samples = 1 };

@@ -7,7 +7,7 @@ namespace Engine.Tests.Rendering;
 // leave from in turn would set flickering at surfaces whose places see light far apart.
 public sealed partial class BounceRoomsTests
 {
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void The_Strip_Rooms_Light_Holds_Still_While_The_View_Does()
     {

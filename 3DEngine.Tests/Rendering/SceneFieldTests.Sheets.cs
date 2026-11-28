@@ -131,7 +131,7 @@ public sealed partial class SceneFieldTests
         UnloadModel(sheet);
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]

@@ -14,6 +14,7 @@ public sealed partial class ReferenceFrameTests
         Open(256, 160);
         SetSceneField(3, 0.15f, 2);
         SetGlobalIllumination(GlobalIllumination.High);
+        GridLayout.ForTheGridsOwnReading();
         CreatePointLight(new Vector3(0, 4.2f, 0), new Color(255, 236, 210), 9, range: 12);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var panel = LoadModelFromMesh(GenMeshCube(1, 1, 1));
@@ -45,7 +46,7 @@ public sealed partial class ReferenceFrameTests
         UnloadModel(panel);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void A_Room_Of_A_Game_Lit_By_The_Sun_Through_Its_Windows_Matches_Its_Reference()
     {
         // Manor's library, its furniture and its lamps placed as the game's level places them, under
@@ -86,7 +87,7 @@ public sealed partial class ReferenceFrameTests
         UnloadEnvironmentMap();
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void Glossy_Surfaces_Reflecting_Through_The_Field_Match_Their_Reference()
     {
         // The hall of shaders_reflections at High, a polished floor, a chrome ball and a gold one,
@@ -133,7 +134,7 @@ public sealed partial class ReferenceFrameTests
         UnloadEnvironmentMap();
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void A_Room_Of_Wick_Lit_By_Its_Lamp_And_A_Wick_Matches_Its_Reference()
     {
         // games/Wick's house drawn by the game's own House.cs at the quality the game starts at, the

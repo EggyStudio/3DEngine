@@ -1713,3 +1713,122 @@ tests passed 278 and skipped 1. Lavapipe of Mesa 26.3.1 passed the store's, the 
 copies' and the switch's 17 tests, the switch reading 0.426 and 1.576 in 14.7 minutes, and that of
 Mesa 25.2.8 in the Linux job's image passed 13 and skipped the 4 whose split kernel it ends the
 process in.
+
+157. The split cascades as the default layout, pinned to the module's bf355c1.
+`GlobalIlluminationSettings.Layout` and the `gi.layout` setting default to `Split`, so a session or
+a test that sets no layout gets the module's split cascades. The guard moves into the engine as
+`GraphicsAdapterInfo.FaultsSplitTrace`, true on lavapipe before Mesa 26.3, where
+`GlobalIlluminationStages` makes neither split stage and the renderer keeps no store, so the grid's
+probes light the window there under the split layout too, and `NeedsSplitTraceFact` reads the same
+property. `Split_Is_The_Default_Layout_And_Stands_Wherever_The_Device_s_Driver_Runs_Its_Kernel`
+reads the default at Low and High and that the split's stage and store stand where the driver runs
+the kernel. With the stages made on every device, as at 52aa46fb, it fails on Mesa 25.2.8's lavapipe
+in the Linux job's image, the stage made at Low on a driver that faults in it, and with the guard it
+passes there and on lavapipe of Mesa 26.3.1.
+`Lavapipe_Before_Mesa_26_3_Faults_In_The_Split_Kernel_And_Its_Later_Mesa_And_A_GPU_Do_Not` reads the
+property for lavapipe of Mesa 25.2.8 and 26.3.1 and for the RTX 4070.
+The frame gives the store its boxes of changes through the module's `ISplitChanges`
+(`GlobalIllumination.Changes.cs`), against the frame's origin and on the frame of the change alone,
+with no hold. A field build of the cells the field came to or left gives its box grown by a cell, a
+lamp that changed gives its reach before and after the change, and a change of the sun, the sky or
+the gain gives the field's whole extent. A build that shifts the field gives none, and a glow light
+gives none. Each way whose rays may cross a box lets go of the light it kept. With the ways keeping
+their mean, the first of the bounce rooms lies 1.569 off its settled light 32 frames after its lamp
+is switched on without the boxes and 0.037 with them, and the floor under the panel, which took
+104.74 at the second gain against more than 104.97 before the boxes, takes its walls' light at each
+gain with the whole extent given.
+Under the default with the boxes, 51 cases of 31 tests fail, and each sets `gi.layout dense` through
+`GridLayout`, whose five ways name the cause. `ForTheGridBouncesLag` holds the closed rooms (2),
+which keep 0.0144 of the open floor's light at Low and 0.0142 at High against 0.002. This is the
+grid bounce's lag, the split's rays shading what they meet with the grid's bounce, which takes
+frames to settle after the room closes. At High the room reads 0.1297 on the frame it closes, 0.0151
+16 frames after and 0.0060 after 59. The test stays on the grid until item 27's pin, when the hits
+take their light from the store. `ForASurfaceLettingLightThrough` holds the slabs and leaves that
+let a share of the light through (11), at which `WindowHits` ends a ray at its first surface as at a
+solid one, carrying none of the light past it. The slab's share takes 0.147 to 0.252 of the open
+floor's light over the solid slab's against more than 0.9, the canopy of leaf blocks 0.0097 at Low
+against 0.11 to 0.2 and 0.0064 and 0.0243 at High against 0.125 to 0.23 and 0.18 to 0.28, and the
+leaves past the screen probes' reach 0.0327 against more than 0.33. `ForAWallThinnerThanACell` holds
+a wall or a floor thinner than a cell with a lamp beyond it (3), since below High the split's rays
+march the field and the march begins a cell along its way off the surface it leaves, at `max(start,
+fieldCell(fieldInfo, origin))`, past a wall standing nearer, where High meets the meshes through the
+device's rays. The thin walls' foot under a lamp outside reads 4.30 at Low against 1.1, 0.969 at
+High and 1.003 at Low with a field twice as fine. Two more failed in the suite at bf355c1. The thin
+room's floor along its walls' foot at Low reads 1.139 against 1.1, 1.009 with a field twice as fine
+and 1.000 on the grid, and the wall above the threshold on a floor 0.1 thick in cells of 0.5 reads
+9.705 at Medium against 2.39, 2.516 in cells of 0.25 and 1.527 on the grid, its High case staying
+under the split. The double-sided sheets (2), the roof drawn into the shadow maps alone (1), the
+lamp followed within two frames (1), the closed corridor's far end (1) and the floor under the panel
+at each gain (1) return to the split and pass. The corridor's slabs stay under the split, the test
+reading each frame's rise over the frame before as a share of the open floor's light against 0.002,
+the corridor closed holding little of it, and no frame of the walk rises by more than 0.0006.
+`ForTheGridsOwnReading` holds 19 cases, tests of the grid's own probes and cascades or of a bound
+measured under the grid, for the removal to read again under the split. They are the floor's light
+fading across each cascade's end and its reflection of the sky across the field's end (4), the face
+before the eye at the last cascade's side (1), the floor and wall across the field's edge (2), the
+cascade of eight probes a side (1), the wall's foot and the hidden probes under its floor (1), the
+doorway's jamb and the probes under the floor (1), each bounce room against its reference (4), the
+Cornell box (1), the slab bouncing its colors against its reference (1), the corner lit by glow
+lights (1), the glow light on a far ceiling (1) and the glow light at Low (1).
+`ForAnUnreadCause` holds 16 cases whose cause is not read, each figure read with the boxes. My
+message of the groups put the far origins and the world's move under the history fault, and they do
+not belong there, since the split's rays follow the pixel's index and the frame and not the place.
+The room far out passes 4096 units out and reads 3.72 at the two farther places against 0.1, the
+camera turning reads 2.268 to 2.269 (3), the room in fog 0.141 4096 units out and 1.350 at the two
+farther against 0.1, and the scene drawn against an origin away has 58 pixels at Low and 27 at High
+more than a level apart against 4. The world moved by a whole step passes at Low and reads 2.21 at
+High against 1.5, the board outside the thin room lights its inside 0.0520 at Medium against 0.00184
+and passes at High, and the room drawn into a render texture is 17.11 from the window without the
+screen's probes against 6 and passes with them. The ray scene's corners are packed again with 2
+single-time submits against none, the closed room of smooth white walls reads 1.0977 of its light
+300 frames later against 0.99 to 1.01 with nothing changed, and the lamp's light past the pillar's
+edge steps 0.1054 against 0.085.
+The corridor test reads the split alone as
+`The_Split_Cascades_Light_At_A_Fixed_Point_Holds_While_The_Eye_Walks`, with no grid figure. Taken
+again with the boxes, the walk swings a point's light 1.0072 from its mean at worst against 1.07 and
+0.9810 at its 99th part against 1.04 at High, and 0.7280 and 0.7068 at Low, its largest step away
+from the cascades' snaps 0.0044 against 0.02, and the points the first two cascades hold read 0.753
+to 1.697 of the traced light at the walk's end against 0.71 to 1.86. The points test,
+`Split_A_Floor_s_Points_Take_The_Normal_Its_Surface_Is_Shaded_With_And_Else_The_Depth_s_From_Inside_Its_Edge`,
+is a theory of ten cases, the floor level, leaning, of positions, under a film and over a slab at
+Low and at High, and each passes.
+`A_Lamp_Switched_On_Under_The_Split_Settles_Alike_Its_Ways_Starting_Again_Or_Keeping_Their_Mean`
+takes the place of the switch test that hung in the Windows job's third half at 52aa46fb (run
+46137891938). It gives the lamp's reach as a box the frame changed and reads the first of the bounce
+rooms at 320 by 180 against its settled light, with the ways starting again and with them keeping
+their mean. The two read alike frame by frame, 0.331 on the frame of the switch, 0.091 on the next,
+0.086 on the 4th, 0.073 on the 6th, 0.067 on the 10th, 0.057 on the 13th, 0.053 on the 16th and
+0.037 on the 32nd, against 0.001 settled. The tail past the 4th frame is the grid bounce's lag, the
+rays' hits shaded with it, so the bound is 0.05 at the 32nd frame for this commit and returns to the
+4th at item 27's pin. The comparison between the two forms goes, and starting again stays off by
+default as `gi.split_agree` until the grid's removal. The test takes `NeedsGpuFact`, skipped with
+its cause on a device that draws on its CPU, and takes 21 s on the RTX 4070 in the suite. The engine
+has no ladder setting, so the whole set runs on the RTX 4070 in the suite as it stands.
+The split's tests at a window's size skip on a device that draws on its CPU and runs the split's
+kernels, lavapipe of Mesa 26.3.1 in the Windows job, with the cause named, through
+`SplitAtWindowSize` on `NeedsVulkanFact` and `NeedsVulkanTheory` (`SplitOnTheCpu`).
+`GlobalIlluminationTests` alone, part A of the Windows job's split, took 3,989 s for its 80 cases
+here on lavapipe of Mesa 26.3.1 at 422420b under the split default, and the Windows job's device
+took 2.48 to 5.86 times as long as this one for the tests timed on both, so each of the class's four
+processes would take 68 to 162 minutes against the 70 a part is given. The cases of that class
+measured here at 102 s or under, 63 cases of 33 tests, run as they are, and
+`On_A_Device_That_Draws_On_Its_Cpu_Every_Cascade_Holds_8_Probes_A_Side_Unless_Set`, whose reading is
+of such a device, measured here at 15 s and runs too, so the Windows job still draws the split at
+small sizes and reads the guard, the store and the kernels. 88 tests skip there, 118 cases, those of
+the class measured over 102 s (6 tests, 9 cases) and the tests that draw the split and were not
+measured, 37 of the class (45 cases) and 45 of other classes (64 cases), each found by a run of the
+suite on the RTX 4070 that noted which tests made global illumination's probes. A test on the grid
+through `GridLayout` draws the grid and runs, and the tests that trace rays from a shader skip on a
+CPU as before. Lavapipe of Mesa 25.2.8 in the Linux job draws the grid under the split layout and
+runs them all as at 52aa46fb. `build/test.py` counts the cases so skipped in its head, which the
+job's page and notice carry, read by
+`The_Head_Counts_The_Cases_Skipped_For_The_Split_Cascades_Drawn_On_The_Devices_CPU`.
+The two sheets, `2026-11-28-item-318-views-default.webp` and
+`2026-11-28-item-318-door-default.webp`, are taken again at bf355c1 under the default with no screen
+layer and no grid column, each picture beside the traced reference and their difference in red and
+blue. View 1 reads 1.03 of the reference, its shade 1.18 and the far doorway 1.36, the door's left
+wall 1.18 with its six parts 0.87 to 1.48, and the gallery 1.00 with its near wall 0.97. At the door
+with the bounce at zero the wall reads 0.59, and settled 1.24 with its parts 0.91 to 1.93, which
+`docs/command-line.md` carries.
+The whole suite passes on the RTX 4070 in one process, 2,609 cases passed, none failed and 1 skipped
+of 2,610, in 30 minutes.

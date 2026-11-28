@@ -8,7 +8,7 @@ namespace Engine.Tests.Rendering;
 // reflection along its mirror way down to the floor takes none of.
 public sealed partial class GlobalIlluminationTests
 {
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void The_Foot_Of_A_Rough_Wall_Reflects_None_Of_The_Sky_The_Probes_Under_Its_Floor_See()
     {

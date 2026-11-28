@@ -15,7 +15,7 @@ public sealed partial class GlobalIlluminationTests
     private static SceneFieldPlan FieldPlan() =>
         GetApp().World.Resource<Engine.Renderer>().RenderWorld.TryGet<SceneFieldRenderer>()!.Plan!;
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void Each_Cascade_Lies_About_The_Eye_Or_Ahead_Along_The_Look_At_Two_Places_And_Two_Turns()
     {
@@ -51,7 +51,7 @@ public sealed partial class GlobalIlluminationTests
         UnloadModel(slab);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void The_Field_View_Draws_Each_Cascade_Over_The_Floor_Where_Its_Box_Reaches_And_Nowhere_Else()
     {

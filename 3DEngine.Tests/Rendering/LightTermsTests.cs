@@ -23,7 +23,7 @@ public sealed partial class LightTermsTests : IDisposable
     [GeneratedRegex(@"^(?<what>[^:]+): (?<r>-?[0-9.]+) (?<g>-?[0-9.]+) (?<b>-?[0-9.]+)", RegexOptions.Multiline)]
     private static partial Regex Line();
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void A_Sunlit_Pixels_Light_Is_The_Sum_Of_Its_Terms_The_Suns_The_Largest()
     {
         var config = Config.Default.WithWindow("light terms", 160, 90) with { Headless = true, Offscreen = true, Samples = 1 };

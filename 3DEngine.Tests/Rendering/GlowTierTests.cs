@@ -24,7 +24,7 @@ public sealed class GlowTierTests : IDisposable
         _folder.Dispose();
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void A_Floor_Keeps_A_Near_Lamps_Light_Beside_A_Stronger_Lamp_Hidden_Behind_A_Wall()
     {
         // Four small lamps a meter from a point of the floor, each giving it near twice what a lamp

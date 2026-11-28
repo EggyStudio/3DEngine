@@ -6,14 +6,15 @@ using static Engine.E3D;
 namespace Engine.Tests.Rendering;
 
 // A closed corridor under the sun and a lamp, the cascades walked down it in small steps as an
-// eye walking it moves them, nothing else changing, and the light the surfaces gather read at fixed
-// points on its walls, floor, ceiling and lintel while each cascade's end sweeps over them.
+// eye walking it moves them, nothing else changing, and the light the surfaces gather through the
+// split cascades read at fixed points on its walls, floor, ceiling and lintel while each of the
+// field's cascades' ends sweeps over them.
 public sealed partial class CascadeEdgeTests
 {
     [NeedsRayQueryTheory]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]
-    public void The_World_Probes_Light_At_A_Fixed_Point_Holds_While_The_Eye_Walks(GlobalIllumination quality)
+    public void The_Split_Cascades_Light_At_A_Fixed_Point_Holds_While_The_Eye_Walks(GlobalIllumination quality)
     {
         // A corridor four units wide, three high and thirty-six long, closed at both ends, its
         // ceiling open over three units near its far end, where the sun reaches the floor, a lamp
@@ -21,11 +22,11 @@ public sealed partial class CascadeEdgeTests
         // cells 0.15, 0.3 and 0.6 lie around the middle the field is given, which walks six units
         // down the corridor as an eye walking it would move them, ten of the last cascade's cells
         // and forty of the first's, so each cascade's end ahead passes over the points. The picture
-        // is drawn from where the walk begins, so each point stays on its pixels. With the screen's
-        // probes left out, each pixel takes the world's probes' light as the surfaces gather it,
-        // and the light past them where it takes their place across the last cascade's outer band,
-        // drawn on white surfaces a term at a time. Each point is read at each step against its
-        // own mean over the walk.
+        // is drawn from where the walk begins, so each point stays on its pixels. Under the split
+        // layout, the default, each pixel takes the light its point's split cascades gather, their
+        // rays' hits lit by the world's probes, and the light past them where it takes their place
+        // across the last cascade's outer band, drawn on white surfaces a term at a time. Each
+        // point is read at each step against its own mean over the walk.
         const int Wide = 640, High = 360;
         var config = Config.Default.WithWindow("still corridor", Wide, High) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
@@ -96,10 +97,10 @@ public sealed partial class CascadeEdgeTests
             Draw();
             return Read(device.ReadFloats(renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!.ColorView.Image), 4);
         }
-        // The light the surfaces gather from all around: the probes' (term 1), and across the last
-        // cascade's outer band, where that light fades out, the light past them that fades in, the
-        // environment's (7) and the sun's share of the ground's (11), each drawn in a frame of its
-        // own.
+        // The light the surfaces gather from all around: the cascades' (term 1), and across the
+        // last cascade's outer band, where that light fades out, the light past them that fades
+        // in, the environment's (7) and the sun's share of the ground's (11), each drawn in a frame
+        // of its own.
         double[] Indirect()
         {
             var sum = new double[points.Count];
@@ -156,8 +157,9 @@ public sealed partial class CascadeEdgeTests
 
         // Each point's swing at each step, its light against its own mean over the walk, and the
         // steps at which a cascade's box snapped on by a spacing of its probes, which changes the
-        // cascade that reads a point near its end. Away from those steps and the frames the probes
-        // take to settle after them, a point's light is the world probes' own as the eye moves.
+        // world's probes that light the split's hits near the cascade's end. Away from those steps
+        // and the frames the probes take to settle after them, a point's light is the split's own
+        // as the eye moves.
         var means = Enumerable.Range(0, points.Count).Select(i => walk.Average(read => read[i])).ToArray();
         var swings = Enumerable.Range(0, points.Count).Select(i => walk.Select(read => Math.Abs(read[i] / means[i] - 1)).ToArray()).ToArray();
         var worst = Enumerable.Range(0, points.Count).MaxBy(i => swings[i].Max());
@@ -172,24 +174,25 @@ public sealed partial class CascadeEdgeTests
             .MaxBy(change => change.Item1);
         var level = string.Join(" and ", Enumerable.Range(0, 3).Where(c => Snapped(worstStep, c)).Select(c => $"cascade {c}"));
         still.Should().BeLessThan(0.02, string.Create(CultureInfo.InvariantCulture,
-            $"the world probes' light at each point holds within a fiftieth between the cascades' snaps, where the {points[stillAt].Name}'s moved by {still:0.0000} in a step"));
+            $"the split cascades' light at each point holds within a fiftieth between the cascades' snaps, where the {points[stillAt].Name}'s moved by {still:0.0000} in a step"));
 
-        // Where a snap changes the cascade that reads a point, the cascades' light there differs.
-        // Past the second cascade's box nothing finer than the last cascade's cells reads the
-        // walls' inside, so the last cascade's probes in them stand outside the corridor until the
-        // second's box comes over them, and across the last cascade's outer band the light past the
-        // probes, the sky's and the sun's on the ground, fades in as though the corridor were open.
-        // The swing is held to what it reads until they agree within a fiftieth.
+        // Where a snap changes the cascade whose probes light the split's hits, the light the hits
+        // send on differs, and across the last cascade's outer band the light past the cascades,
+        // the sky's and the sun's on the ground, fades in as though the corridor were open. The
+        // floor and the right wall at z -16 to -18 read about twice their mean until the last
+        // cascade's box snaps at the walk's 80th step and under half of it after. The swing is
+        // held to what it reads, 1.0064 at worst and 0.9802 at its 99th part at High, with some
+        // room past them.
         var swung = string.Create(CultureInfo.InvariantCulture,
             $"the {points[worst].Name} swung by {swings[worst].Max():0.0000} at the walk's step {worstStep} as {(level.Length > 0 ? level : "no cascade")} snapped, the 99th part of all swings {ninetyNinth:0.0000}");
-        swings[worst].Max().Should().BeLessThan(1.75, swung);
-        ninetyNinth.Should().BeLessThan(1.6, swung);
+        swings[worst].Max().Should().BeLessThan(1.07, swung);
+        ninetyNinth.Should().BeLessThan(1.04, swung);
 
         // A point the first two cascades hold at the walk's end reads near the traced light, so a
-        // steady wrong light shows as well as a swing.
+        // steady wrong light shows as well as a swing, from 0.755 to 1.751 of it, with some room.
         if (quality == GlobalIllumination.High)
             foreach (var i in Enumerable.Range(0, points.Count).Where(i => points[i].At.Z >= -14))
-                against[i].Should().BeInRange(0.7, 2.3, string.Create(CultureInfo.InvariantCulture,
+                against[i].Should().BeInRange(0.71, 1.86, string.Create(CultureInfo.InvariantCulture,
                     $"the {points[i].Name}'s light at the walk's end is near the traced reference's, {against[i]:0.000} of it"));
     }
 }

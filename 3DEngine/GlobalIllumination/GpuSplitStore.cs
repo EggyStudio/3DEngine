@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Runtime.InteropServices;
 using RadianceCascades;
 using Vortice.Vulkan;
 using static Engine.GraphicsDevice;
@@ -12,8 +13,20 @@ namespace Engine;
 /// </summary>
 internal sealed class GpuSplitStore : IDisposable
 {
-    private GpuSplitStore(SplitStoreShape shape, IBuffer uints, IBuffer light, IBuffer merged) =>
-        (Shape, Uints, Light, Merged) = (shape, uints, light, merged);
+    private GpuSplitStore(SplitStoreShape shape, IBuffer uints, IBuffer light, IBuffer merged, IBuffer changes) =>
+        (Shape, Uints, Light, Merged, Changes) = (shape, uints, light, merged, changes);
+
+    /// <summary>
+    /// The most boxes of changes a frame gives the store, a frame of more giving the box around
+    /// those past the last but one as its last.
+    /// </summary>
+    public const int MostChanges = 16;
+
+    /// <summary>
+    /// The bytes of <see cref="Changes"/>, a count and the least and greatest corners of
+    /// <see cref="MostChanges"/> boxes, a float4 each.
+    /// </summary>
+    public const int ChangesBytes = 16 + 32 * MostChanges;
 
     /// <summary>
     /// The least range of a storage buffer's binding Vulkan lets a device hold, which lavapipe
@@ -43,6 +56,36 @@ internal sealed class GpuSplitStore : IDisposable
     /// <see cref="LeastStorageRange"/> where the whole light need not.
     /// </summary>
     public IBuffer Merged { get; }
+
+    /// <summary>
+    /// The boxes of the world whose surfaces or light changed at the frame, in the store's places,
+    /// which each way whose rays may cross one lets its light go by (<c>gi_split.slang</c>).
+    /// </summary>
+    public IBuffer Changes { get; }
+
+    /// <summary>
+    /// The bytes <see cref="Changes"/> holds for <paramref name="boxes"/>, each taken from the
+    /// frame's places to the store's by <paramref name="origin"/>.
+    /// </summary>
+    public static byte[] ChangesOf(IReadOnlyList<SceneFieldPlan.Box> boxes, Vector3 origin)
+    {
+        var bytes = new byte[ChangesBytes];
+        var floats = MemoryMarshal.Cast<byte, float>(bytes.AsSpan());
+        var count = Math.Min(boxes.Count, MostChanges);
+        BitConverter.TryWriteBytes(bytes, (uint)count);
+        for (int k = 0; k < boxes.Count; k++)
+        {
+            var (min, max) = (boxes[k].Min + origin, boxes[k].Max + origin);
+            var at = Math.Min(k, MostChanges - 1);
+            if (k >= MostChanges)
+                (min, max) = (Vector3.Min(min, Corner(floats, 4 + 4 * at)), Vector3.Max(max, Corner(floats, 4 + 4 * (MostChanges + at))));
+            (floats[4 + 4 * at], floats[5 + 4 * at], floats[6 + 4 * at]) = (min.X, min.Y, min.Z);
+            (floats[4 + 4 * (MostChanges + at)], floats[5 + 4 * (MostChanges + at)], floats[6 + 4 * (MostChanges + at)]) = (max.X, max.Y, max.Z);
+        }
+        return bytes;
+
+        static Vector3 Corner(Span<float> floats, int at) => new(floats[at], floats[at + 1], floats[at + 2]);
+    }
 
     /// <summary>
     /// The bytes of the store's buffers of <paramref name="shape"/>, its uints, its own light and
@@ -91,12 +134,15 @@ internal sealed class GpuSplitStore : IDisposable
         device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader,
             VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
         device.EndSingleTimeCommands(cmd);
-        return new GpuSplitStore(shape, buffers[0], buffers[1], buffers[2]);
+        var changes = device.CreateBuffer(new BufferDesc(ChangesBytes, BufferUsage.Uniform | BufferUsage.TransferDst));
+        device.Name(changes, "Split cascades' changes");
+        return new GpuSplitStore(shape, buffers[0], buffers[1], buffers[2], changes);
     }
 
     /// <inheritdoc />
     public void Dispose()
     {
+        Changes.Dispose();
         Merged.Dispose();
         Light.Dispose();
         Uints.Dispose();

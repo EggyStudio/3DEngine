@@ -7,7 +7,7 @@ namespace Engine.Tests.Rendering;
 // A view's light changing over the probes' cycles of sixteen frames.
 public sealed partial class GlobalIlluminationTests
 {
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Lamp_Dimming_Slowly_Dims_The_View_Evenly_From_One_Frame_To_The_Next()
     {

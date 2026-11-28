@@ -58,6 +58,7 @@ public sealed partial class CascadeEdgeTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
         SetGlobalIllumination(quality);
+        GridLayout.ForTheGridsOwnReading();
         lightUp();
         var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var eye = new Vector3(0, 20, 10);
@@ -113,6 +114,7 @@ public sealed partial class CascadeEdgeTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
         SetGlobalIllumination(quality);
+        GridLayout.ForTheGridBouncesLag();
         // A sky of one blue over a gray ground, as an environment map, which the room hides, where an
         // ambient light lights every surface whether the sky reaches it or not.
         var sky = new byte[64 * 32 * 4];
@@ -175,6 +177,7 @@ public sealed partial class CascadeEdgeTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
         SetGlobalIllumination(GlobalIllumination.High);
+        GridLayout.ForTheGridsOwnReading();
         var sky = new byte[64 * 32 * 4];
         for (int i = 0; i < 64 * 32; i++)
             (sky[i * 4], sky[i * 4 + 1], sky[i * 4 + 2], sky[i * 4 + 3]) = i < 64 * 16 ? ((byte)120, (byte)165, (byte)230, (byte)255) : ((byte)90, (byte)100, (byte)110, (byte)255);
@@ -225,7 +228,7 @@ public sealed partial class CascadeEdgeTests : IDisposable
         seen.Should().BeLessThan(0.002, $"the pillar's face before the eye, {Behind(place):0.0} cells from the last cascade's side behind it, holds the probes' light and hides the sky");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void A_Closed_Rooms_Floor_Stays_Hidden_From_An_Ambient_Light_Before_The_Last_Cascade_Is_Built()
     {
         // The field builds a cascade a frame, so its last comes in the fourth. Held by the last
@@ -275,7 +278,7 @@ public sealed partial class CascadeEdgeTests : IDisposable
         floor.Take(3).Should().OnlyContain(light => light < 2 * settled, "the room hides the ambient light from its floor before its last cascade is built");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void The_Last_Cascades_Rays_Meet_The_Walls_Of_A_Closed_Room_Wider_Than_Four_Times_Its_Spacing()
     {

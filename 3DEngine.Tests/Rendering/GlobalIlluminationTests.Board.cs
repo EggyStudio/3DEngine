@@ -25,6 +25,7 @@ public sealed partial class GlobalIlluminationTests
         SetSceneField(4, 0.5f, 2);
         SetSceneFieldCenter(new Vector3(1, 1.5f, 1));
         SetGlobalIllumination(quality);
+        GridLayout.ForAnUnreadCause();
         SetAmbientLight(Color.Black, 0);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         slab.Materials[0] = new ModelMaterial(new Color(230, 230, 230)) { Roughness = 0.9f };

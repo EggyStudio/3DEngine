@@ -182,7 +182,7 @@ public sealed partial class GlobalIlluminationTests
             $"and keeps it as the far room goes dark, reading {string.Join(", ", reads.Select(level => $"{level:0.0}"))} from the frame before");
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]
@@ -240,7 +240,7 @@ public sealed partial class GlobalIlluminationTests
             $"and goes, the light left reading {string.Join(", ", left.Select(level => $"{level:0.00}"))} frame by frame");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void Indirect_Light_Follows_A_Lamp_Brought_Into_The_Room_Within_Two_Frames()
     {
@@ -284,7 +284,7 @@ public sealed partial class GlobalIlluminationTests
         lag.Should().BeLessThanOrEqualTo(2, $"global illumination follows the lamp, the side reading {string.Join(", ", side.Select(read => $"{read.Red:0}"))} from frame 28");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void Global_Illumination_Holds_Still_As_The_Camera_Slides()
     {
@@ -401,7 +401,7 @@ public sealed partial class GlobalIlluminationTests
             $"each keeps sixteen frames of its light where it stood, the wall's edges too; {string.Join(", ", held.Where(probe => Math.Abs(probe.Share - 1.9375f) >= 0.01f).Select(probe => $"{probe.Across},{probe.Down} {probe.Share:0.000}"))}");
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     [InlineData(false)]
     [InlineData(true)]
@@ -473,7 +473,7 @@ public sealed partial class GlobalIlluminationTests
             $"the light settles by the fifth frame after the {(turn ? "turn" : "walk")}, changing {string.Join(", ", changes.Select(c => $"{c:0.00}"))} levels from the first");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Mesh_Replaced_Beside_A_Lamp_Keeps_Its_Indirect_Light_While_Its_Replacement_Settles()
     {
@@ -534,7 +534,7 @@ public sealed partial class GlobalIlluminationTests
         UnloadMesh(cube);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Room_Sealed_From_The_Sky_Reflects_None_Of_It_Where_An_Open_Floor_Reflects_It()
     {

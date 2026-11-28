@@ -42,6 +42,7 @@ public sealed class RenderOriginTests : IDisposable
         var high = quality == GlobalIllumination.High;
         SetSceneField(2, 0.25f);
         SetGlobalIllumination(quality);
+        GridLayout.ForAnUnreadCause();
         SetSubsurfaceQuality(SubsurfaceQuality.Low);
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), Color.White, 1.5f, castsShadows: true);
         CreatePointLight(new Vector3(1.6f, 1.3f, 1.2f), new Color(255, 200, 150), 4, range: 6, castsShadows: true);
@@ -105,7 +106,7 @@ public sealed class RenderOriginTests : IDisposable
     // step at 1,140,000, so the room is the same room wherever it stands, and the field's cascades
     // and the probes lie alike about it where it stands at a whole count of 1,024 units. With
     // shadows, the sun and the lamp cast them.
-    private static float[] Standing(Vector3 at, bool shadows = false)
+    private static float[] Standing(Vector3 at, bool shadows = false, Action? layout = null)
     {
         var config = Config.Default.WithWindow("render origin", Width, Height) with
         {
@@ -114,6 +115,7 @@ public sealed class RenderOriginTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f);
         SetGlobalIllumination(GlobalIllumination.Low);
+        layout?.Invoke();
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), Color.White, 1.5f, castsShadows: shadows);
         CreatePointLight(at + new Vector3(1.5f, 1.25f, 1.25f), new Color(255, 200, 150), 4, range: 6, castsShadows: shadows);
         CreateParticleEmitter(at + new Vector3(0.25f, 1.5f, 0.5f), ParticleEmitter.Default with
@@ -165,8 +167,8 @@ public sealed class RenderOriginTests : IDisposable
     [InlineData(1140736f, 285696f)]
     public void A_Room_Far_From_The_Worlds_Origin_Reads_As_The_Room_At_It(float x, float z)
     {
-        var home = Standing(Vector3.Zero);
-        var far = Standing(new Vector3(x, 0, z));
+        var home = Standing(Vector3.Zero, layout: GridLayout.ForAnUnreadCause);
+        var far = Standing(new Vector3(x, 0, z), layout: GridLayout.ForAnUnreadCause);
         home.Count(level => level > 8).Should().BeGreaterThan(Width * Height / 2, "the room is lit across most of the window");
         var largest = home.Zip(far, (a, b) => Math.Abs(a - b)).Max();
         // A tenth of a level, short of what a view pushed from its own matrix in floats moves the
@@ -258,7 +260,7 @@ public sealed class RenderOriginTests : IDisposable
         return (shadowed, beside);
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [InlineData(0f, false, false)]
     [InlineData(8f, false, false)]
     [InlineData(24f, false, false)]
@@ -280,7 +282,7 @@ public sealed class RenderOriginTests : IDisposable
         else shadowed.Should().BeLessThan(0.6f * beside, "the post's shadow falls where a program's shader reads it");
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [InlineData(4096f, 1024f)]
     [InlineData(71680f, 17408f)]
     [InlineData(1140736f, 285696f)]
@@ -352,7 +354,7 @@ public sealed class RenderOriginTests : IDisposable
         return (levels, origin);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void A_Camera_Crossing_A_Step_Of_The_Origin_Draws_As_With_The_Origin_Held_Where_It_Began()
     {
         // What a pass keeps from one frame to the next, the antialiasing's history, the screen's and
@@ -384,6 +386,7 @@ public sealed class RenderOriginTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f);
         SetGlobalIllumination(GlobalIllumination.High);
+        GridLayout.ForAnUnreadCause();
         SetTemporalAntialiasing(true);
         SetMotionBlur(1);
         SetAmbientOcclusion(1, 1);
@@ -450,6 +453,7 @@ public sealed class RenderOriginTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f);
         SetGlobalIllumination(GlobalIllumination.Low);
+        GridLayout.ForAnUnreadCause();
         SetSubsurfaceQuality(SubsurfaceQuality.High);
         SetVolumetricFog(0.06f, 1, 0.5f);
         SetDepthOfField(5, 1, 0.01f);
@@ -570,7 +574,7 @@ public sealed class RenderOriginTests : IDisposable
         return levels;
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [InlineData(4096f, 1024f)]
     [InlineData(71680f, 17408f)]
     [InlineData(1140736f, 285696f)]
@@ -713,7 +717,7 @@ public sealed class RenderOriginTests : IDisposable
         return levels;
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [InlineData(4096f, 1024f, GlobalIllumination.Off)]
     [InlineData(71680f, 17408f, GlobalIllumination.Off)]
     [InlineData(1140736f, 285696f, GlobalIllumination.Off)]

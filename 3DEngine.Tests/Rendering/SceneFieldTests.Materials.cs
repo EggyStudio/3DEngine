@@ -115,7 +115,7 @@ public sealed partial class SceneFieldTests
         UnloadModel(slab);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Roof_Drawn_Into_The_Shadow_Maps_Alone_Is_Held_In_The_Field_And_Keeps_The_Sky_Off_The_Room_Under_It()
     {

@@ -9,7 +9,7 @@ namespace Engine.Tests.Rendering;
 // gather by pixel in their place.
 public sealed partial class GlobalIlluminationTests
 {
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void The_Screens_Probes_Stand_At_Medium_Only_Where_Their_Debug_Toggle_Puts_Them_In_And_Low_Leaves_Them_Out()
     {
@@ -57,6 +57,7 @@ public sealed partial class GlobalIlluminationTests
         // probes left out whole through the debugging toggle, and with no glow light none are made.
         Open();
         SetGlobalIllumination(GlobalIllumination.Low);
+        GridLayout.ForTheGridsOwnReading();
         // The two reads' light compared as they give it, with no knee bending the floor's brightest.
         SetHighlightKnee(0.8f, 0);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
@@ -103,7 +104,7 @@ public sealed partial class GlobalIlluminationTests
         UnloadModel(strip);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void Far_From_The_Worlds_Origin_Glow_Lights_Leave_No_More_Of_The_Land_Black_Than_Near_It()
     {
@@ -167,7 +168,7 @@ public sealed partial class GlobalIlluminationTests
         far.Should().BeLessThan(near + 600, $"the land far from the origin is as lit as near it, {far} pixels black where {near}");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Screen_Probe_Fed_A_Value_That_Is_Not_A_Number_Leaves_The_Light_It_Blends_Into_Finite()
     {
@@ -225,7 +226,7 @@ public sealed partial class GlobalIlluminationTests
         UnloadModel(lamp);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void The_Back_Of_A_Two_Sided_Wall_Takes_The_Screens_Probes_As_Its_Front_Does()
     {

@@ -5,22 +5,26 @@ using static Engine.E3D;
 
 namespace Engine.Tests.Rendering;
 
-// The split cascades' ways starting again from the frame once their frames disagree with the
-// light they keep, as gi.split_agree asks, against their keeping the mean of their last rays.
+// A lamp switched on in the split cascades, its reach given as a box the frame changed, with their
+// ways starting again from the frame once their frames disagree with the light they keep, as
+// gi.split_agree asks, and with them keeping the mean of their last rays.
 public sealed partial class BounceRoomsTests
 {
-    [NeedsSplitTraceFact]
+    [NeedsGpuFact]
     [Trait("Category", "Render")]
-    public void Split_Ways_Starting_Again_Once_Their_Frames_Disagree_Show_A_Lamp_Switched_On_Sooner()
+    public void A_Lamp_Switched_On_Under_The_Split_Settles_Alike_Its_Ways_Starting_Again_Or_Keeping_Their_Mean()
     {
         // The first room at High at 320 by 180 under the split layout, its lamp out and settled,
         // then the lamp switched on, the probes' indirect light read by 32 parts of the frame, 8
         // across and 4 up, against the room's settled with the lamp lit from the start, the mean
         // of 16 frames. A frame lies as far off as its part furthest from that light by the log of
         // their ratio, over the parts holding more than a fiftieth of the brightest's. At this
-        // size each way takes few rays a frame. Starting again, the room lies within the bound 32
-        // frames after the switch, a half again of what it read, and keeping their mean the ways
-        // leave it more than twice as far off.
+        // size each way takes few rays a frame. The lamp's reach is given as a box the frame
+        // changed, so each way whose rays may cross it lets go what it kept, and 32 frames after
+        // the switch the room lies within 0.05 of its settled light, the ways starting again or
+        // keeping their mean, the world probes' bounce the rays' hits are shaded with taking those
+        // frames to settle. A device that draws on its CPU takes past the time the build gives a
+        // test over those frames, and the test is skipped there.
         const int Wide = 320, Tall = 180, Across = 8, Up = 4, Kept = 16, After = 32;
         double[][] Run(bool lit, bool agree, bool switched, int read)
         {
@@ -79,7 +83,7 @@ public sealed partial class BounceRoomsTests
         var said = string.Create(CultureInfo.InvariantCulture,
             $"{After} frames after the lamp is switched on the room lies {again:0.000} off its settled light with the ways starting again and {kept:0.000} with them keeping their mean, the settled frames {settled.Max(Off):0.000} off at most");
         output.WriteLine(said);
-        again.Should().BeLessThan(0.6, said);
-        kept.Should().BeGreaterThan(2 * again, said);
+        again.Should().BeLessThan(0.05, said);
+        kept.Should().BeLessThan(0.05, said);
     }
 }

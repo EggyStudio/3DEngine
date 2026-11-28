@@ -29,6 +29,7 @@ public sealed partial class GlobalIlluminationTests
         // least of all five up at High, past the screen's probes' reach.
         Open();
         SetGlobalIllumination(quality);
+        GridLayout.ForASurfaceLettingLightThrough();
         SetAmbientLight(new Color(200, 220, 255), 1);
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var camera = new Camera3D(new Vector3(0, 1.2f, 7), new Vector3(0, 0.2f, 0), Vector3.UnitY, 50);
@@ -75,6 +76,7 @@ public sealed partial class GlobalIlluminationTests
         // light through took less of what the solid slab held back than the slab let through.
         Open();
         SetGlobalIllumination(quality);
+        GridLayout.ForASurfaceLettingLightThrough();
         SetEnvironmentMap(GenImageColor(64, 32, new Color(200, 220, 255)));
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         var camera = new Camera3D(new Vector3(0, 1.2f, 7), new Vector3(0, 0.2f, 0), Vector3.UnitY, 50);
@@ -114,6 +116,7 @@ public sealed partial class GlobalIlluminationTests
         Open();
         SetSceneField(4, 0.25f);
         SetGlobalIllumination(GlobalIllumination.High);
+        GridLayout.ForASurfaceLettingLightThrough();
         SetAmbientLight(new Color(150, 190, 255), 1);
         var ground = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         ground.Materials[0].Roughness = 1;
@@ -169,6 +172,7 @@ public sealed partial class GlobalIlluminationTests
         Open();
         SetSceneField(4, 0.25f);
         SetGlobalIllumination(quality);
+        GridLayout.ForASurfaceLettingLightThrough();
         SetAmbientLight(new Color(160, 190, 240), 1);
         var ground = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         ground.Materials[0].Roughness = 1;

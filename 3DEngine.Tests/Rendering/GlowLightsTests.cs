@@ -275,7 +275,7 @@ public sealed class GlowLightsTests : IDisposable
     private static readonly (float Radius, double Light)[] RodTraced =
         [(1.0f, 0.018642), (1.2f, 0.012486), (1.4f, 0.008741), (1.6f, 0.006212), (1.8f, 0.004641)];
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void An_Emissive_Rods_Light_On_The_Floor_Falls_With_No_Step()
     {
@@ -294,7 +294,7 @@ public sealed class GlowLightsTests : IDisposable
             Math.Abs(logs[i - 1] - 2 * logs[i] + logs[i + 1]).Should().BeLessThan(0.03, $"the rod's light bends nowhere, as it did {radii[i]:0.00} blocks out");
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.Medium)]
@@ -317,7 +317,7 @@ public sealed class GlowLightsTests : IDisposable
         light[2.6f].Lobes.Should().BeLessThan(0.05, $"at {quality} the ring two and a half blocks out has no eight lobes");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void An_Emissive_Block_Whose_Map_Is_Orange_Lights_A_White_Floor_Orange()
     {
@@ -368,7 +368,7 @@ public sealed class GlowLightsTests : IDisposable
         UseApp(null);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void An_Emissive_Block_That_Is_Part_Of_A_Mesh_Of_Many_Lights_The_Floor_As_A_Block_Alone_Does()
     {
@@ -385,7 +385,7 @@ public sealed class GlowLightsTests : IDisposable
         light[2.6f].Lobes.Should().BeLessThan(0.05, "the ring two and a half blocks out has no lobes");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void An_Emissive_Blocks_Pool_Reads_The_Same_From_Forty_Blocks_Off_As_From_Five()
     {
@@ -401,7 +401,7 @@ public sealed class GlowLightsTests : IDisposable
             far[radius].Mean.Should().BeApproximately(near[radius].Mean, near[radius].Mean * 0.1, $"the floor {radius} blocks out reads alike from forty blocks and from five");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void An_Emissive_Block_Shut_In_A_Room_And_Seen_From_Outside_Keeps_The_Device()
     {
@@ -451,7 +451,7 @@ public sealed class GlowLightsTests : IDisposable
         UnloadModel(lamp);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Row_Of_Lamps_Lights_The_Floor_Under_A_Block_Floating_Below_It_As_Beside_It()
     {
@@ -526,7 +526,7 @@ public sealed class GlowLightsTests : IDisposable
     private static readonly (float X, double Share)[] PillarTraced =
         [(7.5f, 0.814), (8.5f, 0.541), (9.5f, 0.386), (10.5f, 0.304), (11.5f, 0.265)];
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Wall_Sees_Four_Joined_Lamps_Past_A_Pillar_As_A_Path_Traced_Reference_Does()
     {
@@ -666,7 +666,7 @@ public sealed class GlowLightsTests : IDisposable
         six.Should().BeApproximately(1, 0.1f, $"the room lit by six blocks of a sixth its light reads as its reference too, {six:0.000}, where one block's reads {one:0.000}");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Bulb_Hung_High_Lights_The_Floor_Under_It_As_Its_Lower_Face_Does()
     {

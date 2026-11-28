@@ -27,6 +27,7 @@ public sealed partial class GlobalIlluminationTests
         SetSceneField(3, 0.5f, 2);
         SetSceneFieldCenter(new Vector3(1, 1.5f, 1));
         SetGlobalIllumination(GlobalIllumination.Low);
+        GridLayout.ForAWallThinnerThanACell();
         var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         const float Half = 0.15f, High = 3, Low = -1, Up = 3;
         void Box(float x0, float x1, float y0, float y1, float z0, float z1) =>

@@ -20,6 +20,7 @@ public sealed partial class CascadeEdgeTests
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f, 2);
         SetGlobalIllumination(quality);
+        GridLayout.ForTheGridsOwnReading();
         SetAmbientLight(new Color(140, 170, 220), 1);
         var up = 50 * MathF.PI / 180;
         CreateDirectionalLight(new Vector3(-MathF.Cos(up), -MathF.Sin(up), 0), new Color(255, 240, 220), 1.5f, castsShadows: true);

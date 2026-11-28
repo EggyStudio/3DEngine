@@ -42,7 +42,7 @@ public sealed partial class SceneFieldTests
         return light;
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void Faces_Of_Two_Meshes_In_One_Plane_Paint_The_Field_The_Same_Run_After_Run()
     {

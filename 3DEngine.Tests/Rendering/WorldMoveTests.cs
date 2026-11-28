@@ -110,6 +110,7 @@ public sealed class WorldMoveTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(3, 0.25f);
         SetGlobalIllumination(quality);
+        GridLayout.ForAnUnreadCause();
         CreateDirectionalLight(Vector3.Normalize(new Vector3(-0.4f, -1, -0.3f)), Color.White, 1.5f, castsShadows: true);
         var at = new Vector3(8192, 0, -4096);
         var lamp = CreatePointLight(at + new Vector3(3, 3, 2), new Color(255, 200, 150), 6, range: 10, castsShadows: true);

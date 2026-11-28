@@ -22,7 +22,7 @@ public sealed class BounceViewTests : IDisposable
         _folder.Dispose();
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void Each_View_Draws_Its_Own_Picture_And_Each_Part_Left_Out_Changes_The_Frame()
     {
         var config = Config.Default.WithWindow("bounce view test", 160, 96) with { Headless = true, Offscreen = true, Samples = 1 };

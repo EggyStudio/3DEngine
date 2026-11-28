@@ -62,7 +62,7 @@ public sealed class GlobalIlluminationPluginTests : IDisposable
         return pixels;
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void A_Program_Built_Without_The_Plugin_Draws_As_With_Global_Illumination_Off_And_Holds_None_Of_It()
     {
         var without = Drawn(new WithoutIllumination(), GlobalIllumination.High, out var renderer);

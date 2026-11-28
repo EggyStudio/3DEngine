@@ -261,6 +261,7 @@ public sealed partial class BounceReferenceTests : IDisposable
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(2, 0.25f, 1);
         SetGlobalIllumination(GlobalIllumination.High);
+        GridLayout.ForTheGridsOwnReading();
         SetTonemap(Tonemap.None);
         CreatePointLight(new Vector3(0.5f, 2.5f, 1.5f), Color.White, 4, range: 10);
         var cube = GenMeshCube(1, 1, 1);

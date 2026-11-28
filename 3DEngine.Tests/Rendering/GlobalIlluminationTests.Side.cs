@@ -23,6 +23,7 @@ public sealed partial class GlobalIlluminationTests
         SetSceneField(3, 0.125f);
         SetSceneFieldCenter(new Vector3(-1, 1, 0));
         SetGlobalIllumination(GlobalIllumination.Low);
+        GridLayout.ForTheGridsOwnReading();
         SetAmbientLight(Color.Black, 0);
         CreateDirectionalLight(Vector3.Normalize(new Vector3(0.6f, -1, 0.2f)), Color.White, 3);
         var settings = GetApp().World.Resource<GlobalIlluminationSettings>();

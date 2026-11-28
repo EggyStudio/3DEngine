@@ -44,7 +44,7 @@ public sealed partial class GlobalIlluminationTests
         far.Should().BeLessThan(sky * 0.5f, "the far cascade holds the wall, which the rays meet before the sky");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void The_Far_Cascades_Probes_Trace_A_Part_Of_Them_A_Frame_And_All_On_A_Frame_It_Moved()
     {

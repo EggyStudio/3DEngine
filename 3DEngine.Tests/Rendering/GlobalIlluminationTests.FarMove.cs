@@ -7,7 +7,7 @@ namespace Engine.Tests.Rendering;
 // The far cascade's band toward the light past the probes, as the cascade follows a walk.
 public sealed partial class GlobalIlluminationTests
 {
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Surface_In_The_Far_Cascades_Band_Keeps_Its_Light_As_The_Cascade_Moves()
     {

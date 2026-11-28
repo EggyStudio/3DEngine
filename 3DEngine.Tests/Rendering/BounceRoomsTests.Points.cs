@@ -7,7 +7,7 @@ namespace Engine.Tests.Rendering;
 // The faint glow lights at a probe's ray's hit taken as one point, against every light by its form.
 public sealed partial class BounceRoomsTests
 {
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]
     public void A_Hits_Faint_Glow_Lights_Taken_As_One_Point_Read_Within_A_Level_Of_Their_Own_Forms(GlobalIllumination quality)

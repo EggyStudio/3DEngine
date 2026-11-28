@@ -7,7 +7,7 @@ namespace Engine.Tests.Rendering;
 // The cycle of sixteen places a carried probe's rays move through, kept where they move.
 public sealed partial class GlobalIlluminationTests
 {
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.Medium)]

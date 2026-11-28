@@ -132,6 +132,33 @@ public sealed class TestScriptTests : IDisposable
         File.ReadAllLines(_folder.File("digest.md"))[0].Should().Contain("2 passed, 0 failed, 0 skipped");
     }
 
+    /// <summary>
+    /// The head counts among the skipped the cases skipped where the device draws the split
+    /// cascades on its CPU, so a job on lavapipe says on its page and in its notice how many it
+    /// left out.
+    /// </summary>
+    [NeedsPythonFact]
+    public void The_Head_Counts_The_Cases_Skipped_For_The_Split_Cascades_Drawn_On_The_Devices_CPU()
+    {
+        static string Skipped(string test, string cause) =>
+            $"<UnitTestResult testName=\"Engine.Tests.Area.Class.{test}\" outcome=\"NotExecuted\"><Output><ErrorInfo>"
+            + $"<Message>{cause}</Message></ErrorInfo></Output></UnitTestResult>";
+        var split = $"The Vulkan device here, llvmpipe (LLVM 20.1.8, 256 bits), {SplitOnTheCpu.Cause}, where this test's frames take long.";
+        File.WriteAllText(_folder.File("results.trx"),
+            "<?xml version=\"1.0\" encoding=\"utf-8\"?><TestRun xmlns=\"http://microsoft.com/schemas/VisualStudio/TeamTest/2010\"><Results>"
+            + "<UnitTestResult testName=\"Engine.Tests.Area.Class.Drawn\" outcome=\"Passed\" />"
+            + Skipped("Wide", split) + Skipped("Wider", split) + Skipped("Heard", "SDL opens no audio device here, not even its dummy driver's.")
+            + "</Results></TestRun>");
+
+        Script("--read", _folder.Path);
+        File.ReadAllLines(_folder.File("digest.md"))[0].Should()
+            .Contain("1 passed, 0 failed, 3 skipped, 2 of them for the split cascades drawn on the device's CPU, 0 without a result");
+
+        var (_, annotated) = Script(new Dictionary<string, string> { ["GITHUB_ACTIONS"] = "true", ["GITHUB_STEP_SUMMARY"] = _folder.File("summary.md") }, "--read", _folder.Path);
+        Lines(annotated).Should().ContainSingle(line => line.StartsWith("::notice ", StringComparison.Ordinal)
+            && line.Contains("3 skipped, 2 of them for the split cascades drawn on the device's CPU"), "the job's notice carries the head");
+    }
+
     [NeedsPythonTheory]
     [InlineData("hang", "ended at its time limit")]
     [InlineData("grow", "ended at its memory limit")]

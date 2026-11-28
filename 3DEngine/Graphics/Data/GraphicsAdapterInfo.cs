@@ -24,4 +24,24 @@ internal readonly record struct GraphicsAdapterInfo(string Name, uint VendorId, 
 
     /// <summary>Placeholder info for uninitialized or unknown adapters.</summary>
     public static readonly GraphicsAdapterInfo Unknown = new("Unknown", 0, 0, GraphicsDeviceType.Unknown);
+
+    /// <summary>
+    /// Whether the adapter is lavapipe before Mesa 26.3, which numbers its driver as Mesa is
+    /// numbered and ends the process in the split cascades' kernel.
+    /// </summary>
+    /// <remarks>
+    /// Mesa 25.2.8's lavapipe compiles that kernel to a shader that reads a buffer's descriptor
+    /// through a null address, in the store's trace and in the frames of a slab 8 wide under the
+    /// split layout, where 26.3.1's runs both, so the split's stages are not made on such a device.
+    /// </remarks>
+    public bool FaultsSplitTrace
+    {
+        get
+        {
+            if (DeviceType != GraphicsDeviceType.Cpu || !Name.StartsWith("llvmpipe", StringComparison.Ordinal)) return false;
+            var parts = Driver.Split('.');
+            return parts.Length >= 2 && int.TryParse(parts[0], System.Globalization.CultureInfo.InvariantCulture, out var major)
+                && int.TryParse(parts[1], System.Globalization.CultureInfo.InvariantCulture, out var minor) && major * 100 + minor < 2603;
+        }
+    }
 }

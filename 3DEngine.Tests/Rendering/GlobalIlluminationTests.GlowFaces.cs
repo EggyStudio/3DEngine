@@ -191,7 +191,7 @@ public sealed partial class GlobalIlluminationTests
             $"a lamp {room}, the faces toward it {(culled ? "left out" : "drawn")}, keeps the faces that show");
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     [InlineData(Handed.Cube)]
     [InlineData(Handed.Shown)]
@@ -211,7 +211,7 @@ public sealed partial class GlobalIlluminationTests
         place.Share.Should().BeApproximately(1, 1e-3f, $"the lamp handed as {handed} sends from its faces whole");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void Two_Lamps_Of_Different_Light_Side_By_Side_Close_The_Faces_They_Press_Together()
     {
@@ -229,7 +229,7 @@ public sealed partial class GlobalIlluminationTests
         foreach (var (mesh, _, _) in meshes) UnloadMesh(mesh);
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     [InlineData(2, 63)]
     [InlineData(1, 63 & ~(1 << 1) & ~(1 << 3))]
@@ -251,7 +251,7 @@ public sealed partial class GlobalIlluminationTests
         UnloadMesh(cube);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Lamp_Half_Sunk_In_The_Floor_Keeps_Its_Sides_Whole()
     {
@@ -268,7 +268,7 @@ public sealed partial class GlobalIlluminationTests
         UnloadMesh(cube);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Lamp_Decided_In_The_Second_Cascade_Is_Decided_Again_Alike_When_The_First_Holds_It()
     {
@@ -293,7 +293,7 @@ public sealed partial class GlobalIlluminationTests
         foreach (var (mesh, _, _) in meshes) UnloadMesh(mesh);
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Still_Rooms_Lamps_Keep_Their_Faces_Frame_After_Frame_And_Through_A_Shift_Of_The_Field()
     {

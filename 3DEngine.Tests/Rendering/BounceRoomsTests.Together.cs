@@ -6,7 +6,7 @@ namespace Engine.Tests.Rendering;
 // The probes' pipelines made together on workers at the first frame that traces them.
 public sealed partial class BounceRoomsTests
 {
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void The_Probes_Pipelines_Are_Made_Together_And_The_First_Frame_Is_Drawn_As_When_Made_One_After_Another()
     {
         // The Cornell box's first frame at High, its probes' pipelines made one after another and

@@ -359,6 +359,12 @@ internal sealed partial class SceneFieldPlan
     /// <summary>Where a cascade lies as it was last built, its corner, or null for one not yet built.</summary>
     public Vector3? BuiltOrigin(int cascade) => _built[cascade];
 
+    /// <summary>
+    /// The box the coarsest cascade covers as it was last built, which holds every other's, or
+    /// null before it is built.
+    /// </summary>
+    public Box? Extent => _built[Cascades - 1] is { } origin ? CascadeBox(Cascades - 1, origin) : null;
+
     /// <summary>Where a cascade's corner would lie around <paramref name="eye"/>, its middle on the snap's grid nearest the eye.</summary>
     public Vector3 OriginAround(int cascade, Vector3 eye)
     {

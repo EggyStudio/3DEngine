@@ -17,6 +17,7 @@ public sealed partial class GlobalIlluminationTests
         // room as it doubles, and the stage's time in each frame that grew it is read beside the
         // frames either side.
         var rays = OpenRayRoom(out var mirror);
+        GridLayout.ForAnUnreadCause();
         var device = (GraphicsDevice)GetApp().World.Resource<Engine.Renderer>().Context.Graphics!;
         var balls = new List<Model>();
         var (stage, rooms) = (new List<double>(), new List<int>());

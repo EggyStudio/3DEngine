@@ -41,7 +41,7 @@ public sealed partial class GlobalIlluminationTests
         }
         """;
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Red_Wall_A_Compute_Shader_Wrote_Tints_The_Side_Of_A_White_Block_Facing_It()
     {
@@ -99,7 +99,7 @@ public sealed partial class GlobalIlluminationTests
         .Replace("RWStructuredBuffer<uint> counter;", "RWStructuredBuffer<uint> counter;\nRWStructuredBuffer<uint> colors;\nRWStructuredBuffer<uint> packed;")
         .Replace("positions[v * 3 + 2] = p.z;", "positions[v * 3 + 2] = p.z;\ncolors[v] = 0xFF1414DCu;\npacked[v * 2] = v;\npacked[v * 2 + 1] = 0u;");
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     [Trait("Category", "Render")]
     public void A_Wall_A_Compute_Shader_Wrote_Bounces_The_Color_Of_Its_Color_Stream_Beside_A_Stream_Of_Its_Own()
     {

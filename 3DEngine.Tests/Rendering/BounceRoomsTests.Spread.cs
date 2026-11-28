@@ -6,7 +6,7 @@ namespace Engine.Tests.Rendering;
 // The coarser cascades traced in halves a frame while they lie still, against traced whole.
 public sealed partial class BounceRoomsTests
 {
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void The_Coarser_Cascades_In_Halves_Read_As_Traced_Whole_At_Rest_And_Trace_Whole_While_A_Suns_Step_Settles()
     {
         // The open court of pillars and walls at High, settled, then the sun put out as a game puts

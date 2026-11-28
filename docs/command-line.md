@@ -185,31 +185,35 @@ reaches a floor behind a thin wall, and `off` reads the faces as they stand. `gi
 each pixel take the world's probes' light at its point of the window's depth as the
 RadianceCascades module gathers a surface point, a step that stays off since, once the bounce has
 settled, it reads four of the six parts of a wall beside a door further from a path-traced
-reference than the faces do, and `off` reads the faces. `gi.layout split` lays the probes a pixel
-takes the world's light from out as the RadianceCascades module's split cascades, kept near the
-points of the window's depth the eye sees, each traced by a ray a point a frame, four while the
-point's finest probe is under 16 frames old, and gathered at each pixel's point about the normal the
-model pass shades it with, the grid's probes still lighting what those rays meet, a layout that
-stays off since, once the bounce has settled, it reads a wall beside a door at 1.23 of a path-traced
-reference as the grid does, two of its six parts further from it than the grid's, and `dense` puts
-the grid back. `gi.split_agree on` has each way of the split cascades' probes let the light it keeps
-go and start again from the frame once its frames lie past that light by their spread, so with the
-first of the bounce rooms seen at 1920 by 1080 and its lamp switched on, its light lies within 0.05
-of its settled light from the 14th frame rather than the 164th, a step that stays off since a way
-that takes few rays a frame starts again on noise, the corridor's points before its lintel swinging
-by 0.116 of their light as the cascades walk it against 0.043, and `off` has each way keep the mean
-of its last 256 rays. `gi.screen_cascades on` has the screen's
-probes stand in cascades of their own at `High` where the device traces rays, each level's probes
-twice as far apart with twice as many ways along each side, each tracing a stretch twice as long
-through the device's rays and the last on to the scene's end, with nothing kept from the frames
-before, a step that stays off since, though it reads a shaded court, a far doorway and a wall
-beside a door nearer a path-traced reference, a turn moves the light of eighteen times as many
-pixels and the frame takes 0.44 ms more on Sponza and 1.69 ms more on the Bistro, and `off` puts
-the screen probes' rays back. `gi.side 8` holds
-every cascade to 8 probes a side, `gi.side 8,8,16` the first two to 8 and the rest to 16, and
-`reset gi.side` 8 for the first two and 12 past them on any device, the default on a GPU, where a
-device that draws on its CPU holds 8 a side unless set, and `gi.shell_parts 4` traces the probes
-past each cascade's inner eight a side a quarter a frame, `0` every frame.
+reference than the faces do, and `off` reads the faces. `gi.layout split`, the default, lays the
+probes a pixel takes the world's light from out as the RadianceCascades module's split cascades,
+kept near the points of the window's depth the eye sees, each traced by a ray a point a frame, four
+while the point's finest probe is under 16 frames old, and gathered at each pixel's point about the
+normal the model pass shades it with, the grid's probes still lighting what those rays meet. Once
+the bounce has settled it reads a wall beside a door at 1.24 of a path-traced reference, its six
+parts from 0.91 to 1.93 of it. Each of its ways whose rays may cross a box of the world the frame
+changed lets the light it kept go, and what its rays meet is lit by the grid's probes, whose bounce
+takes frames to settle, so a room seen open and then closed keeps 0.015 of the open floor's light 16
+frames after at `High` and 0.006 after 60. On a device whose driver ends the process in the split's
+kernel, as lavapipe's before Mesa 26.3 does, the engine makes no split stage and the grid's probes
+light the window. `gi.layout dense` lays the probes on the grid about the eye. `gi.split_agree on`
+has each way of the split cascades' probes let the light it keeps go and start again from the frame
+once its frames lie past that light by their spread, a step that stays off since a way that takes
+few rays a frame starts again on noise, the corridor's points before its lintel swinging by 0.116 of
+their light as the cascades walk it against 0.043, and a lamp switched on gives its reach as a box
+the frame changed either way, the first of the bounce rooms seen at 320 by 180 lying 0.037 off its
+settled light 32 frames after with the ways starting again or keeping their mean, and `off` has each
+way keep the mean of its last 256 rays. `gi.screen_cascades on` has the screen's probes stand in
+cascades of their own at `High` where the device traces rays, each level's probes twice as far apart
+with twice as many ways along each side, each tracing a stretch twice as long through the device's
+rays and the last on to the scene's end, with nothing kept from the frames before, a step that stays
+off since, though it reads a shaded court, a far doorway and a wall beside a door nearer a
+path-traced reference, a turn moves the light of eighteen times as many pixels and the frame takes
+0.44 ms more on Sponza and 1.69 ms more on the Bistro, and `off` puts the screen probes' rays back.
+`gi.side 8` holds every cascade to 8 probes a side, `gi.side 8,8,16` the first two to 8 and the rest
+to 16, and `reset gi.side` 8 for the first two and 12 past them on any device, the default on a GPU,
+where a device that draws on its CPU holds 8 a side unless set, and `gi.shell_parts 4` traces the
+probes past each cascade's inner eight a side a quarter a frame, `0` every frame.
 
 `entity.set` writes vectors, quaternions and colors as numbers joined by commas, enums by name,
 and an array as its items split by semicolons, so

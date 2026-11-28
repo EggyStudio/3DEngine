@@ -34,7 +34,8 @@ and their slowest tests taken together. --only runs the parts of those labels al
 part but those, so two jobs given the same labels, one with each, run the whole suite between them,
 a part added later in the second, and --system names the job on its page.
 
-The page has the run's counts, the lost processes, the failures by cause, the most frequent first,
+The page has the run's counts, with the cases skipped where the device draws the split cascades
+on its CPU, the lost processes, the failures by cause, the most frequent first,
 the tests that took more than half the time a test is given before it is called hung, the slowest
 first, so a test that has grown toward that bound is named before it is lost to it, and the lines
 logged as warnings or errors, or with no level, that the output repeated most, left out when none
@@ -83,6 +84,9 @@ NEAR_BOUND_SHOWN = 10
 REPEATED_SHOWN = 3
 PART_SIZE = 30
 SHUFFLE_SEED = "E3D_SCHEDULE_SHUFFLE_SEED"
+# The words of a skip's cause where the device draws the split cascades on its CPU, which the
+# suite's SplitOnTheCpu.Cause holds, so the head counts the cases a job on such a device left out.
+SPLIT_ON_CPU = "draws the split cascades on its CPU"
 # The system the page names, the platform's unless --system gives another.
 SYSTEM = {"Darwin": "macOS"}.get(platform.system(), platform.system())
 BEGIN = "=" * 30 + " the page " + "=" * 30
@@ -726,6 +730,7 @@ def digest(results_dir, processes, listed, seconds, hang_seconds):
     for path in trx:
         results.update(read_results(path))
     outcomes = Counter(outcome for outcome, _, _ in results.values())
+    split_skipped = sum(1 for outcome, message, _ in results.values() if outcome == "NotExecuted" and SPLIT_ON_CPU in message)
     causes = {}
     for name, (outcome, message, stack) in sorted(results.items()):
         if outcome != "Failed":
@@ -752,7 +757,7 @@ def digest(results_dir, processes, listed, seconds, hang_seconds):
     return {
         "system": SYSTEM,
         "commit": commit(),
-        "passed": outcomes["Passed"], "failed": outcomes["Failed"], "skipped": outcomes["NotExecuted"], "no_result": no_result,
+        "passed": outcomes["Passed"], "failed": outcomes["Failed"], "skipped": outcomes["NotExecuted"], "split_skipped": split_skipped, "no_result": no_result,
         "seconds": round(seconds), "peak_mb": max((p.peak_mb for p in processes), default=0),
         "processes": [{"label": p.label, "lost": p.lost, "seconds": round(p.seconds), "peak_mb": p.peak_mb, "exit_code": p.exit_code,
                        "running": p.running, "after": p.after, "last_lines": p.last_lines, "summary": p.summary(), "slowest": p.slowest,
@@ -797,7 +802,9 @@ def as_classes(processes):
 
 
 def head(d):
-    return (f"Tests on {d['system']} at {d['commit']}: {d['passed']:,} passed, {d['failed']:,} failed, {d['skipped']:,} skipped, "
+    split = d.get("split_skipped", 0)
+    of_split = f", {split:,} of them for the split cascades drawn on the device's CPU" if split else ""
+    return (f"Tests on {d['system']} at {d['commit']}: {d['passed']:,} passed, {d['failed']:,} failed, {d['skipped']:,} skipped{of_split}, "
             f"{d['no_result']:,} without a result, in {duration(d['seconds'])}"
             + (f", {d['peak_mb']:,} MB at most" if d["peak_mb"] else ""))
 

@@ -277,13 +277,17 @@ internal sealed class GlobalIlluminationSettings
 
     /// <summary>
     /// How the probes the window's pixels take the world's light from are laid out, as
-    /// <c>gi.layout</c> sets it, <see cref="ProbeLayout.Dense"/> for the levels of probes on a grid
-    /// about the eye, or <see cref="ProbeLayout.Split"/> for the RadianceCascades module's split
-    /// cascades, kept near the points of the window's depth the eye sees, each traced by a ray a
-    /// point a frame and gathered at each pixel's point (<c>gi_split.slang</c>), the grid's probes
-    /// still lighting what those rays meet.
+    /// <c>gi.layout</c> sets it, <see cref="ProbeLayout.Split"/> unless set, for the
+    /// RadianceCascades module's split cascades, kept near the points of the window's depth the eye
+    /// sees, each traced by a ray a point a frame and gathered at each pixel's point
+    /// (<c>gi_split.slang</c>), the grid's probes still lighting what those rays meet, or
+    /// <see cref="ProbeLayout.Dense"/> for the levels of probes on a grid about the eye.
     /// </summary>
-    public ProbeLayout Layout { get; set; } = ProbeLayout.Dense;
+    /// <remarks>
+    /// The grid's probes light the window under the split layout too where the device has no split
+    /// stage, as on lavapipe before Mesa 26.3 (<see cref="GraphicsAdapterInfo.FaultsSplitTrace"/>).
+    /// </remarks>
+    public ProbeLayout Layout { get; set; } = ProbeLayout.Split;
 
     /// <summary>
     /// Whether the screen's probes stand in cascades of their own traced by the device's rays at

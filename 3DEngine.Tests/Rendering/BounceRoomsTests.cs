@@ -48,7 +48,7 @@ public sealed partial class BounceRoomsTests(ITestOutputHelper output) : IDispos
 
     // How far a view's frame at a quality differs from its reference, its pixels' differences summed
     // over the reference's light, with a far cascade at the camera's far plane where far is set.
-    private double Differs(int view, GlobalIllumination quality, bool far = false)
+    private double Differs(int view, GlobalIllumination quality, bool far = false, Action? layout = null)
     {
         var config = Config.Default.WithWindow("bounce rooms", Width, Height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
@@ -85,6 +85,7 @@ public sealed partial class BounceRoomsTests(ITestOutputHelper output) : IDispos
         // the light past the first bounce settles a cycle at a time and each whole cycle is eased
         // into the next across the cycle after it.
         SetGlobalIllumination(quality);
+        layout?.Invoke();
         Frames(SceneFieldPlan.SettleFrames + 190);
         var renderer = GetApp().World.Resource<Engine.Renderer>();
         var decoded = renderer.RenderWorld.TryGet<BloomRenderer>()!.Decoded!;
@@ -99,7 +100,7 @@ public sealed partial class BounceRoomsTests(ITestOutputHelper output) : IDispos
         return differs / lit;
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void The_Thin_Rooms_Corner_Takes_No_Light_From_The_Lamp_Outside()
     {
         // The thin room seen as shaders_bounce_rooms' capture sees it, where the right wall meets
@@ -136,7 +137,7 @@ public sealed partial class BounceRoomsTests(ITestOutputHelper output) : IDispos
         (brightest / beside).Should().BeLessThan(1.4, "the corner reads the wall's light, not the lamp's beyond the walls");
     }
 
-    [NeedsVulkanFact]
+    [NeedsVulkanFact(SplitAtWindowSize = true)]
     public void The_Thin_Walls_Foot_Takes_No_Light_From_The_Lamp_Outside()
     {
         // The thin room's right wall along its foot, seen as the corner's test sees it, with the
@@ -385,6 +386,7 @@ public sealed partial class BounceRoomsTests(ITestOutputHelper output) : IDispos
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(3, 0.15f, 2);
         SetGlobalIllumination(GlobalIllumination.High);
+        GridLayout.ForTheGridsOwnReading();
         using var rooms = new Rooms();
         var camera = Rooms.Views[8];
         for (int frame = 0; frame < SceneFieldPlan.SettleFrames + 90; frame++)

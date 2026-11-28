@@ -48,7 +48,7 @@ public sealed partial class BounceRoomsTests
     [InlineData(9, GlobalIllumination.High, 0.086)]
     public void Each_Room_Reads_Within_Its_Measured_Difference_From_Its_Reference(int view, GlobalIllumination quality, double bound)
     {
-        var share = Differs(view, quality);
+        var share = Differs(view, quality, layout: GridLayout.ForTheGridsOwnReading);
         share.Should().BeLessThan(bound, $"view {view} at {quality} differs from its reference by {share:0.000} of its light");
     }
 }

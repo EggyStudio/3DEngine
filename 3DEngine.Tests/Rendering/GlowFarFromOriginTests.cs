@@ -55,12 +55,13 @@ public sealed class GlowFarFromOriginTests : IDisposable
 
     // The room standing at origin in a window of the size given, settled at the quality given, its
     // view and the level of each pixel of the frame in sRGB's 255ths.
-    private static (Camera3D View, float[] Levels) Drawn(Vector3 origin, GlobalIllumination quality, int width, int height)
+    private static (Camera3D View, float[] Levels) Drawn(Vector3 origin, GlobalIllumination quality, int width, int height, Action? layout = null)
     {
         var config = Config.Default.WithWindow("far from origin", width, height) with { Headless = true, Offscreen = true, Samples = 1 };
         UseApp(new App(config).AddPlugin(new DefaultPlugins()));
         SetSceneField(4, 0.25f);
         SetGlobalIllumination(quality);
+        layout?.Invoke();
         SetAmbientLight(Color.Black, 0);
         var block = LoadModelFromMesh(GenMeshCube(1, 1, 1));
         // The lantern as one emissive mesh, the one face that shows and a second square far below
@@ -129,7 +130,7 @@ public sealed class GlowFarFromOriginTests : IDisposable
     // half of its width.
     private static double[] CeilingRows(GlobalIllumination quality, int width, int height)
     {
-        var (_, levels) = Drawn(Vector3.Zero, quality, width, height);
+        var (_, levels) = Drawn(Vector3.Zero, quality, width, height, GridLayout.ForTheGridsOwnReading);
         var rows = new double[height / 5];
         for (int y = 0; y < rows.Length; y++)
         {
@@ -139,7 +140,7 @@ public sealed class GlowFarFromOriginTests : IDisposable
         return rows;
     }
 
-    [NeedsVulkanTheory]
+    [NeedsVulkanTheory(SplitAtWindowSize = true)]
     [InlineData(GlobalIllumination.Low)]
     [InlineData(GlobalIllumination.High)]
     public void A_Glow_Lights_Light_On_A_Wall_Far_From_The_Origin_Is_As_Smooth_As_At_The_Origin(GlobalIllumination quality)
