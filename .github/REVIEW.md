@@ -1476,3 +1476,80 @@ walk's second level, since the module's 10c530a walks no levels. On 25.2.8 the p
 and the split one was skipped, and the Rendering tests passed 751 and skipped 59, none failing and
 none ending the process. On 26.3.1 the two passed. On the RTX 4070 with the layer required, the GI
 filter with the norms' and the docs' tests passed 241 and skipped 1.
+
+154. The pin to the module's 1dc336e. The engine's `modules/RadianceCascades` moves from 10c530a to
+1dc336e through a99aae0 and 4485327. At 4485327 the merge and the gather read whether a probe sees
+a point from the probe's own rays, so gi_split.slang asks for a cascade's probes and gathers onto
+the pixels with no hits given. Each cascade above the finest pools the probes of its spacing over
+the square the finest's slots cover with a row more along each edge, at most the slots, and its
+light follows that of the cascades below it, so the pass that keeps the rays' light runs over the
+store's own lights and the merge over its cascade's. At 1dc336e, the module's item 22,
+`traceSeenRays` traces each seen point's ray once to the end of the coarsest cascade's interval and
+splits it by where it ended, so the engine's `WindowHits` takes one call a ray from the ray's
+start, its march and its query through the meshes unchanged. The device store's tests read the
+module's CPU figures unchanged at 1dc336e, 1,164, 348, 78 and 28 probes by cascade, 25,888 kept and
+18,985 rays reaching 18,985, 15,517, 3,316 and 359 probes. The table copies go from 102 to 96, 16
+of them the split's kernel at 4485327 and at 1dc336e alike, its asks and gather no longer marching.
+The store holds 88 MB of uints and 139 MB of light at six cascades, against 64 and 101 at 10c530a.
+Its light whole is 138,756,096 bytes, more than the 134,217,728 lavapipe lets a storage buffer
+bind, and the split's tests on lavapipe of Mesa 25.2.8 and 26.3.1 logged that as a validation error
+where the RTX 4070 passed them. The store keeps its probes' own light and the merged light in two
+buffers of half the light each, `GpuSplitStore.Light` and `GpuSplitStore.Merged`, which
+gi_split.slang binds at 13 and 16 and reads through `StoreLightHalves` in gi_split_store.slang,
+each index as the module lays it. A test holds every buffer of the engine's store within 2 to the
+27th bytes, the least range Vulkan lets a device bind, and their sum to the module's
+`SplitStoreShape.Bytes`.
+gi_split.slang reads each pixel's gather by its causes in a pass 8 after the gather, a thread a
+pixel, through `splitGatherCause` into a binding 15 of four half floats a pixel. The surface's
+gather holds that image as `GpuSurfaceGather.Causes` only while
+`GlobalIlluminationSettings.SplitCauseRead` is set, and the pass runs only then. The flag is no gi
+setting, and the settings count holds. `gi.split_cause <path>` sets it for the frames it reads,
+waits for a frame gathered with it and clears it. It writes the weights by share, by the trilinear
+weights alone and the share lent from behind into `<path>-weights.pfm` and the youngest probe's age
+into `<path>-age.pfm`, rows from the bottom as gi.compare writes its frame, and counts the pixels
+seen by the first of the README's causes each meets, (a) gathering nothing, (b) taking the
+trilinear weights, fresh with its youngest probe under 16 frames old and (d) lent half or more from
+behind its plane. Two tests read it, a floor under an even sky whose sky reads -1 and whose share
+weights lie within their trilinear ones with its probes standing, the image gone once the flag is
+cleared, and the count and the files' rows on the CPU.
+Read with no screen layer at 1dc336e, the door's left wall settled reads 1.33 of the reference, as
+at 4485327, where the grid reads 1.23 and 10c530a read 1.37. Its parts read 1.37, 1.41 and 3.08
+along the top and 1.14, 1.25 and 6.04 along the bottom, against the grid's 1.30, 1.47, 4.80, 0.78,
+1.16 and 5.84, three of the six further from the reference, the bottom right going from 5.83 at
+4485327 to 6.04. With the bounce at zero the wall reads 0.59 against the grid's 0.63. The
+command-line guide gives these figures, the layout still off. On the views' sheet view 1 reads 1.03
+of the reference against the grid's 1.03 and 10c530a's 1.01, its shade 1.16 against 1.15 and 1.10,
+and the far doorway 1.37 against 1.81 and 1.41. The door view's wall reads 1.26 against 1.16 and
+1.31, the gallery 1.00 against 1.01 and 1.00, and its near wall 0.99 against 1.66 and 0.96, each
+within 0.01 of 4485327. Of the pixels the reference lights above a fiftieth of its mean, those
+under a fifth of the reference in the mean of the three frames number 1,447 in view 1, where the
+grid has 551 and 10c530a had 1,857, 1,912 at the door against 873 and 1,595, and 4,824 in the
+gallery against 1,109 and 4,274, and 4485327 had 1,450, 1,969 and 4,857. The sheets show them as
+before, a lattice of dark specks on the wall's lower left at the door and on the gallery's near
+column and right wall.
+Read by gi.split_cause before each of the three frames at 1dc336e, a frame's specks number 1,446 to
+1,451 in view 1, 1,889 to 1,944 at the door and 4,813 to 4,831 in the gallery. None gathers nothing
+and none holds a fresh probe. The probes about every lit pixel were taken when the view's points
+first asked for them, 376, 377 and 387 frames before the first frame, so no speck in these still
+views takes a probe that holds few rays. Over the three frames view 1's specks hold 57 of (b) and
+40 of (d), the door's 3 and 1,096 and the gallery's 6 and 3,507, so 98%, 81% and 76% meet none of
+the four causes, against 98%, 78% and 76% at 4485327. Light half or more from behind falls on 19%
+and 24% of the specks at the door and in the gallery, against 1.6% and 1.0% of their other lit
+pixels. A speck's probes let less through toward it than the other lit pixels' do, the sum of the
+weights by share over the sum by the trilinear weights reading 0.84, 0.84 and 0.47 at its median
+against 0.98 to 1.00 in the first frame, but the gather divides by the first sum. A speck that
+meets none of the causes takes the light its standing probes hold along their ways facing it, and
+that light is dark.
+Timed at 1080p on the RTX 4070 with no layer, five sessions a scene, the split's trace pass takes
+30.4 ms on Sponza and 41.1 ms on the Bistro at 1dc336e, against 46.7 and 59.7 at 4485327 on the
+same build with a query a part and the 54.6 and 57.2 item 318 read at 0d3f67d, each spread under
+0.5 ms. The split's passes take 46.8 and 61.6 ms of global illumination's 53.5 and 70.1, against
+63.9 and 80.1 at 4485327. The gather takes 13.5 and 15.5 of them, against 6.4 at 0d3f67d, its sight
+read from the probes' own rays since 4485327. On the Bistro the field is not whole within the 30
+seconds its wait gives at either pin, its scene pass taking 180 ms a frame, and its passes are
+timed from 60 frames after the wait as Sponza's are.
+On the RTX 4070 with the layer required, the whole suite passed 2,595 tests at 1dc336e and skipped
+1, none failing. Lavapipe of Mesa 26.3.1 passed the store's, the split's and the copies' 15 tests,
+and that of Mesa 25.2.8 in the Linux job's image passed 12 and skipped the 3 whose split kernel it
+ends the process in. After the suite a test's comment alone changed, and on that build the global
+illumination, norms and docs tests passed 244 and skipped 1.

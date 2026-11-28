@@ -127,6 +127,13 @@ internal sealed class GlobalIlluminationSettings
     public bool LoggedScreenProbeNotANumber { get; set; }
 
     /// <summary>
+    /// Whether the split cascades read each pixel's gather by its causes after gathering it
+    /// (<see cref="GpuSurfaceGather.Causes"/>), which <c>gi.split_cause</c> sets for the frames it
+    /// reads.
+    /// </summary>
+    public bool SplitCauseRead { get; set; }
+
+    /// <summary>
     /// Whether each cascade keeps its own rays' light, taking nothing from the cascade above, as
     /// <c>gi.merge off</c> sets it.
     /// </summary>

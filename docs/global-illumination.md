@@ -523,6 +523,7 @@ boxes leave parts of global illumination out. The same is in a running program t
 | `gi.rays <on\|off>` | The setting of whether `High` traces what the field misses through the GPU's own rays |
 | `gi.reference <png> <samples> [bounces] [specular\|gloss]` | Path traces the window's picture through the GPU's rays, as the reference global illumination is measured by, `-1` bounces for as many as a path takes, `specular` for the first face's reflection of the indirect light and `gloss` for every face's |
 | `gi.compare <png>` | The window's light against that reference, region by region, with a picture of the difference |
+| `gi.split_cause <path>` | Under `gi.layout split`, what each pixel's gather is read by, into two PFMs beside the path, its probes' weights by the share they let through toward its point and by their trilinear weights alone with the share of the first lent from behind its plane, and the frames since its youngest probe was taken, with how many of the pixels seen gather nothing, take the trilinear weights alone, hold a probe younger than 16 frames or are lent half or more from behind their plane |
 
 A scene is read against its reference by drawing it, tracing `gi.reference` once with a thousand
 samples a pixel, and reading `gi.compare` for how far each region's light lies from it, or

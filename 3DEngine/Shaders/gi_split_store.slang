@@ -25,3 +25,24 @@ public struct StoreLight : IStoreLight
     public float4 lightAt(uint index) { return light[index]; }
     public void keepLight(uint index, float4 value) { light[index] = value; }
 }
+
+// The store's light over two buffers of float4, the probes' own along their ways in the first and
+// the merged in the second, the light laid out as splitLightAt lays it with the merged past the
+// own, so each buffer holds half the light and binds within a range the whole may be larger than.
+public struct StoreLightHalves : IStoreLight
+{
+    public RWStructuredBuffer<float4> own;
+    public RWStructuredBuffer<float4> merged;
+    // The float4 of the probes' own light, splitLightFirst over every cascade.
+    public uint first;
+
+    public float4 lightAt(uint index) { return index < first ? own[index] : merged[index - first]; }
+
+    public void keepLight(uint index, float4 value)
+    {
+        if (index < first)
+            own[index] = value;
+        else
+            merged[index - first] = value;
+    }
+}

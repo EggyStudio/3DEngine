@@ -148,7 +148,7 @@ public sealed class SplitStoreTests : IDisposable
             else if (pass == 2u && index < count)
                 askSeenProbes(seen, hits, store, at, shape, index);
             else if (pass == 3u)
-                askCascadeProbes(hits, store, at, shape, cascade, index);
+                askCascadeProbes(store, at, shape, cascade, index);
             else if (pass == 4u && index < count)
                 traceSeenRays(seen, hits, even, store, at, shape, index);
             else if (pass == 5u)
@@ -156,7 +156,7 @@ public sealed class SplitStoreTests : IDisposable
             else if (pass == 6u)
                 mergeSplitCascade(store, kept, even, at, shape, cascade, index);
             else if (pass == 7u && index < count)
-                gatherSurface(store, kept, hits, at, shape, seen, index);
+                gatherSurface(store, kept, at, shape, seen, index);
             else if (pass == 8u && index < count)
             {
                 // Each point's ray of the frame traced whole across every interval, a float4 and
@@ -243,9 +243,9 @@ public sealed class SplitStoreTests : IDisposable
             Run(4, eye, frame, _count);
             if (!keep)
                 return;
-            Run(5, eye, frame, Shape.Cascades * SplitStoreShape.BaseWays * Shape.Slots);
+            Run(5, eye, frame, Shape.OwnLights);
             for (int c = Shape.Cascades - 1; c >= 0; c--)
-                Run(6, eye, frame, SplitStoreShape.BaseWays * Shape.Slots, c);
+                Run(6, eye, frame, Shape.CascadeLights(c), c);
         }
 
         public uint[] Uints()
@@ -288,7 +288,7 @@ public sealed class SplitStoreTests : IDisposable
 
     // Where the light of entry's probe of cascade along its way lies, as splitLightAt lays it.
     private static int LightAt(int cascade, int entry, int way) =>
-        cascade * SplitStoreShape.BaseWays * Shape.Slots
+        Enumerable.Range(0, cascade).Sum(Shape.CascadeLights)
         + (entry - Enumerable.Range(0, cascade).Sum(Shape.PoolProbes)) * (SplitStoreShape.BaseWays << 2 * cascade) + way;
 
     // The inside faces of the module's corridor, from -12 to 12 along it an eighth of a unit apart,
@@ -433,8 +433,7 @@ public sealed class SplitStoreTests : IDisposable
         store.Frame(eye, 1, rays: true, keep: false);
         var whole = store.Taken(8, eye, 1);
         var uints = store.Uints();
-        var span = SplitStoreShape.BaseWays * Shape.Slots;
-        var expected = new uint[5 * Shape.Cascades * span];
+        var expected = new uint[5 * Shape.OwnLights];
         var (rays, missing) = (0, 0);
         var reached = new int[Shape.Cascades];
         static uint Parts(float light) => (uint)(Math.Clamp(light, 0, 16384) * 1024 + 0.5f);

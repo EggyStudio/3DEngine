@@ -130,6 +130,14 @@ internal sealed unsafe partial class GlobalIlluminationStages
 
     // A buffer of half floats read as floats.
     /// <summary>
+    /// What each pixel's gather from the split cascades was read by
+    /// (<see cref="GpuSurfaceGather.Causes"/>), four floats a pixel, row by row, read back with the
+    /// frames in flight finished.
+    /// </summary>
+    internal float[] ReadSplitCauses(GpuSurfaceGather surface) =>
+        ReadGeneralImage(((VulkanImage)surface.Causes!).Image, new VkExtent3D(surface.Width, surface.Height, 1), 4);
+
+    /// <summary>
     /// The light the window's surfaces gathered, four floats a pixel, row by row, read back for a
     /// test with the frames in flight finished.
     /// </summary>

@@ -41,10 +41,9 @@ public sealed class FieldReadCopiesTests : IDisposable
     }
 
     // The copies the built-in shaders make of the table, every one a march's through the field,
-    // which takes the whole table to find the cascade a point lies in. The bound is the 102
-    // measured, 22 of them the split's kernel, whose asks, cascade asks and gather march to see the
-    // probes about a point.
-    private const int MarchCopies = 102;
+    // which takes the whole table to find the cascade a point lies in. The bound is the 96
+    // measured, 16 of them the split's kernel, its rays' march and the shading of what they meet.
+    private const int MarchCopies = 96;
 
     [NeedsSlangFact]
     public void The_Built_In_Shaders_Copy_The_Table_Of_Cascades_No_More_Often_Than_Their_Marches_Do()

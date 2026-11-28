@@ -11,8 +11,9 @@ namespace Engine;
 /// </summary>
 internal sealed unsafe class GpuSurfaceGather : IDisposable
 {
-    private GpuSurfaceGather(uint width, uint height, IImage light, IImageView lightView, IBuffer view, ISampler sampler) =>
-        (Width, Height, Light, LightView, View, Sampler) = (width, height, light, lightView, view, sampler);
+    private GpuSurfaceGather(uint width, uint height, IImage light, IImageView lightView, IBuffer view, ISampler sampler, IImage? causes,
+        IImageView? causesView) =>
+        (Width, Height, Light, LightView, View, Sampler, Causes, CausesView) = (width, height, light, lightView, view, sampler, causes, causesView);
 
     /// <summary>The pixels across.</summary>
     public uint Width { get; }
@@ -30,6 +31,16 @@ internal sealed unsafe class GpuSurfaceGather : IDisposable
     public IImageView LightView { get; }
 
     /// <summary>
+    /// What each pixel's gather from the split cascades is read by, four half floats a pixel kept
+    /// in the general layout, as <c>gi_split.slang</c> writes it where <c>gi.split_cause</c> asks,
+    /// or none.
+    /// </summary>
+    public IImage? Causes { get; }
+
+    /// <summary>The view of <see cref="Causes"/>, or none.</summary>
+    public IImageView? CausesView { get; }
+
+    /// <summary>
     /// The view the light was gathered through, <see cref="GpuScreenProbes.ViewBytes"/> long.
     /// </summary>
     public IBuffer View { get; }
@@ -40,9 +51,9 @@ internal sealed unsafe class GpuSurfaceGather : IDisposable
     /// <summary>
     /// Makes the gather of a window <paramref name="width"/> by <paramref name="height"/> pixels,
     /// every texel -1 until the first frame gathers it, so the model pass reads the probes' faces
-    /// there.
+    /// there, and where <paramref name="causes"/> is set the image its causes are read into.
     /// </summary>
-    public static GpuSurfaceGather Create(GraphicsDevice device, uint width, uint height)
+    public static GpuSurfaceGather Create(GraphicsDevice device, uint width, uint height, bool causes = false)
     {
         // Copied out too, where a test reads what each pixel gathered.
         var light = device.CreateImage(new ImageDesc(new Extent2D(width, height), ImageFormat.R16G16B16A16_Float,
@@ -61,9 +72,18 @@ internal sealed unsafe class GpuSurfaceGather : IDisposable
         device.Api.vkCmdClearColorImage(cmd, image, VkImageLayout.General, &none, 1, &whole);
         device.PipelineBarrier(cmd, [ImageBarrier(image, whole, VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.AllCommands, VkAccessFlags2.ShaderRead)]);
+        IImage? cause = null;
+        if (causes)
+        {
+            cause = device.CreateImage(new ImageDesc(new Extent2D(width, height), ImageFormat.R16G16B16A16_Float, ImageUsage.Storage | ImageUsage.TransferSrc));
+            device.Name(cause, "Surfaces' gather read by its causes");
+            device.PipelineBarrier(cmd, [ImageBarrier(((VulkanImage)cause).Image, whole, VkImageLayout.Undefined, VkImageLayout.General,
+                VkPipelineStageFlags2.None, VkAccessFlags2.None, VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite)]);
+        }
         device.EndSingleTimeCommands(cmd);
         ((VulkanImage)light).Layout = VkImageLayout.ShaderReadOnlyOptimal;
-        return new GpuSurfaceGather(width, height, light, lightView, view, sampler);
+        if (cause is not null) ((VulkanImage)cause).Layout = VkImageLayout.General;
+        return new GpuSurfaceGather(width, height, light, lightView, view, sampler, cause, cause is null ? null : device.CreateImageView(cause));
     }
 
     /// <inheritdoc />
@@ -73,5 +93,7 @@ internal sealed unsafe class GpuSurfaceGather : IDisposable
         View.Dispose();
         LightView.Dispose();
         Light.Dispose();
+        CausesView?.Dispose();
+        Causes?.Dispose();
     }
 }

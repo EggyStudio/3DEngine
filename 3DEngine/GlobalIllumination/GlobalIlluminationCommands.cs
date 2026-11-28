@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Numerics;
 using Diagnostics;
+using RadianceCascades;
 
 namespace Engine;
 
@@ -137,6 +138,33 @@ internal static class GlobalIlluminationCommands
             return BounceReference.ScreenProbe(world, screen, x, y, samples, bounces);
         });
         return $"reading the screen probe under {x}, {y}";
+    }
+
+    [Command("gi.split_cause", "What each pixel's gather from the split cascades is read by, its weights by the share its probes let through toward its point and by their trilinear weights alone with the share of the first lent from behind its plane into <path>-weights.pfm, and the frames since its youngest probe was taken into <path>-age.pfm, with how many of the pixels seen gather nothing, take their probes by their trilinear weights alone, hold a probe younger than 16 frames or are lent half or more from behind their plane: gi.split_cause <path>")]
+    internal static string SplitCause(string path)
+    {
+        var world = ConsoleHost.World!;
+        if (!world.TryGetResource<GlobalIlluminationSettings>(out var settings) || settings.Quality == GlobalIllumination.Off)
+            return "global illumination is off, and SetGlobalIllumination turns it on";
+        if (settings.Layout != ProbeLayout.Split)
+            return "the probes are not split, which gi.layout split asks";
+        if (!world.TryGetResource<Renderer>(out var renderer) || renderer.Context.Graphics is not GraphicsDevice device)
+            return "the window has no device";
+        // The causes are read in the frames from the next on, once the gather is made again to hold
+        // them, and read back once the frames in flight that might not have written them have
+        // finished.
+        settings.SplitCauseRead = true;
+        var from = ConsoleHost.Time.FrameCount;
+        ConsoleHost.Later(() =>
+        {
+            var surface = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()?.Surface;
+            var waited = ConsoleHost.Time.FrameCount - from;
+            if (waited < 4 || surface?.Causes is null && waited < 120) return null;
+            settings.SplitCauseRead = false;
+            if (surface?.Causes is null) return "the split cascades gathered no frame in 120, which they do once the scene's field is whole";
+            return SplitCauses.Write(path, GlobalIlluminationStages.Of(device).ReadSplitCauses(surface), (int)surface.Width, (int)surface.Height);
+        });
+        return $"reading the split gather's causes into {path}";
     }
 
     [Command("gi.compare", "The window's linear light against a reference gi.reference wrote, the mean of each channel and its error over each region of the view, and a picture of the difference beside it: gi.compare <png>")]

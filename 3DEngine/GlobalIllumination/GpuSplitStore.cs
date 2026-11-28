@@ -12,7 +12,14 @@ namespace Engine;
 /// </summary>
 internal sealed class GpuSplitStore : IDisposable
 {
-    private GpuSplitStore(SplitStoreShape shape, IBuffer uints, IBuffer light) => (Shape, Uints, Light) = (shape, uints, light);
+    private GpuSplitStore(SplitStoreShape shape, IBuffer uints, IBuffer light, IBuffer merged) =>
+        (Shape, Uints, Light, Merged) = (shape, uints, light, merged);
+
+    /// <summary>
+    /// The least range of a storage buffer's binding Vulkan lets a device hold, which lavapipe
+    /// holds, so every buffer of the store binds whole within it on any device.
+    /// </summary>
+    internal const ulong LeastStorageRange = 1UL << 27;
 
     /// <summary>
     /// The store's shape, which its passes are pushed and its buffers are laid out by.
@@ -25,9 +32,23 @@ internal sealed class GpuSplitStore : IDisposable
     public IBuffer Uints { get; }
 
     /// <summary>
-    /// The store's light, its probes' own and that merged from above, a float4 a way.
+    /// The store's light its probes keep along their ways, a float4 a way, the first half of the
+    /// light the module lays out.
     /// </summary>
     public IBuffer Light { get; }
+
+    /// <summary>
+    /// The store's light merged from the cascades above, laid out as <see cref="Light"/> is, the
+    /// second half of the light the module lays out, kept apart so each half binds within
+    /// <see cref="LeastStorageRange"/> where the whole light need not.
+    /// </summary>
+    public IBuffer Merged { get; }
+
+    /// <summary>
+    /// The bytes of the store's buffers of <paramref name="shape"/>, its uints, its own light and
+    /// its merged light, as <see cref="Create"/> makes them.
+    /// </summary>
+    public static ulong[] Bytes(SplitStoreShape shape) => [4UL * (ulong)shape.Uints, 16UL * (ulong)shape.OwnLights, 16UL * (ulong)shape.OwnLights];
 
     /// <summary>
     /// The span along each axis over which every probe's key repeats, 512 of the coarsest
@@ -57,22 +78,26 @@ internal sealed class GpuSplitStore : IDisposable
     /// </summary>
     public static GpuSplitStore Create(GraphicsDevice device, SplitStoreShape shape)
     {
-        var uints = device.CreateBuffer(new BufferDesc(4UL * (ulong)shape.Uints, BufferUsage.Storage | BufferUsage.TransferDst));
-        device.Name(uints, "Split cascades' uints");
-        var light = device.CreateBuffer(new BufferDesc(16UL * (ulong)shape.Lights, BufferUsage.Storage | BufferUsage.TransferDst));
-        device.Name(light, "Split cascades' light");
+        var bytes = Bytes(shape);
+        var buffers = new IBuffer[bytes.Length];
+        string[] names = ["Split cascades' uints", "Split cascades' own light", "Split cascades' merged light"];
         var cmd = device.BeginSingleTimeCommands();
-        device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)uints).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
-        device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)light).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
+        for (int i = 0; i < buffers.Length; i++)
+        {
+            buffers[i] = device.CreateBuffer(new BufferDesc(bytes[i], BufferUsage.Storage | BufferUsage.TransferDst));
+            device.Name(buffers[i], names[i]);
+            device.Api.vkCmdFillBuffer(cmd, ((VulkanBuffer)buffers[i]).Buffer, 0, Vulkan.VK_WHOLE_SIZE, 0);
+        }
         device.MemoryBarrier(cmd, VkPipelineStageFlags2.Transfer, VkAccessFlags2.TransferWrite, VkPipelineStageFlags2.ComputeShader,
             VkAccessFlags2.ShaderRead | VkAccessFlags2.ShaderWrite);
         device.EndSingleTimeCommands(cmd);
-        return new GpuSplitStore(shape, uints, light);
+        return new GpuSplitStore(shape, buffers[0], buffers[1], buffers[2]);
     }
 
     /// <inheritdoc />
     public void Dispose()
     {
+        Merged.Dispose();
         Light.Dispose();
         Uints.Dispose();
     }

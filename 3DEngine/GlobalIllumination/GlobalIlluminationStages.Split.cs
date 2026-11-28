@@ -37,8 +37,9 @@ internal sealed unsafe partial class GlobalIlluminationStages
     /// the store's probes asked for by the points of <paramref name="depth"/> the eye sees, a ray
     /// traced from each point, the rays' light kept and merged from the coarsest cascade down, and
     /// gathered onto each pixel of <paramref name="surface"/>, left ready for the model pass to
-    /// read. The rays meet the meshes through <paramref name="rays"/> where it is given and its
-    /// build was made, and else the field.
+    /// read, and each pixel's gather read by its causes into the surface's
+    /// <see cref="GpuSurfaceGather.Causes"/> where it holds them. The rays meet the meshes through
+    /// <paramref name="rays"/> where it is given and its build was made, and else the field.
     /// </summary>
     /// <returns>What the recording holds, to free once no frame in flight reads it.</returns>
     public IDisposable RecordSplitGather(ICommandBuffer commandBuffer, GpuIllumination gi, GpuSurfaceGather surface, GpuSplitStore store, GpuSceneField field,
@@ -75,7 +76,11 @@ internal sealed unsafe partial class GlobalIlluminationStages
         run.Image(set, 11, VkDescriptorType.SampledImage, ((VulkanImageView)field.FacesView).View, null, VkImageLayout.ShaderReadOnlyOptimal);
         run.Buffer(set, 12, VkDescriptorType.StorageBuffer, store.Uints);
         run.Buffer(set, 13, VkDescriptorType.StorageBuffer, store.Light);
+        run.Buffer(set, 16, VkDescriptorType.StorageBuffer, store.Merged);
         run.Image(set, 14, VkDescriptorType.StorageImage, ((VulkanImageView)surface.LightView).View, null, VkImageLayout.General);
+        // The gathered light stands in for the causes where the surface holds none, the pass that
+        // writes them not dispatched.
+        run.Image(set, 15, VkDescriptorType.StorageImage, ((VulkanImageView)(surface.CausesView ?? surface.LightView)).View, null, VkImageLayout.General);
         var (pipeline, layout, _) = GiStages[stage];
         device.Api.vkCmdBindPipeline(cmd, VkPipelineBindPoint.Compute, pipeline);
         device.Api.vkCmdBindDescriptorSets(cmd, VkPipelineBindPoint.Compute, layout, 0, 1, &set, 0, null);
@@ -112,13 +117,18 @@ internal sealed unsafe partial class GlobalIlluminationStages
         MarkGlobalIllumination(commandBuffer, "gi_split_ask_cascades");
         Pass(4, 0, points);
         MarkGlobalIllumination(commandBuffer, "gi_split_trace");
-        Pass(5, 0, (long)shape.Cascades * SplitStoreShape.BaseWays * shape.Slots);
+        Pass(5, 0, shape.OwnLights);
         MarkGlobalIllumination(commandBuffer, "gi_split_light");
         for (int c = shape.Cascades - 1; c >= 0; c--)
-            Pass(6, c, (long)SplitStoreShape.BaseWays * shape.Slots);
+            Pass(6, c, shape.CascadeLights(c));
         MarkGlobalIllumination(commandBuffer, "gi_split_merge");
         Pass(7, 0, points);
         MarkGlobalIllumination(commandBuffer, "gi_split_gather");
+        if (surface.Causes is not null)
+        {
+            Pass(8, 0, points);
+            MarkGlobalIllumination(commandBuffer, "gi_split_cause");
+        }
 
         device.PipelineBarrier(cmd, [ImageBarrier(light, ColorLevels(0, 1), VkImageLayout.General, VkImageLayout.ShaderReadOnlyOptimal,
             VkPipelineStageFlags2.ComputeShader, VkAccessFlags2.ShaderWrite, readers, VkAccessFlags2.ShaderRead)]);

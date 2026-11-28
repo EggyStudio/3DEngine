@@ -151,17 +151,18 @@ internal sealed unsafe partial class GlobalIlluminationStages(GraphicsDevice dev
             // The module's split cascades over the window (gi_split.slang), the depth, the field's
             // distance, info, albedo and glow, the lights, the probes' faces and their light at
             // surfaces, the view, the light from all around, the field's second sheets and faces,
-            // the store's uints and light and the light it gathers, and the build with the device's
-            // rays the ray scene after three bindings unbound.
+            // the store's uints and its probes' own light, the light it gathers, what each pixel's
+            // gather is read by and the store's merged light, and the build with the device's rays
+            // the ray scene after one binding unbound.
             VkDescriptorType[] split = [VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.CombinedImageSampler, VkDescriptorType.UniformBuffer,
                 VkDescriptorType.CombinedImageSampler, VkDescriptorType.SampledImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageBuffer,
-                VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage];
+                VkDescriptorType.StorageBuffer, VkDescriptorType.StorageImage, VkDescriptorType.StorageImage, VkDescriptorType.StorageBuffer];
             if (spirv.Length > SplitStage && spirv[SplitStage] is { Length: > 0 } fieldSplit)
                 made.Add((SplitStage, () => device.MakeComputeStage(fieldSplit, split, SplitPushBytes)));
             if (spirv.Length > RaySplitStage && spirv[RaySplitStage] is { Length: > 0 } raySplit && device.CanQueryRays)
-                made.Add((RaySplitStage, () => device.MakeComputeStage(raySplit, [.. split, .. Enumerable.Repeat(VkDescriptorType.SampledImage, 3),
+                made.Add((RaySplitStage, () => device.MakeComputeStage(raySplit, [.. split, VkDescriptorType.SampledImage,
                     VkDescriptorType.AccelerationStructureKHR, VkDescriptorType.StorageBuffer, VkDescriptorType.StorageBuffer], SplitPushBytes)));
             made.Add((AmbientStage, () => device.MakeComputeStage(ambient, [VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,
                 VkDescriptorType.SampledImage, VkDescriptorType.StorageImage, VkDescriptorType.SampledImage, VkDescriptorType.StorageImage,

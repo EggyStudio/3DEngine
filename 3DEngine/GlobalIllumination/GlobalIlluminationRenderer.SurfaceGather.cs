@@ -43,10 +43,11 @@ internal sealed partial class GlobalIlluminationRenderer
             && Matrix4x4.Invert(window.Unjittered, out var inverse))
         {
             var (width, height) = (swapchain.Extent.Width, swapchain.Extent.Height);
-            if (_surface is null || _surface.Width != width || _surface.Height != height)
+            var causes = split && settings!.SplitCauseRead;
+            if (_surface is null || _surface.Width != width || _surface.Height != height || (_surface.Causes is not null) != causes)
             {
                 if (_surface is not null) _retired.Add((_frame, _surface));
-                _surface = GpuSurfaceGather.Create(device, width, height);
+                _surface = GpuSurfaceGather.Create(device, width, height, causes);
             }
             var seen = window.Turned is { } turned ? new ViewEye(window.Eye, turned * window.Back) : (ViewEye?)null;
             var origin = renderWorld.TryGet<RenderOrigin>();

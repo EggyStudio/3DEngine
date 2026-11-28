@@ -55,17 +55,30 @@ Texture3D<float4> fieldSecond;
 [[vk::binding(11, 0)]] [format("r32ui")]
 Texture3D<uint> fieldFaces;
 
-// The store's uints and its light, laid out by its shape (splitUints, splitLights).
+// The store's uints and its light, laid out by its shape (splitUints, splitLights), the probes'
+// own light here and the merged at binding 16 (StoreLightHalves).
 [[vk::binding(12, 0)]]
 RWStructuredBuffer<Atomic<uint>> uints;
 
 [[vk::binding(13, 0)]]
-RWStructuredBuffer<float4> light;
+RWStructuredBuffer<float4> lightOwn;
 
 // rgb: the light each pixel's point takes over pi, as gi_surface.slang writes it for the model
 // pass, or -1 where the depth holds no surface or the store holds no probe about the point. a: 0.
 [[vk::binding(14, 0)]] [format("rgba16f")]
 RWTexture2D<float4> gathered;
+
+// What each pixel's gather is read by where gi.split_cause asks (splitGatherCause), the weights by
+// the share its probes let through toward its point and by their trilinear weights alone, the share
+// of the first lent from behind its plane and the frames since its youngest probe was taken, 0, 0,
+// 0 and -1 where the store does not hold the point or none of its probes stands, and -1 throughout
+// where the depth holds no surface.
+[[vk::binding(15, 0)]] [format("rgba16f")]
+RWTexture2D<float4> causes;
+
+// The store's light merged from the cascades above (StoreLightHalves).
+[[vk::binding(16, 0)]]
+RWStructuredBuffer<float4> lightMerged;
 
 struct SplitPush
 {
@@ -202,10 +215,10 @@ struct WindowSky : ISky
 // and counts the probes by how long ago each was asked for, 1 keeps those asked for within the
 // frames their pool has room for over the entries, 2 asks for the finest probe each seen point
 // adds its rays to over the pixels, 3 asks for a cascade's probes from the one below over that
-// cascade's entries and keeps how much of each the probe below sees, 4 traces the seen points'
-// rays over the pixels, 5 keeps the ways' light over every cascade's ways, 6 merges a cascade's
-// light over its ways from the coarsest down, and 7 gathers onto the pixels from the finest
-// probes.
+// cascade's entries, 4 traces the seen points' rays over the pixels, 5 keeps the ways' light over
+// every cascade's ways, 6 merges a cascade's light over its ways from the coarsest down, 7 gathers
+// onto the pixels from the finest probes, and 8 reads each pixel's gather by its causes where
+// gi.split_cause asks.
 [shader("compute")]
 [numthreads(64, 1, 1)]
 void computeMain(uint3 id : SV_DispatchThreadID)
@@ -215,7 +228,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     SplitFrame at = { view.eye.xyz + push.origin.xyz, uint(lights.counts.y) };
     SplitStore shape = { push.shape.x, push.spacing.x, push.shape.y };
     StoreUints store = { uints };
-    StoreLight kept = { light };
+    StoreLightHalves kept = { lightOwn, lightMerged, splitLightFirst(shape, shape.cascades) };
     DepthPoints points;
     WindowHits hits;
     WindowSky sky;
@@ -227,7 +240,7 @@ void computeMain(uint3 id : SV_DispatchThreadID)
     else if (pass == 2u && pixel)
         askSeenProbes(points, hits, store, at, shape, index);
     else if (pass == 3u)
-        askCascadeProbes(hits, store, at, shape, cascade, index);
+        askCascadeProbes(store, at, shape, cascade, index);
     else if (pass == 4u && pixel)
         traceSeenRays(points, hits, sky, store, at, shape, index);
     else if (pass == 5u)
@@ -239,6 +252,9 @@ void computeMain(uint3 id : SV_DispatchThreadID)
         if (!points.seenAt(index) || !splitHolds(at, shape, points.placeAt(index)))
             gathered[points.pixelOf(index)] = float4(-1.0);
         else
-            gatherSurface(store, kept, hits, at, shape, points, index);
+            gatherSurface(store, kept, at, shape, points, index);
     }
+    else if (pass == 8u && pixel)
+        causes[points.pixelOf(index)] = points.seenAt(index)
+            ? splitGatherCause(store, kept, at, shape, points.placeAt(index), points.normalAt(index)) : float4(-1.0);
 }

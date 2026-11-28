@@ -32,6 +32,19 @@ public sealed partial class GlobalIlluminationTests
         }
     }
 
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Split_The_Store_s_Every_Buffer_Binds_Whole_Within_The_Least_Storage_Range_A_Device_Holds()
+    {
+        // Lavapipe holds the least range Vulkan lets a device bind a storage buffer over, which the
+        // store's light taken whole at the engine's shape is larger than, so its probes' own light
+        // and the merged stand apart, each half the light the module lays out.
+        var shape = GlobalIlluminationRenderer.SplitShape;
+        var bytes = GpuSplitStore.Bytes(shape);
+        bytes.Should().AllSatisfy(b => b.Should().BeLessThanOrEqualTo(GpuSplitStore.LeastStorageRange));
+        bytes.Aggregate(0UL, (a, b) => a + b).Should().Be((ulong)shape.Bytes, "the buffers hold the store the module lays out");
+    }
+
     [NeedsVulkanFact]
     [Trait("Category", "Render")]
     public void Split_A_Floor_Under_An_Even_Sky_Gathers_The_Sky_Through_The_Field_And_The_Device_s_Rays_And_The_Sky_Gathers_None()
@@ -132,5 +145,75 @@ public sealed partial class GlobalIlluminationTests
             CloseWindow();
             UseApp(null);
         }
+    }
+
+    [NeedsVulkanFact]
+    [Trait("Category", "Render")]
+    public void Split_A_Floor_s_Gather_Read_By_Its_Causes_Where_Asked_Takes_Its_Standing_Probes_By_The_Share_They_Let_Through()
+    {
+        // With the causes asked for, each pixel of a floor under an even sky reads the probes about
+        // its point standing, its weights by the share they let through toward it no more than by
+        // their trilinear weights alone and its youngest probe taken some frames before, while its
+        // light is gathered as without them. A pixel of the sky holds no surface and reads -1
+        // throughout, and with the flag cleared the gather holds no image of the causes.
+        Open();
+        SetAmbientLight(Color.White, 1);
+        SetGlobalIllumination(GlobalIllumination.Low);
+        var settings = GetApp().World.Resource<GlobalIlluminationSettings>();
+        settings.Layout = ProbeLayout.Split;
+        settings.SplitCauseRead = true;
+        var slab = LoadModelFromMesh(GenMeshCube(1, 1, 1));
+        void Floor() => DrawModelEx(slab, new Vector3(0, -0.5f, 0), Vector3.UnitY, 0, new Vector3(40, 1, 40), Color.Gray);
+        Capture(Floor);
+        var renderer = GetApp().World.Resource<Engine.Renderer>();
+        var stages = GlobalIlluminationStages.Of((GraphicsDevice)renderer.Context.Graphics!);
+        var surface = renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Surface!;
+        surface.Causes.Should().NotBeNull("the gather holds its causes where they are asked for");
+        var (causes, light) = (stages.ReadSplitCauses(surface), stages.ReadSurfaceGather(surface));
+        var (width, height) = ((int)surface.Width, (int)surface.Height);
+        Vector4 At(int x, int y) => new(causes[(y * width + x) * 4], causes[(y * width + x) * 4 + 1], causes[(y * width + x) * 4 + 2], causes[(y * width + x) * 4 + 3]);
+        var floor = Enumerable.Range(0, width).Select(x => At(x, height - 4)).ToArray();
+        var sky = Enumerable.Range(0, width).Select(x => At(x, 2)).ToArray();
+        output.WriteLine($"floor x {floor.Min(c => c.X):F4} to {floor.Max(c => c.X):F4}, y {floor.Min(c => c.Y):F4} to {floor.Max(c => c.Y):F4}, "
+            + $"z to {floor.Max(c => c.Z):F4}, w {floor.Min(c => c.W)} to {floor.Max(c => c.W)}, counts {SplitCauses.Count(causes, width * height)}");
+        sky.Should().AllSatisfy(c => c.Should().Be(new Vector4(-1), "a pixel of the sky holds no surface"));
+        floor.Should().AllSatisfy(c =>
+        {
+            c.Y.Should().BeGreaterThan(0, "the probes about a point of the floor stand and face it");
+            c.X.Should().BeInRange(0, c.Y + 1e-3f, "a probe lends by the share it lets through no more than by its trilinear weight");
+            c.Z.Should().BeInRange(0, 1, "the share lent from behind the plane is a share");
+            c.W.Should().BeGreaterThan(0, "the probes were taken in the frames before");
+        });
+        // The light within the bound the floor's own test measured at Low.
+        Enumerable.Range(0, width).Select(x => light[((height - 4) * width + x) * 4]).Should()
+            .AllSatisfy(v => v.Should().BeApproximately(1, 0.015f, "the floor gathers the sky as without its causes read"));
+        settings.SplitCauseRead = false;
+        Capture(Floor);
+        renderer.RenderWorld.TryGet<GlobalIlluminationRenderer>()!.Surface!.Causes.Should().BeNull("the gather holds no causes once none are asked for");
+        UnloadModel(slab);
+        CloseWindow();
+        UseApp(null);
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
+    public void Split_Causes_Count_Each_Pixel_Seen_By_The_First_Cause_It_Meets_And_Write_Their_Rows_From_The_Bottom()
+    {
+        // Six pixels, three across and two down, one unseen, one the store does not hold, one
+        // taking the trilinear weights alone, one fresh and lent from behind its plane, which
+        // counts as fresh, one lent from behind alone and one meeting no cause, written as
+        // gi.compare writes a frame, its rows from the bottom.
+        float[] causes = [-1, -1, -1, -1, 0, 0, 0, -1, 0, 0.5f, 0, 20, 0.4f, 0.5f, 0.6f, 3, 0.4f, 0.5f, 0.6f, 40, 0.5f, 0.5f, 0, 40];
+        SplitCauses.Count(causes, 6).Should().Be((5, 1, 1, 1, 1));
+        var path = Path.Combine(_folder.Path, "causes");
+        SplitCauses.Write(path, causes, 3, 2).Should().StartWith("5 pixels seen, 1 gathering nothing, 1 taking their probes by their trilinear weights alone, 1 holding");
+        var (width, height, weights) = BounceReference.ReadPfm(path + "-weights.pfm");
+        (width, height).Should().Be((3, 2));
+        weights.Should().Equal(Enumerable.Range(0, 6).SelectMany(i => causes.Skip(4 * i).Take(3)), "the weights keep the rows from the top once read");
+        var ages = File.ReadAllBytes(path + "-age.pfm");
+        var header = "Pf\n3 2\n-1.0\n"u8.ToArray();
+        ages.Take(header.Length).Should().Equal(header);
+        System.Runtime.InteropServices.MemoryMarshal.Cast<byte, float>(ages.AsSpan(header.Length)).ToArray().Should()
+            .Equal([3f, 40, 40, -1, -1, 20], "the ages' rows run from the bottom");
     }
 }
